@@ -1,0 +1,2 @@
+;;; Generated package description from talonscript-mode.el  -*- no-byte-compile: t -*-
+(define-package "talonscript-mode" "20220204.1441" "Major mode for Talon Voice's .talon files" '((emacs "24.3")) :commit "b6eb61f56349e0d47276270163ec611c2d5b188e" :authors '(("Jcaw" . "toastedjcaw@gmail.com")) :maintainer '("Jcaw" . "toastedjcaw@gmail.com") :keywords '("languages") :url "https://github.com/jcaw/talonscript-mode")

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: tangle-reference
+# key: tref
+# --
+#+begin_src emacs-lisp :tangle no :noweb-ref $1
+$0
+#+end_src

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: partial-diff
+# key: pdf
+# --
+\partial{$1}{$2}$0

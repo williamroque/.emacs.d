@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: equation-math
+# key: bm
+# --
+\begin{align*}
+$0
+\end{align*}

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: definition
+# key: def
+# --
+`(org-heading-asterisks)` $1
+$2/${1:$(if (equal (yas-field-value 2) "") yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '("text. " "canvas" "work. "))})

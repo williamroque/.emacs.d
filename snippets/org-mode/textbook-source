@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: textbook-source
+# key: ts
+# --
+(text. $0)

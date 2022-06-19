@@ -1,0 +1,19 @@
+# -*- mode: snippet -*-
+# name: assignment
+# key: rasmt
+# --
+#+latex_class: assignment
+#+latex_header: \\addbibresource{${2:refs.bib}}
+#+latex_header: \renewcommand*{\finalnamedelim}{ \ifnumgreater{\value{liststop}}{2}{\finalandcomma}{} \addspace\&\space}
+
+#+title: $1
+
+#+begin_export latex
+\thispagestyle{empty}
+\clearpage\maketitle
+\setcounter{page}{1}
+#+end_export
+
+$0
+
+#+latex: \printbibliography

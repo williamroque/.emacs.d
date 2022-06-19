@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: pint
+# key: pint
+# --
+\int_{$1} $0

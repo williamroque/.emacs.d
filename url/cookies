@@ -1,0 +1,23 @@
+;; Emacs-W3 HTTP cookies file
+;; Automatically generated file!!! DO NOT EDIT!!!
+
+(setq url-cookie-storage
+ '((".sciencedirect.com"
+  [url-cookie "mbox" "session%238996ddf2b15f4a4c90a0e07b9b158a7c%231652310048%7CPC%238996ddf2b15f4a4c90a0e07b9b158a7c.34_0%231715552988" "Sun May 12 22:29:48 2024 GMT" "/" ".sciencedirect.com" nil]
+  [url-cookie "mboxes" "%7B%22search-selected-text-mbox%22%3A%7B%22variation%22%3A%22B1%22%7D%7D" "Sun May 12 22:29:48 2024 GMT" "/" ".sciencedirect.com" nil])
+ (".springer.com"
+  [url-cookie "idp_marker" "92b3d620-80ca-4dbe-b464-1d8f5b97d66f" "Fri May 07 02:19:43 2032 GMT" "/" ".springer.com" nil]))
+)
+(setq url-cookie-secure-storage
+ '((".sciencedirect.com"
+  [url-cookie "EUID" "bd1e9b88-666f-4e5d-9f11-354ffb96bb41" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t]
+  [url-cookie "id_ab" "AEG" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t])
+ (".onlinelibrary.wiley.com"
+  [url-cookie "MAID" "opxM7+Qhu+I8On/usQpC9A==" "Tue, 07-Mar-2023 22:43:41 GMT" "/" ".onlinelibrary.wiley.com" t]
+  [url-cookie "MACHINE_LAST_SEEN" "2022-05-11T15%3A43%3A41.799-07%3A00" "Tue, 07-Mar-2023 22:43:41 GMT" "/" ".onlinelibrary.wiley.com" t]))
+)
+
+;; Local Variables:
+;; version-control: never
+;; no-byte-compile: t
+;; End:

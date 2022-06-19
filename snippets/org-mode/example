@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: example
+# key: amp
+# --
+#+begin_exmp
+$0
+#+end_exmp

@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: notes
+# key: nts
+# --
+#+title: Lesson $1
+
+* Summary
+
+* Questions
+
+* Notes
+- $0
+
+* Definitions

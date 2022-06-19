@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fullcite
+# key: fl
+# --
+#+latex: \fullcite{$0}

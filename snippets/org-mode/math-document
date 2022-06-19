@@ -1,0 +1,35 @@
+# -*- mode: snippet -*-
+# name: math-document
+# key: mnotes
+# --
+#+latex_class: math-document
+
+#+begin_export latex
+\thispagestyle{empty}
+\clearpage\maketitle
+\setcounter{page}{1}
+
+\setlength{\abovedisplayskip}{-10pt}
+\setlength{\belowdisplayskip}{7pt}
+\setlength{\abovedisplayshortskip}{0pt}
+\setlength{\belowdisplayshortskip}{0pt}
+
+\newcommand{\ihat}{\hat{\boldsymbol{\imath}}}
+\newcommand{\jhat}{\hat{\boldsymbol{\jmath}}}
+\newcommand{\khat}{\hat{\boldsymbol{k}}}
+\newcommand{\uhat}{\hat{\boldsymbol{u}}}
+
+\newcommand{\diff}[2]{\frac{d #1}{d #2}}
+
+\let\oldpartial\partial
+\renewcommand*{\partial}[2]{\frac{\oldpartial #1}{\oldpartial #2}}
+
+\newcommand{\curl}{\nabla\times}
+\newcommand{\divergence}{\nabla\cdot}
+
+\newcommand{\vecb}[1]{\mathbf{#1}}
+#+end_export
+
+#+title: $1
+
+$0

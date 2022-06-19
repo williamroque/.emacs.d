@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: eval
+# key: eval
+# --
+\bigg|_{$1}$0

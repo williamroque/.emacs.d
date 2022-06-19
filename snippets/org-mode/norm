@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: norm
+# key: nor
+# --
+\left\Vert $1 \right\Vert$0

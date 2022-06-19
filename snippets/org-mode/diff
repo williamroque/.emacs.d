@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: diff
+# key: dif
+# --
+\diff{$1}{$2}$0

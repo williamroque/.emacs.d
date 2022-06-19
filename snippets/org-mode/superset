@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: superset
+# key: pers
+# --
+\superset $0

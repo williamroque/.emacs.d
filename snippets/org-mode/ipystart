@@ -1,0 +1,18 @@
+# -*- mode: snippet -*-
+# name: Start org notebook
+# key: ipystart
+# --
+:properties:
+:header-args: :session plots :exports both :results raw drawer
+:end:
+
+* Imports :noexport:
+#+begin_src ipython
+import matplotlib.pyplot as plt
+import numpy as np
+
+plt.rcParams['axes.facecolor'] = 'none'
+plt.style.use('dark_background')
+
+%matplotlib inline
+#+end_src

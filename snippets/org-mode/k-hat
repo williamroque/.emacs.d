@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: k-hat
+# key: k
+# --
+\khat$0

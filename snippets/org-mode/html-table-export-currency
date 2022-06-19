@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: html-table-export-currency
+# key: cur
+# --
+#+attr_html: :class currency

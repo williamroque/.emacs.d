@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: u-hat
+# key: u
+# --
+\uhat$0

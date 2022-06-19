@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: no-ref assignment
+# key: asmt
+# --
+#+latex_class: assignment
+
+#+begin_export latex
+\thispagestyle{empty}
+\clearpage\maketitle
+\setcounter{page}{1}
+#+end_export
+
+#+title: $1
+
+$0
