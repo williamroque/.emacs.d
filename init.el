@@ -1351,7 +1351,7 @@ after using split-paragraph-into-sentences.")
                     ("vp" . "+ $0")
                     ("seq" . "&= $0")
                     ("amp" . "& $0")
-                    ("grt" . "> $0")
+                    ("gth" . "> $0")
                     ("sgt" . "&> $0")
                     ("lst" . "< $0")
                     ("slt" . "&< $0")
@@ -1879,9 +1879,9 @@ after using split-paragraph-into-sentences.")
   (setq-default org-export-with-smart-quotes t)
   
   
-  ;; always display inline images in org-mode
-  (setq-default org-startup-with-inline-images t)
-  (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
+  ;; stop displaying inline images in org-mode
+  (setq-default org-startup-with-inline-images nil)
+  ;; (add-hook 'org-babel-after-execute-hook 'org-display-inline-images 'append)
   
   
   ;; default image width 
@@ -2359,6 +2359,7 @@ after using split-paragraph-into-sentences.")
          autocorrect-words-on-type
          (memq major-mode '(org-mode mail-mode text-mode))
          (not (texmathp))
+         (not (equal (TeX-current-macro) "text"))
          (not (org-in-src-block-p)))
         (when (and
                (equal (char-before) ? )
@@ -3030,8 +3031,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
       "python -c 'from maxwell import capture_area; capture_area(\"%s\")'"
       image-path))
     (select-frame-set-input-focus (selected-frame))
-    (open-line-down)
-    (insert (format "\n#+attr_latex: :scale .7\n[[%s]]\n\n" image-path))
+    (insert (format "#+attr_latex: :scale .7\n[[%s]]\n\n" image-path))
     (org-remove-inline-images)))
 
 
