@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: exercise
+# key: ex
+# --
+#+begin_exercise
+$0
+#+end_exercise

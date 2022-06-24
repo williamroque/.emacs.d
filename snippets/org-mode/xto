@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: xto
+# key: xto
+# --
+\xrightarrow{$1} $0

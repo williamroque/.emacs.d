@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: vdots
+# key: vds
+# --
+\vdots$0

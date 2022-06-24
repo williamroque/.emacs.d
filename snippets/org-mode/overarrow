@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: overarrow
+# key: oa
+# --
+\overrightarrow{$1}$0

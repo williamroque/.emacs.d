@@ -439,6 +439,35 @@ for more information."
 
 (add-hook 'org-mode-hook (lambda ()
                            (add-visual-replacement "---" "──")
+
+                           (push '("\\sqrt" . "√") prettify-symbols-alist)
+
+                           (push '("\\left(" . "(") prettify-symbols-alist)
+                           (push '("\\right)" . ")") prettify-symbols-alist)
+                           (add-visual-replacement "\\right)^2" ")²")
+                           (add-visual-replacement "\\right)^3" ")³")
+
+                           (push '("\\left|" . "|") prettify-symbols-alist)
+                           (push '("\\right|" . "|") prettify-symbols-alist)
+                           (add-visual-replacement "\\right|^2" "|²")
+                           (add-visual-replacement "\\right|^3" "|³")
+
+                           (push '("\\left[" .  "[") prettify-symbols-alist)
+                           (push '("\\right]" . "]") prettify-symbols-alist)
+                           (add-visual-replacement "\\right]^2" "]²")
+                           (add-visual-replacement "\\right]^3" "]³")
+
+                           (add-visual-replacement "\\left\\Vert" "||")
+                           (add-visual-replacement "\\right\\Vert" "||")
+
+                           (push '("\\vecb{a}" . "𝒂") prettify-symbols-alist)
+                           (push '("\\vecb{b}" . "𝒃") prettify-symbols-alist)
+                           (push '("\\vecb{c}" . "𝒄") prettify-symbols-alist)
+                           (push '("\\vecb{u}" . "𝒖") prettify-symbols-alist)
+                           (push '("\\vecb{v}" . "𝒗") prettify-symbols-alist)
+
+                           (push '("\\left\\langle" .  "〈") prettify-symbols-alist)
+                           (push '("\\right\\rangle" .  "〉") prettify-symbols-alist)
                            (push '("[ ]" .  "☐") prettify-symbols-alist)
                            (push '("[X]" . "☑" ) prettify-symbols-alist)
                            (push '("[-]" . "❍" ) prettify-symbols-alist)
@@ -621,12 +650,12 @@ for more information."
     (evil-leader/set-key "M" #'mail)
     
     ;; open read mail buffer
-    ;; (evil-leader/set-key "n" #'(lambda (refresh-email)
-    ;;                              (interactive "P")
-    ;;                              (when refresh-email
-    ;;                                (message "Refreshing email...")
-    ;;                                (shell-command-to-string "mbsync gmail; notmuch new"))
-    ;;                              (notmuch)))
+    (evil-leader/set-key "1" #'(lambda (refresh-email)
+                                 (interactive "P")
+                                 (when refresh-email
+                                   (message "Refreshing email...")
+                                   (shell-command-to-string "mbsync gmail; notmuch new"))
+                                 (notmuch)))
     (evil-leader/set-key "u" #'distraction-free)
     ;; open agenda without calendar; the proper way to do this is with a custom view
     (evil-leader/set-key "a" #'(lambda ()
@@ -875,6 +904,8 @@ for more information."
                                                         #'embrace-with-latex-environment
                                                         (embrace-build-help "\\begin{environment}" "\\end{environment}"))))
   (add-hook 'org-mode-hook (lambda ()
+                             (delete ?b evil-embrace-evil-surround-keys)
+  
                              (embrace-add-pair ?i "/" "/")
                              (embrace-add-pair ?b "*" "*")
                              (embrace-add-pair ?u "_" "_")
@@ -1186,6 +1217,21 @@ after using split-paragraph-into-sentences.")
                                                        (evil-backward-char)))
 
 
+;; capitalization
+(evil-define-key 'normal global-map (kbd "g \'") #'(lambda ()
+                                                     (interactive)
+                                                     (save-excursion
+                                                       (if (not (equal (char-before) ? ))
+                                                           (evil-backward-word-begin 1))
+                                                       (upcase-char 1))))
+(evil-define-key 'normal global-map (kbd "g \"") #'(lambda ()
+                                                     (interactive)
+                                                     (save-excursion
+                                                       (if (not (equal (char-before) ? ))
+                                                           (evil-backward-word-begin 1))
+                                                       (downcase-word 1))))
+
+
 ;; make sure C-j doesn't actually create a new line in normal state
 (define-key evil-normal-state-map (kbd "C-j") #'evil-ret)
 
@@ -1344,23 +1390,28 @@ after using split-paragraph-into-sentences.")
                     ("Omega" . "\\Omega$0")
 
                     ("ln" . "\\ln$0")
+                    ("exp" . "\\exp$0")
                     ("lo" . "\\log$0")
                     ("ein" . "\\in$0")
-                    ("eq" . "= $0")
-                    ("vm" . "- $0")
-                    ("vp" . "+ $0")
+
+                    ("par" . "\\left( $1 \\right)$0")
+
+                    ("equ" . " = $0")
+                    ("neq" . " \\neq $0")
+                    ("vm" . " - $0")
+                    ("vp" . " + $0")
                     ("seq" . "&= $0")
                     ("amp" . "& $0")
-                    ("gth" . "> $0")
+                    ("gtn" . " > $0")
                     ("sgt" . "&> $0")
-                    ("lst" . "< $0")
+                    ("lst" . " < $0")
                     ("slt" . "&< $0")
-                    ("leq" . "\\leq $0")
+                    ("leq" . " \\leq $0")
                     ("lseq" . "&\\leq $0")
-                    ("geq" . "\\geq $0")
+                    ("geq" . " \\geq $0")
                     ("rk" . "\\\\\\\\")
                     ("gseq" . "&\\geq $0")
-                    ("trip" . "\\equiv $0")
+                    ("trip" . " \\equiv $0")
                     ("strip" . "&\\equiv $0")
                     ("//" . "\\frac{$1{$2}$0"))))
 
@@ -1797,16 +1848,32 @@ after using split-paragraph-into-sentences.")
 
 (define-key dired-mode-map (kbd "<f5>") #'toggle-dired-show-hidden-files)
 
+(defvar pdf-hiding-cursor nil
+  "Last buffer was a PDF and was hiding cursor.")
+
+
 (use-package pdf-tools
   :config
+
+
+  (add-hook 'pdf-view-mode-hook
+            #'(lambda ()
+                (internal-show-cursor (get-buffer-window) t)
+                (setq pdf-hiding-cursor t)))
+
+  (add-hook 'post-command-hook
+            #'(lambda ()
+                (when (and pdf-hiding-cursor (not (equal major-mode 'pdf-view-mode)))
+                  (internal-show-cursor (get-buffer-window) t))))
+
 
   (pdf-tools-install))
 
 (define-key image-mode-map (kbd "g =") 'image-increase-size)
 (define-key image-mode-map (kbd "g -") 'image-decrease-size)
 
-  (add-hook 'pdf-view-mode-hook #'(lambda ()
-                                    (pdf-view-themed-minor-mode 1)))
+;; (add-hook 'pdf-view-mode-hook #'(lambda ()
+;;                                   (pdf-view-themed-minor-mode 1)))
 
 (use-package org
   :hook ((org-mode . flyspell-mode)
@@ -1947,13 +2014,13 @@ after using split-paragraph-into-sentences.")
             (goto-char (point-max))
             (yas-expand-snippet
              (format
-              "\n%s ${1:%s}\n$2/${1:$(if (or (not (yas-field-value 2)) (equal (yas-field-value 2) \"\")) yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"text. \" \"canvas\" \"work. \"))})"
+              "\n%s ${1:%s}\n\n$2/${1:$(if (or (not (yas-field-value 2)) (equal (yas-field-value 2) \"\")) yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect. \"))})"
               (org-heading-asterisks) title)
              (point-max))
             (evil-insert-state))
         (goto-char (point-max))
         (yas-expand-snippet
-         "\n`(org-heading-asterisks)` $1\n$2/${1:$(if (equal (yas-field-value 2) \"\") yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"text. \" \"canvas\" \"work. \"))})"
+         "\n`(org-heading-asterisks)` $1\n\n$2/${1:$(if (equal (yas-field-value 2) \"\") yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect. \"))})"
          (point-max))
         (evil-insert-state))
         (org-mark-ring-push old-point)))
@@ -2050,6 +2117,10 @@ after using split-paragraph-into-sentences.")
             (throw :exit t))))))
   
   ;; thanks, https://www.reddit.com/r/emacs/comments/eipbvk/org_emphasis_marker_face/
+  ;; not necessarily the best approach, but it works
+  (add-hook 'org-mode-hook #'(lambda ()
+                               (set-fontset-font t 'greek (font-spec :family "Helvetica" :weight 'normal :height 0.75))))
+  
   ;; make sure C-; works in org-mode
   (define-key org-mode-map (kbd "C-;") #'eval-expression)
   (define-key flyspell-mode-map (kbd "C-;") #'eval-expression)
@@ -2123,6 +2194,7 @@ after using split-paragraph-into-sentences.")
   ;; meta return in normal mode
   (evil-define-key 'normal org-mode-map (kbd "g o") #'(lambda ()
                                                         (interactive)
+                                                        (end-of-line)
                                                         (org-meta-return)
                                                         (evil-insert-state)))
   
@@ -2586,6 +2658,7 @@ after using split-paragraph-into-sentences.")
   "(start . end) of current line in current buffer")
 (make-variable-buffer-local 'my/current-line)
 
+
 (defun my/unhide-current-line (limit)
   "Font-lock function"
   (let ((start (max (point) (car my/current-line)))
@@ -2595,6 +2668,7 @@ after using split-paragraph-into-sentences.")
       (goto-char limit)
       t)))
 
+
 (defun my/refontify-on-linemove ()
   "Post-command-hook"
   (let* ((start (line-beginning-position))
@@ -2603,6 +2677,7 @@ after using split-paragraph-into-sentences.")
     (setq my/current-line (cons start end))
     (when needs-update
       (font-lock-fontify-block 2))))
+
 
 (defun my/entity-unhighlight ()
   "Install"
@@ -2653,7 +2728,13 @@ after using split-paragraph-into-sentences.")
 
 (use-package auto-capitalize
   :load-path "lisp/"
-  :hook (org-mode . auto-capitalize-mode))
+  :hook (org-mode . auto-capitalize-mode)
+
+  :config
+  (setq-default auto-capitalize-predicate
+                #'(lambda ()
+                    (and (not (texmathp))
+                         (not (org-in-src-block-p))))))
 
 (use-package org-evil)
 
@@ -3153,7 +3234,9 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                  "\\newtheoremstyle{boxed}{8pt}{8pt}{}{}{\\upshape\\bfseries}{.}{.5em}{}\n"
                  "\\theoremstyle{boxed}\n"
                  "\\newtheorem{theorem}{Theorem}\n"
+                 "\\newtheorem{note}{Note}\n"
                  "\\newtheorem{exmp}{Example}\n"
+                 "\\newtheorem{exercise}{Exercise}\n"
                  "\\newtheorem{definition}{Definition}\n"
                  "\\newtheorem{lemma}{Lemma}[theorem]\n"
                  "\\usepackage{mdframed}\n"
@@ -3161,6 +3244,8 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                  "\\AfterEndEnvironment{theorem}{\\end{mdframed}}\n"
                  "\\BeforeBeginEnvironment{exmp}{\\begin{mdframed}}\n"
                  "\\AfterEndEnvironment{exmp}{\\end{mdframed}}\n"
+                 "\\BeforeBeginEnvironment{exercise}{\\begin{mdframed}}\n"
+                 "\\AfterEndEnvironment{exercise}{\\end{mdframed}}\n"
                  "\\BeforeBeginEnvironment{definition}{\\begin{mdframed}}\n"
                  "\\AfterEndEnvironment{definition}{\\end{mdframed}}\n"
                  "\\pagestyle{fancy}\n"

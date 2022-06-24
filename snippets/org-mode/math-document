@@ -19,6 +19,8 @@
 \newcommand{\khat}{\hat{\boldsymbol{k}}}
 \newcommand{\uhat}{\hat{\boldsymbol{u}}}
 
+\newcommand{\stack}[2]{\mathrel{\overset{\makebox[0pt]{\mbox{\tiny #2}}}{#1}}}
+
 \newcommand{\diff}[2]{\frac{d #1}{d #2}}
 
 \let\oldpartial\partial
