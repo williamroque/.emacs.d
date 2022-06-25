@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: acos
+# key: acos
+# --
+\arccos$0

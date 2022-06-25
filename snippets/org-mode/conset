@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: conset
+# key: cset
+# --
+\left\\{ $1 \mid $2 \in ${3:\mathbb{R}} \right\\}$0

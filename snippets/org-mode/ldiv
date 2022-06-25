@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ldiv
+# key: ldiv
+# --
+\middle/ $0

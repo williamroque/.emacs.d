@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 2-vector
+# key: 2v
+# --
+\left\langle $1, $2 \right\rangle$0

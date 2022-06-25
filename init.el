@@ -104,6 +104,26 @@
   :config
   (global-set-key (kbd "C-c s") #'scratch))
 
+;; for debugging lists
+(defun print-elements-of-list (list)
+  "Print each element of LIST on a line of its own."
+  (while list
+    (print (car list))
+    (setq list (cdr list))))
+
+
+;; to add after index of list
+(defun insert-after (lst index newelt)
+  (push newelt (cdr (nthcdr index lst))) 
+  lst)
+
+
+;; easy way to wrap function for keyboard shortcut
+(defun wrap-fun (fun &rest args)
+  `(lambda ()
+    (interactive)
+    (apply #',fun ',args)))
+
 ;; colorscheme stuff
 (defvar ansi-color-names-vector
   ["#3c3836" "#fb4933" "#b8bb26" "#fabd2f" "#83a598" "#d3869b" "#8ec07c" "#ebdbb2"])
@@ -442,6 +462,8 @@ for more information."
 
                            (push '("\\sqrt" . "√") prettify-symbols-alist)
 
+                           (push '("\\text" . "​") prettify-symbols-alist)
+
                            (push '("\\left(" . "(") prettify-symbols-alist)
                            (push '("\\right)" . ")") prettify-symbols-alist)
                            (add-visual-replacement "\\right)^2" ")²")
@@ -666,23 +688,34 @@ for more information."
     
     (evil-leader/set-key "A" #'org-agenda-list)
     ;; export org/latex file as HTML
-    (evil-leader/set-key "h" (lambda ()
-                               (interactive)
-                               (if (equal major-mode 'org-mode)
-                                   (export-and-open-html)
-                                 (if (equal major-mode 'latex-mode)
-                                     (call-interactively 'TeX-command-run-all)
-                                   (browse-url-of-file)))))
+    (evil-leader/set-key "h" #'(lambda ()
+                                 (interactive)
+                                 (if (equal major-mode 'org-mode)
+                                     (export-and-open-html)
+                                   (if (equal major-mode 'latex-mode)
+                                       (call-interactively 'TeX-command-run-all)
+                                     (browse-url-of-file)))))
     
     
     ;; export org/latex file as PDF
-    (evil-leader/set-key "P" (lambda ()
-                               (interactive)
-                               (if (equal major-mode 'org-mode)
-                                   (export-and-open-pdf)
-                                 (if (equal major-mode 'latex-mode)
-                                     (call-interactively 'TeX-command-run-all)
-                                   (browse-url-of-file)))))
+    (defvar org-pdf-separate-window '())
+    
+    (add-hook 'after-save-hook #'(lambda ()
+                                   (if (and (equal major-mode 'org-mode)
+                                            (memq (buffer-name) org-pdf-separate-window))
+                                       (org-export-pdf-update))))
+    
+    (evil-leader/set-key "P" #'(lambda (separate-window)
+                                 (interactive "P")
+                                 (if (equal separate-window 1)
+                                     (if (memq (buffer-name) org-pdf-separate-window)
+                                         (setq org-pdf-separate-window (delete (buffer-name) org-pdf-separate-window))
+                                       (push (buffer-name) org-pdf-separate-window))
+                                   (if (equal major-mode 'org-mode)
+                                       (export-and-open-pdf separate-window)
+                                     (if (equal major-mode 'latex-mode)
+                                         (call-interactively 'TeX-command-run-all)
+                                       (browse-url-of-file))))))
     
     
     ;; fill paragraph
@@ -982,20 +1015,6 @@ for more information."
   (set-face-attribute 'ace-jump-face-foreground nil
                       :foreground "#cc6666"))
 
-;; for debugging lists
-(defun print-elements-of-list (list)
-  "Print each element of LIST on a line of its own."
-  (while list
-    (print (car list))
-    (setq list (cdr list))))
-
-
-;; to add after index of list
-(defun insert-after (lst index newelt)
-  (push newelt (cdr (nthcdr index lst))) 
-  lst)
-
-
 ;; create buffer toggle ring
 (defvar buffer-toggle-ring '(t))
 (defvar buffer-toggle-ring-index 0)
@@ -1151,8 +1170,17 @@ for more information."
 ;; make sure sentences are not limited to those that are double-space-separated
 (setq-default sentence-end-double-space nil)
 
-;; use better text wrapping
-(add-hook 'text-mode-hook #'auto-fill-mode)
+;; disable auto-fill-mode when asked politely
+(defun enable-polite-auto-fill ()
+  (pcase (org-collect-keywords '("AUTOFILL"))
+    (`(("AUTOFILL" . ,val))
+     (when (not (equal (car val) "nil"))
+       (auto-fill-mode 1)))
+    (-
+     (auto-fill-mode 1))))
+
+
+(add-hook 'text-mode-hook #'enable-polite-auto-fill)
 
 
 ;; highlight current line
@@ -1353,7 +1381,7 @@ after using split-paragraph-into-sentences.")
                     ("gmu" . "\\mu$0")
                     ("gnu" . "\\nu$0")
                     ("gxi" . "\\xi$0")
-                    ("gomi" . "\\omicron$0")
+                    ("gmi" . "\\omicron$0")
                     ("gpi" . "\\pi$0")
                     ("grh" . "\\rho$0")
                     ("gsi" . "\\sigma$0")
@@ -1362,7 +1390,7 @@ after using split-paragraph-into-sentences.")
                     ("gph" . "\\phi$0")
                     ("gch" . "\\chi$0")
                     ("gpsi" . "\\psi$0")
-                    ("gom" . "\\omega$0")
+                    ("gme" . "\\omega$0")
 
                     ("Alpha" . "\\Alpha$0")
                     ("Beta" . "\\Beta$0")
@@ -1400,19 +1428,19 @@ after using split-paragraph-into-sentences.")
                     ("neq" . " \\neq $0")
                     ("vm" . " - $0")
                     ("vp" . " + $0")
-                    ("seq" . "&= $0")
-                    ("amp" . "& $0")
+                    ("seq" . " &= $0")
+                    ("amp" . " & $0")
                     ("gtn" . " > $0")
-                    ("sgt" . "&> $0")
+                    ("sgt" . " &> $0")
                     ("lst" . " < $0")
-                    ("slt" . "&< $0")
+                    ("slt" . " &< $0")
                     ("leq" . " \\leq $0")
-                    ("lseq" . "&\\leq $0")
+                    ("lseq" . " &\\leq $0")
                     ("geq" . " \\geq $0")
                     ("rk" . "\\\\\\\\")
-                    ("gseq" . "&\\geq $0")
+                    ("gseq" . " &\\geq $0")
                     ("trip" . " \\equiv $0")
-                    ("strip" . "&\\equiv $0")
+                    ("strip" . " &\\equiv $0")
                     ("//" . "\\frac{$1{$2}$0"))))
 
     (dolist (snippet snippets)
@@ -1848,6 +1876,9 @@ after using split-paragraph-into-sentences.")
 
 (define-key dired-mode-map (kbd "<f5>") #'toggle-dired-show-hidden-files)
 
+(setq-default revert-without-query '(".pdf"))
+(add-hook 'pdf-view-mode-hook #'auto-revert-mode)
+
 (defvar pdf-hiding-cursor nil
   "Last buffer was a PDF and was hiding cursor.")
 
@@ -1978,8 +2009,14 @@ after using split-paragraph-into-sentences.")
   
   
   ;; quick-calc
-  (define-key global-map (kbd "C-'") #'quick-calc)
-  (define-key org-mode-map (kbd "C-'") #'quick-calc)
+  (defun clean-quick-calc ()
+    (interactive)
+    (with-temp-buffer
+      (quick-calc nil)
+      (kill-ring-save (point-min) (point-max))))
+  
+  (define-key global-map (kbd "C-'") #'clean-quick-calc)
+  (define-key org-mode-map (kbd "C-'") #'clean-quick-calc)
   
   
   ;; recalculate table
@@ -3213,7 +3250,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 (add-to-list 'org-latex-classes
              `("math-document"
                ,(concat
-                 "\\documentclass[a4paper,12pt]{book}\n"
+                 "\\documentclass[a4paper,12pt,oneside]{book}\n"
                  "\\usepackage[margin=1in]{geometry}\n"
                  "\\usepackage{csquotes}\n"
                  "\\usepackage{amsmath}\n"
@@ -3236,12 +3273,15 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                  "\\newtheorem{theorem}{Theorem}\n"
                  "\\newtheorem{note}{Note}\n"
                  "\\newtheorem{exmp}{Example}\n"
+                 "\\newtheorem{corollary}{Corollary}\n"
                  "\\newtheorem{exercise}{Exercise}\n"
                  "\\newtheorem{definition}{Definition}\n"
                  "\\newtheorem{lemma}{Lemma}[theorem]\n"
                  "\\usepackage{mdframed}\n"
                  "\\BeforeBeginEnvironment{theorem}{\\begin{mdframed}}\n"
                  "\\AfterEndEnvironment{theorem}{\\end{mdframed}}\n"
+                 "\\BeforeBeginEnvironment{corollary}{\\begin{mdframed}}\n"
+                 "\\AfterEndEnvironment{corollary}{\\end{mdframed}}\n"
                  "\\BeforeBeginEnvironment{exmp}{\\begin{mdframed}}\n"
                  "\\AfterEndEnvironment{exmp}{\\end{mdframed}}\n"
                  "\\BeforeBeginEnvironment{exercise}{\\begin{mdframed}}\n"
@@ -3280,16 +3320,31 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
   "Export \"org-mode\" file to latex before converting to PDF. Otherwise, convert to HTML first.")
 
 
-(defun export-and-open-pdf ()
+(defun export-and-open-pdf (separate-window)
   "Export \"org-mode\" file to PDF, then preview."
   (interactive)
   (let ((output-path (format "%s.pdf" (file-name-sans-extension (buffer-file-name)))))
     (if org-pdf-through-latex
-        (shell-command-to-string (format "latexmk -pdf %s" (org-latex-export-to-latex)))
+        (shell-command-to-string (format "latexmk -pdf -f %s; latexmk -c" (org-latex-export-to-latex)))
       (shell-command-to-string (format
                                 "wkhtmltopdf --disable-smart-shrinking %s %s"
                                 (org-html-export-to-html) output-path)))
-    (find-file output-path)))
+    (if separate-window
+        (find-file-other-window output-path)
+      (find-file output-path))))
+
+
+(defun org-export-pdf-update ()
+  "Export \"org-mode\" file to PDF in background."
+  (interactive)
+
+  (let ((output-path (format "%s.pdf" (file-name-sans-extension (buffer-file-name)))))
+    (save-window-excursion
+      (async-shell-command
+       (format
+        "latexmk -pdf -jobname=temp -f %s; latexmk -c; mv temp.pdf '%s'"
+        (org-latex-export-to-latex)
+        output-path)))))
 
 ;; org-mode custom HTML head export
 (defun org-html-export-head-hook (exporter)

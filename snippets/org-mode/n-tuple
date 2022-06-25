@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: n-tuple
+# key: nl
+# --
+${1:x}_1, \dots, $1_n$0

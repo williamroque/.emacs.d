@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 2-point
+# key: 2p
+# --
+\left( $1, $2 \right)$0

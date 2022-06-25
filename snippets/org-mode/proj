@@ -2,4 +2,4 @@
 # name: proj
 # key: proj
 # --
-\text{proj}_{\vecb{${1:a}}} \vecb{${2:b}} $0
+\text{proj}_{\vecb{${1:b}}} \vecb{${2:a}}$0

@@ -2,4 +2,4 @@
 # name: diff
 # key: dif
 # --
-\diff{$1}{$2}$0
+\diff{$1}{${2:x}}$0

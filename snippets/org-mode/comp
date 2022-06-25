@@ -2,4 +2,4 @@
 # name: comp
 # key: comp
 # --
-\text{comp}_{\vecb{${1:a}}} \vecb{${2:b}} $0
+\text{comp}_{\vecb{${1:b}}} \vecb{${2:a}}$0

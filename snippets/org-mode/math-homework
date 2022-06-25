@@ -1,6 +1,6 @@
 # -*- mode: snippet -*-
-# name: math-document
-# key: mnotes
+# name: math-homework
+# key: mhome
 # --
 #+latex_class: math-document
 #+autofill: nil
@@ -35,6 +35,14 @@
 \newcommand{\vecb}[1]{\mathbf{#1}}
 #+end_export
 
-#+title: $1
+#+begin_comment
+$1
+#+end_comment
+
+#+title: Homework --- Sections $2
+
+* Section $3
+
+** Problem $4
 
 $0

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: c-vec
+# key: c
+# --
+\vecb{c}$0

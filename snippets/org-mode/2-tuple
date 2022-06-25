@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 2-tuple
+# key: 2l
+# --
+${1:x}_1, $1_2
