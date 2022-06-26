@@ -1338,6 +1338,28 @@ after using split-paragraph-into-sentences.")
                              (yas-minor-mode)
                              (yas-activate-extra-mode 'latex-mode))))
 
+(defun insert-matrix-like (env rows cols)
+  (interactive "sEnvironment: \nnRows: \nnColumns: ")
+  (let ((beginning-marker (point-marker))
+        (end-marker (save-excursion
+                      (goto-char (1+ (point)))))
+        (matrix-string ""))
+    (insert (format "\\begin{%s}\n" env))
+    (dotimes (i rows)
+      (dotimes (j cols)
+        (setq matrix-string (concat matrix-string
+                                    (format
+                                     (if (equal j (1- cols)) "$%s" "$%s & ")
+                                     (+ 1 (* i cols) j)))))
+      (setq matrix-string (concat matrix-string (if (equal i (1- rows)) (format "\n\\end{%s}" env) "\\\\\\\n"))))
+    (yas-expand-snippet matrix-string)
+    (add-hook 'yas-after-exit-snippet-hook #'align-yasnippet-matrix)))
+
+
+(defun align-yasnippet-matrix ()
+  (align-regexp yas-snippet-beg yas-snippet-end "\\(\\s-*\\) &" 1 1 t)
+  (remove-hook 'yas-after-exit-snippet-hook #'align-yasnippet-matrix))
+
 ;; It may be interesting to note that the following combinations don't appear in
 ;; English: bx, cj, cv, cx, dx, fq, fx, gq, gx, hx, jc, jf, jg, jq, js, jv, jw,
 ;; jx, jz, kq, kx, mx, px, pz, qb, qc, qd, qf, qg, qh, qj, qk, ql, qm, qn, qp,
@@ -1361,6 +1383,20 @@ after using split-paragraph-into-sentences.")
            (yas-expand-snippet "\\\\( $1 \\\\)$0"))
     "jf" (lambda () (interactive)
            (yas-expand-snippet "\\begin{align*}\n$0\n\\end{align*}")))
+
+  (aas-set-snippets 'org-mode
+    :cond #'texmathp
+    "3det" (lambda () (interactive)
+             (insert-matrix-like "vmatrix" 3 3))
+    "2det" (lambda () (interactive)
+             (insert-matrix-like "vmatrix" 2 2))
+    "3mat" (lambda () (interactive)
+             (insert-matrix-like "bmatrix" 3 3))
+    "2mat" (lambda () (interactive)
+             (insert-matrix-like "bmatrix" 2 2))
+    "matr" (lambda (rows cols) (interactive "nRows: \nnColumns: ")
+             (insert-matrix-like "bmatrix" rows cols))
+    "matl" #'insert-matrix-like)
 
   (let ((snippets '(("sup" . "^{$1$0")
                     ("ud" . "_{$1$0")
@@ -2007,17 +2043,26 @@ after using split-paragraph-into-sentences.")
   ;; open link in the same window
   (add-to-list 'org-link-frame-setup '(file . find-file))
   
-  
   ;; quick-calc
-  (defun clean-quick-calc ()
-    (interactive)
-    (with-temp-buffer
-      (quick-calc nil)
-      (kill-ring-save (point-min) (point-max))))
+  (defun clean-quick-calc (start end)
+    (interactive "r")
+    (if (region-active-p)
+        (progn
+          (let ((expression (buffer-substring start end)))
+            (delete-region start (if (equal (point-at-eol) end) (1- end) end))
+            (save-excursion
+              (goto-char start)
+              (insert (calc-eval expression)))))
+      (with-temp-buffer
+        (quick-calc nil)
+        (kill-ring-save (point-min) (point-max)))))
   
   (define-key global-map (kbd "C-'") #'clean-quick-calc)
   (define-key org-mode-map (kbd "C-'") #'clean-quick-calc)
   
+  (add-hook 'calc-mode-hook #'(lambda ()
+                                (calc-latex-language nil)
+                                (calc-radians-mode)))
   
   ;; recalculate table
   (define-key org-mode-map (kbd "C-M-'") #'org-table-recalculate)
@@ -3325,7 +3370,11 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
   (interactive)
   (let ((output-path (format "%s.pdf" (file-name-sans-extension (buffer-file-name)))))
     (if org-pdf-through-latex
-        (shell-command-to-string (format "latexmk -pdf -f %s; latexmk -c" (org-latex-export-to-latex)))
+        (shell-command-to-string
+         (format
+          "latexmk -pdf -jobname=temp -f %s; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
+          (org-latex-export-to-latex)
+          output-path))
       (shell-command-to-string (format
                                 "wkhtmltopdf --disable-smart-shrinking %s %s"
                                 (org-html-export-to-html) output-path)))
@@ -3342,7 +3391,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
     (save-window-excursion
       (async-shell-command
        (format
-        "latexmk -pdf -jobname=temp -f %s; latexmk -c; mv temp.pdf '%s'"
+        "latexmk -pdf -jobname=temp -f %s; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
         (org-latex-export-to-latex)
         output-path)))))
 
