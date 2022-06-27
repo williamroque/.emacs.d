@@ -2057,17 +2057,26 @@ after using split-paragraph-into-sentences.")
   
   ;; quick-calc
   (defun clean-quick-calc (start end)
-    (interactive "r")
-    (if (region-active-p)
-        (progn
-          (let ((expression (buffer-substring start end)))
-            (delete-region start (if (equal (point-at-eol) end) (1- end) end))
-            (save-excursion
-              (goto-char start)
-              (insert (calc-eval expression)))))
-      (with-temp-buffer
-        (quick-calc nil)
-        (kill-ring-save (point-min) (point-max)))))
+    (interactive
+     (if (region-active-p)
+         (list (region-beginning) (region-end))
+       '(nil nil)))
+  
+    (if (null start)
+        (with-temp-buffer
+          (quick-calc nil)
+          (kill-ring-save (point-min) (point-max)))
+      (progn
+        (let ((expression (replace-regexp-in-string
+                           "\\([abcxyz]\\|_[[:digit:]]\\)[[:space:]]*("
+                           "\\1*("
+                           (buffer-substring start end))))
+          (delete-region start (if (and (equal (evil-visual-type) 'line)
+                                        (not (equal end (point-max))))
+                                   (- end 1) end))
+          (save-excursion
+            (goto-char start)
+            (insert (calc-eval expression)))))))
   
   (define-key global-map (kbd "C-'") #'clean-quick-calc)
   (define-key org-mode-map (kbd "C-'") #'clean-quick-calc)
@@ -2117,7 +2126,7 @@ after using split-paragraph-into-sentences.")
          "\n`(org-heading-asterisks)` $1\n\n$2/${1:$(if (equal (yas-field-value 2) \"\") yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect. \"))})"
          (point-max))
         (evil-insert-state))
-        (org-mark-ring-push old-point)))
+      (org-mark-ring-push old-point)))
   
   
   ;; function for how many asterisks required to create heading
