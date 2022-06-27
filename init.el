@@ -790,8 +790,14 @@ for more information."
     (evil-leader/set-key "C" #'cycle-ispell-languages)
     
     
-    ;; change or save spelling
-    (evil-leader/set-key "[" #'flyspell-correct-word-before-point)
+    ;; save spelling
+    (evil-leader/set-key "[" #'(lambda ()
+                                 (interactive)
+                                 (let ((current-location (point))
+                                       (word (flyspell-get-word)))
+                                   (when (consp word)
+                                     (flyspell-do-correct 'save nil (car word) current-location (cadr word) (caddr word) current-location))
+                                   (setq ispell-pdict-modified-p nil))))
     (evil-leader/set-key "r" #'edit-next-placeholder)
     ;; open non-fullscreen window
     (evil-leader/set-key (kbd "-") (lambda ()
