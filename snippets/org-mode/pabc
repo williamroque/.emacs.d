@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: pabc
+# key: pabc
+# --
+\left( a, b, c \right)

@@ -85,6 +85,14 @@
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 
+(defun shell-command-sentinel (process signal)
+  (when (memq (process-status process) '(exit signal))
+    (shell-command-set-point-after-cmd (process-buffer process))
+    (let ((inhibit-message t))
+      (message "%s: %s."
+             (car (cdr (cdr (process-command process))))
+             (substring signal 0 -1)))))
+
 (setq-default initial-scratch-message "")
 
 (setq initial-major-mode 'org-mode)
@@ -1753,6 +1761,10 @@ after using split-paragraph-into-sentences.")
   (setq-default auto-revert-interval 0.5)
 
 
+  ;; stop showing revert messages
+  (setq-default auto-revert-verbose nil)
+
+
   ;; disable inline sub-/superscript --- gets annoying
   (setq-default font-latex-fontify-script nil)
 
@@ -3383,17 +3395,32 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
       (find-file output-path))))
 
 
+(defvar org-pdf-export-running nil)
+
+
 (defun org-export-pdf-update ()
   "Export \"org-mode\" file to PDF in background."
   (interactive)
 
-  (let ((output-path (format "%s.pdf" (file-name-sans-extension (buffer-file-name)))))
-    (save-window-excursion
-      (async-shell-command
-       (format
-        "latexmk -pdf -jobname=temp -f %s; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
-        (org-latex-export-to-latex)
-        output-path)))))
+  (when (not org-pdf-export-running)
+    (setq org-pdf-export-running t)
+    (let* ((output-path (format "%s.pdf" (file-name-sans-extension (buffer-file-name))))
+           (output-buffer (generate-new-buffer "*Async shell command*"))
+           (inhibit-message t)
+           (proc (save-window-excursion
+                   (async-shell-command
+                    (format
+                     "latexmk -pdf -jobname=temp -f %s; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
+                     (org-latex-export-to-latex)
+                     output-path)
+                    output-buffer)
+                   (get-buffer-process output-buffer))))
+      (if (process-live-p proc)
+        (set-process-sentinel proc #'(lambda (process signal)
+                                       (when (memq (process-status process) '(exit signal))
+                                         (setq org-pdf-export-running nil)
+                                         (kill-buffer "*Async shell command*")
+                                         (shell-command-sentinel process signal))))))))
 
 ;; org-mode custom HTML head export
 (defun org-html-export-head-hook (exporter)
