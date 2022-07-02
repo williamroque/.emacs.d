@@ -76,6 +76,8 @@
            (message "Quit emacsclient request"))
          (server-return-error proc err))))))
 
+(setq-default auto-save-no-message t)
+
 (setq-default custom-file "~/Desktop/custom.el")
 
 (setq-default locale-coding-system 'utf-8)
@@ -131,6 +133,13 @@
   `(lambda ()
     (interactive)
     (apply #',fun ',args)))
+
+
+(defun org-keyword-activep (keyword &optional default-value)
+  (pcase (org-collect-keywords (list keyword))
+    (`((,keyword . ,val))
+     (not (equal (car val) "nil")))
+    (- default-value)))
 
 ;; colorscheme stuff
 (defvar ansi-color-names-vector
@@ -495,6 +504,7 @@ for more information."
                            (push '("\\vecb{c}" . "𝒄") prettify-symbols-alist)
                            (push '("\\vecb{u}" . "𝒖") prettify-symbols-alist)
                            (push '("\\vecb{v}" . "𝒗") prettify-symbols-alist)
+                           (push '("\\vecb{r}" . "𝒓") prettify-symbols-alist)
 
                            (push '("\\left\\langle" .  "〈") prettify-symbols-alist)
                            (push '("\\right\\rangle" .  "〉") prettify-symbols-alist)
@@ -708,17 +718,24 @@ for more information."
     ;; export org/latex file as PDF
     (defvar org-pdf-separate-window '())
     
+    (add-hook 'kill-buffer-hook #'(lambda ()
+                                    (if (member (current-buffer) org-pdf-separate-window)
+                                        (setq org-pdf-separate-window (delete (current-buffer) org-pdf-separate-window)))))
+    
     (add-hook 'after-save-hook #'(lambda ()
                                    (if (and (equal major-mode 'org-mode)
-                                            (memq (buffer-name) org-pdf-separate-window))
+                                            (member (current-buffer) org-pdf-separate-window))
                                        (org-export-pdf-update))))
     
     (evil-leader/set-key "P" #'(lambda (separate-window)
                                  (interactive "P")
                                  (if (equal separate-window 1)
-                                     (if (memq (buffer-name) org-pdf-separate-window)
-                                         (setq org-pdf-separate-window (delete (buffer-name) org-pdf-separate-window))
-                                       (push (buffer-name) org-pdf-separate-window))
+                                     (if (member (current-buffer) org-pdf-separate-window)
+                                         (progn
+                                           (setq org-pdf-separate-window (delete (current-buffer) org-pdf-separate-window))
+                                           (message "Stopped live compilation for this buffer."))
+                                       (message "Started live compilation for this buffer.")
+                                       (push (current-buffer) org-pdf-separate-window))
                                    (if (equal major-mode 'org-mode)
                                        (export-and-open-pdf separate-window)
                                      (if (equal major-mode 'latex-mode)
@@ -1323,6 +1340,12 @@ after using split-paragraph-into-sentences.")
 (define-key evil-visual-state-map (kbd ">") #'evil-shift-right-preserve)
 (define-key evil-visual-state-map (kbd "<") #'evil-shift-left-preserve)
 
+
+(evil-define-key 'insert global-map (kbd "C-M-\\")
+  #'(lambda (literal-string)
+      (interactive "sInsert literal: ")
+      (insert literal-string)))
+
 (use-package yasnippet
   :ensure t
   :config
@@ -1374,130 +1397,199 @@ after using split-paragraph-into-sentences.")
   (align-regexp yas-snippet-beg yas-snippet-end "\\(\\s-*\\) &" 1 1 t)
   (remove-hook 'yas-after-exit-snippet-hook #'align-yasnippet-matrix))
 
-;; It may be interesting to note that the following combinations don't appear in
-;; English: bx, cj, cv, cx, dx, fq, fx, gq, gx, hx, jc, jf, jg, jq, js, jv, jw,
-;; jx, jz, kq, kx, mx, px, pz, qb, qc, qd, qf, qg, qh, qj, qk, ql, qm, qn, qp,
-;; qs, qt, qv, qw, qx, qy, qz, sx, vb, vf, vh, vj, vm, vp, vq, vt, vw, vx, wx,
-;; xj, xx, zj, zq, zx
+(defun snippet-convert-fraction (start end)
+  (interactive
+   (if (region-active-p)
+       (list (region-beginning) (region-end))
+     '(nil nil)))
+
+  (if (null start)
+      (if (equal (char-before) ?/)
+          (progn
+            (delete-backward-char 1)
+            (yas-expand-snippet "\\frac{$1}{$2}$0"))
+
+        (insert "/")
+
+        (let ((found-brace 0)
+               (limit (point))
+               (match nil)
+               (match-start nil))
+          (save-excursion
+            (goto-char (1- (point)))
+            (while (and
+                    (texmathp)
+                    (> (point) (line-beginning-position))
+                    (not (equal (char-after) ? ))
+                    (progn
+                      (message "%s %s" (char-to-string (char-after)) found-brace)
+                      (not (and (equal (char-after) ?{) (equal found-brace 0)))))
+              (pcase (char-after)
+                (?} (setq found-brace (1+ found-brace)))
+                (?{ (setq found-brace (1- found-brace))))
+              (goto-char (1- (point))))
+            (when (re-search-forward "\\(?:^\\(?1:.+\\)/\\)\\|\\(?:[ {]\\(?1:.+\\)/\\)" limit t)
+              (setq match (match-string 1))
+              (setq match-start (match-beginning 1))))
+
+          (when match-start
+            (delete-region match-start limit)
+            (yas-expand-snippet (format "\\frac{%s}{$1}$0" match)))))
+    (let ((numerator (buffer-substring start end)))
+      (evil-insert-state)
+      (delete-region start end)
+      (yas-expand-snippet (format "\\frac{%s}{$1}$0" numerator)))))
 
 
-(use-package aas
-  :hook (LaTeX-mode . aas-activate-for-major-mode)
-  :hook (org-mode . aas-activate-for-major-mode)
-  :config
-  (aas-set-snippets 'text-mode
-    ";o-" "ō"
-    ";i-" "ī"
-    ";a-" "ā"
-    ";u-" "ū"
-    ";e-" "ē")
+(evil-define-key 'insert org-mode-map (kbd "/") #'snippet-convert-fraction)
+(evil-define-key 'visual org-mode-map (kbd "/") #'snippet-convert-fraction)
 
-  (aas-set-snippets 'org-mode
-    "js" (lambda () (interactive)
-           (yas-expand-snippet "\\\\( $1 \\\\)$0"))
-    "jf" (lambda () (interactive)
-           (yas-expand-snippet "\\begin{align*}\n$0\n\\end{align*}")))
+  ;; It may be interesting to note that the following combinations don't appear in
+  ;; English: bx, cj, cv, cx, dx, fq, fx, gq, gx, hx, jc, jf, jg, jq, js, jv, jw,
+  ;; jx, jz, kq, kx, mx, px, pz, qb, qc, qd, qf, qg, qh, qj, qk, ql, qm, qn, qp,
+  ;; qs, qt, qv, qw, qx, qy, qz, sx, vb, vf, vh, vj, vm, vp, vq, vt, vw, vx, wx,
+  ;; xj, xx, zj, zq, zx
 
-  (aas-set-snippets 'org-mode
-    :cond #'texmathp
-    "3det" (lambda () (interactive)
-             (insert-matrix-like "vmatrix" 3 3))
-    "2det" (lambda () (interactive)
-             (insert-matrix-like "vmatrix" 2 2))
-    "3mat" (lambda () (interactive)
-             (insert-matrix-like "bmatrix" 3 3))
-    "2mat" (lambda () (interactive)
-             (insert-matrix-like "bmatrix" 2 2))
-    "matr" (lambda (rows cols) (interactive "nRows: \nnColumns: ")
-             (insert-matrix-like "bmatrix" rows cols))
-    "matl" #'insert-matrix-like)
 
-  (let ((snippets '(("sup" . "^{$1$0")
-                    ("ud" . "_{$1$0")
-                    ("jg" . "^2$0")
-                    ("jc" . "^3$0")
+  (use-package aas
+    :hook (LaTeX-mode . aas-activate-for-major-mode)
+    :hook (org-mode . aas-activate-for-major-mode)
+    :config
+    (aas-set-snippets 'text-mode
+      ";o-" "ō"
+      ";i-" "ī"
+      ";a-" "ā"
+      ";u-" "ū"
+      ";e-" "ē")
 
-                    ("gal" . "\\alpha$0")
-                    ("gbe" . "\\beta$0")
-                    ("gga" . "\\gamma$0")
-                    ("gde" . "\\delta$0")
-                    ("gep" . "\\epsilon$0")
-                    ("gze" . "\\zeta$0")
-                    ("geta" . "\\eta$0")
-                    ("gth" . "\\theta$0")
-                    ("gio" . "\\iota$0")
-                    ("gka" . "\\kappa$0")
-                    ("gla" . "\\lambda$0")
-                    ("gmu" . "\\mu$0")
-                    ("gnu" . "\\nu$0")
-                    ("gxi" . "\\xi$0")
-                    ("gmi" . "\\omicron$0")
-                    ("gpi" . "\\pi$0")
-                    ("grh" . "\\rho$0")
-                    ("gsi" . "\\sigma$0")
-                    ("gta" . "\\tau$0")
-                    ("gup" . "\\upsilon$0")
-                    ("gph" . "\\phi$0")
-                    ("gch" . "\\chi$0")
-                    ("gpsi" . "\\psi$0")
-                    ("gme" . "\\omega$0")
+    (aas-set-snippets 'org-mode
+      "js" (lambda () (interactive)
+             (yas-expand-snippet "\\\\( $1 \\\\)$0"))
+      "jf" (lambda () (interactive)
+             (yas-expand-snippet "\\begin{alignat*}{3}\n$0\n\\end{alignat*}")))
 
-                    ("Alpha" . "\\Alpha$0")
-                    ("Beta" . "\\Beta$0")
-                    ("Gamma" . "\\Gamma$0")
-                    ("Delta" . "\\Delta$0")
-                    ("Epsilon" . "\\Epsilon$0")
-                    ("Zeta" . "\\Zeta$0")
-                    ("Eta" . "\\Eta$0")
-                    ("Theta" . "\\Theta$0")
-                    ("Iota" . "\\Iota$0")
-                    ("Kappa" . "\\Kappa$0")
-                    ("Lambda" . "\\Lambda$0")
-                    ("Mu" . "\\Mu$0")
-                    ("Nu" . "\\Nu$0")
-                    ("Xi" . "\\Xi$0")
-                    ("Omicron" . "\\Omicron$0")
-                    ("Pi" . "\\Pi$0")
-                    ("Rho" . "\\Rho$0")
-                    ("Sigma" . "\\Sigma$0")
-                    ("Tau" . "\\Tau$0")
-                    ("Upsilon" . "\\Upsilon$0")
-                    ("Phi" . "\\Phi$0")
-                    ("Chi" . "\\Chi$0")
-                    ("Psi" . "\\Psi$0")
-                    ("Omega" . "\\Omega$0")
+    (aas-set-snippets 'org-mode
+      :cond #'texmathp
+      "3det" (lambda () (interactive)
+               (insert-matrix-like "vmatrix" 3 3))
+      "2det" (lambda () (interactive)
+               (insert-matrix-like "vmatrix" 2 2))
+      "3mat" (lambda () (interactive)
+               (insert-matrix-like "bmatrix" 3 3))
+      "2mat" (lambda () (interactive)
+               (insert-matrix-like "bmatrix" 2 2))
+      "matr" (lambda (rows cols) (interactive "nRows: \nnColumns: ")
+               (insert-matrix-like "bmatrix" rows cols))
+      "matl" #'insert-matrix-like)
 
-                    ("ln" . "\\ln$0")
-                    ("exp" . "\\exp$0")
-                    ("lo" . "\\log$0")
-                    ("ein" . "\\in$0")
+    (let ((snippets '(("sup" . "^{$1$0")
+                      ("ud" . "_{$1$0")
+                      ("jg" . "^2$0")
+                      ("jc" . "^3$0")
 
-                    ("par" . "\\left( $1 \\right)$0")
+                      ("gal" . "\\alpha$0")
+                      ("gbe" . "\\beta$0")
+                      ("gga" . "\\gamma$0")
+                      ("gde" . "\\delta$0")
+                      ("gep" . "\\epsilon$0")
+                      ("gze" . "\\zeta$0")
+                      ("geta" . "\\eta$0")
+                      ("gth" . "\\theta$0")
+                      ("gio" . "\\iota$0")
+                      ("gka" . "\\kappa$0")
+                      ("gla" . "\\lambda$0")
+                      ("gmu" . "\\mu$0")
+                      ("gnu" . "\\nu$0")
+                      ("gxi" . "\\xi$0")
+                      ("gmi" . "\\omicron$0")
+                      ("gpi" . "\\pi$0")
+                      ("grh" . "\\rho$0")
+                      ("gsi" . "\\sigma$0")
+                      ("gta" . "\\tau$0")
+                      ("gup" . "\\upsilon$0")
+                      ("gph" . "\\phi$0")
+                      ("gch" . "\\chi$0")
+                      ("gpsi" . "\\psi$0")
+                      ("gme" . "\\omega$0")
 
-                    ("equ" . " = $0")
-                    ("neq" . " \\neq $0")
-                    ("vm" . " - $0")
-                    ("vp" . " + $0")
-                    ("seq" . " &= $0")
-                    ("amp" . " & $0")
-                    ("gtn" . " > $0")
-                    ("sgt" . " &> $0")
-                    ("lst" . " < $0")
-                    ("slt" . " &< $0")
-                    ("leq" . " \\leq $0")
-                    ("lseq" . " &\\leq $0")
-                    ("geq" . " \\geq $0")
-                    ("rk" . "\\\\\\\\")
-                    ("gseq" . " &\\geq $0")
-                    ("trip" . " \\equiv $0")
-                    ("strip" . " &\\equiv $0")
-                    ("//" . "\\frac{$1{$2}$0"))))
+                      ("Alpha" . "\\Alpha$0")
+                      ("Beta" . "\\Beta$0")
+                      ("Gamma" . "\\Gamma$0")
+                      ("Delta" . "\\Delta$0")
+                      ("Epsilon" . "\\Epsilon$0")
+                      ("Zeta" . "\\Zeta$0")
+                      ("Eta" . "\\Eta$0")
+                      ("Theta" . "\\Theta$0")
+                      ("Iota" . "\\Iota$0")
+                      ("Kappa" . "\\Kappa$0")
+                      ("Lambda" . "\\Lambda$0")
+                      ("Mu" . "\\Mu$0")
+                      ("Nu" . "\\Nu$0")
+                      ("Xi" . "\\Xi$0")
+                      ("Omicron" . "\\Omicron$0")
+                      ("Pi" . "\\Pi$0")
+                      ("Rho" . "\\Rho$0")
+                      ("Sigma" . "\\Sigma$0")
+                      ("Tau" . "\\Tau$0")
+                      ("Upsilon" . "\\Upsilon$0")
+                      ("Phi" . "\\Phi$0")
+                      ("Chi" . "\\Chi$0")
+                      ("Psi" . "\\Psi$0")
+                      ("Omega" . "\\Omega$0")
 
-    (dolist (snippet snippets)
-      (aas-set-snippets 'org-mode
-        :cond #'texmathp
-        (car snippet) `(lambda () (interactive)
-                         (yas-expand-snippet ',(cdr snippet)))))))
+                      ("ln" . "\\ln $0")
+                      ("cos" . "\\cos $0")
+                      ("sec" . "\\sec $0")
+                      ("sin" . "\\sin $0")
+                      ("csc" . "\\csc $0")
+                      ("tan" . "\\tan $0")
+                      ("cot" . "\\cot $0")
+                      ("acos" . "\\arccos $0")
+                      ("asin" . "\\arcsin $0")
+                      ("atan" . "\\arctan $0")
+                      ("exp" . "\\exp$0")
+                      ("lo" . "\\log$0")
+                      ("ein" . " \\in $0")
+
+                      ("ooo" . "\\infty$0")
+
+                      ("par" . "\\left( $1 \\right)$0")
+                      ("bra" . "\\left[ $1 \\right]$0")
+
+                      ("cro" . " \\times $0")
+                      ("dot" . " \\cdot $0")
+
+                      ("3po" . "\\left( $1, $2, $3 \\right)$0")
+                      ("3ve" . "\\left\\langle $1, $2, $3 \\right\\rangle$0")
+
+                      ("2po" . "\\left( $1, $2 \\right)$0")
+                      ("2ve" . "\\left\\langle $1, $2 \\right\\rangle$0")
+
+                      ("sqt" . "\\sqrt{$1$0")
+
+                      ("equ" . " = $0")
+                      ("neq" . " \\neq $0")
+                      ("vm" . " - $0")
+                      ("vp" . " + $0")
+                      ("seq" . " &= $0")
+                      ("amp" . " & $0")
+                      ("gtn" . " > $0")
+                      ("sgt" . " &> $0")
+                      ("lst" . " < $0")
+                      ("slt" . " &< $0")
+                      ("leq" . " \\leq $0")
+                      ("lseq" . " &\\leq $0")
+                      ("geq" . " \\geq $0")
+                      ("rk" . "\\\\\\\\")
+                      ("gseq" . " &\\geq $0")
+                      ("trip" . " \\equiv $0")
+                      ("strip" . " &\\equiv $0"))))
+
+      (dolist (snippet snippets)
+        (aas-set-snippets 'org-mode
+          :cond #'texmathp
+          (car snippet) `(lambda () (interactive)
+                           (yas-expand-snippet ',(cdr snippet)))))))
 
 (setq-default ispell-program-name "/usr/local/bin/aspell")
 
@@ -2123,13 +2215,13 @@ after using split-paragraph-into-sentences.")
             (goto-char (point-max))
             (yas-expand-snippet
              (format
-              "\n%s ${1:%s}\n\n$2/${1:$(if (or (not (yas-field-value 2)) (equal (yas-field-value 2) \"\")) yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect. \"))})"
+              "\n%s ${1:%s}\n\n$2/${1:$(if (or (not (yas-field-value 2)) (equal (yas-field-value 2) \"\")) yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect.\"))})"
               (org-heading-asterisks) title)
              (point-max))
             (evil-insert-state))
         (goto-char (point-max))
         (yas-expand-snippet
-         "\n`(org-heading-asterisks)` $1\n\n$2/${1:$(if (equal (yas-field-value 2) \"\") yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect. \"))})"
+         "\n`(org-heading-asterisks)` $1\n\n$2/${1:$(if (equal (yas-field-value 2) \"\") yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect.\"))})"
          (point-max))
         (evil-insert-state))
       (org-mark-ring-push old-point)))
@@ -2261,9 +2353,15 @@ after using split-paragraph-into-sentences.")
   
   
   ;; make sure C-i works like TAB
-  (define-key org-mode-map (kbd "C-i") #'org-cycle)
-  (evil-define-key 'normal org-mode-map (kbd "C-i") #'org-cycle)
-  (evil-define-key 'visual org-mode-map (kbd "C-i") #'org-cycle)
+  (defun org-c-i ()
+    (interactive)
+    (if (texmathp)
+        (yas-expand)
+      (org-cycle)))
+  
+  (define-key org-mode-map (kbd "C-i") #'org-c-i)
+  (evil-define-key 'normal org-mode-map (kbd "C-i") #'org-c-i)
+  (evil-define-key 'visual org-mode-map (kbd "C-i") #'org-c-i)
   
   
   ;; schedule todo items
@@ -3073,13 +3171,8 @@ This is a :filter-args advice for `message`."
 
 
 (defun org-detect-distraction-free-keyword ()
-  (pcase (org-collect-keywords '("DFREE"))
-    (`(("DFREE" . ,val))
-     (when (not (equal (car val) "nil"))
-       (distraction-free nil)))
-    (-
-     (when (not (equal (buffer-name) "*scratch*"))
-       (distraction-free nil)))))
+  (if (and (org-keyword-activep "DFREE" t) (not (equal (buffer-name) "*scratch*")))
+      (distraction-free (org-keyword-activep "LITERARY"))))
 
 
 (add-hook 'org-mode-hook #'org-detect-distraction-free-keyword)
@@ -3221,7 +3314,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
       "python -c 'from maxwell import capture_area; capture_area(\"%s\")'"
       image-path))
     (select-frame-set-input-focus (selected-frame))
-    (insert (format "#+attr_latex: :scale .7\n[[%s]]\n\n" image-path))
+    (insert (format "#+attr_latex: :placement [H] :scale .4\n[[%s]]\n\n" image-path))
     (org-remove-inline-images)))
 
 
@@ -3327,6 +3420,9 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                  "\\usepackage{csquotes}\n"
                  "\\usepackage{amsmath}\n"
                  "\\usepackage{amssymb}\n"
+
+                 "\\usepackage{float}\n"
+
                  "\\usepackage{graphicx}\n"
                  "\\usepackage[hidelinks]{hyperref}\n"
                  "\\usepackage{fancyhdr}\n"

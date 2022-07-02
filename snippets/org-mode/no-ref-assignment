@@ -3,12 +3,12 @@
 # key: asmt
 # --
 #+latex_class: assignment
+#+autofill: nil
+#+literary: t
 
-#+begin_export latex
-\thispagestyle{empty}
-\clearpage\maketitle
-\setcounter{page}{1}
-#+end_export
+#+begin_comment
+
+#+end_comment
 
 #+title: $1
 

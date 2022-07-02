@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: r-function
+# key: rf
+# --
+\vecb{${1:r}}(${2:t})$0

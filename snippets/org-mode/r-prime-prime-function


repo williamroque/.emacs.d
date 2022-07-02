@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: r-prime-prime-function
+# key: r''
+# --
+\vecb{r$1}''(${2:t})$0
