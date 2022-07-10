@@ -1112,6 +1112,7 @@ for more information."
   (setq-default helm-completion-style 'emacs)
   (setq-default helm-left-margin-width 1)
   (setq-default helm-buffers-left-margin-width 1)
+  (setq-default helm-buffer-details-flag nil)
 
   (define-key helm-map (kbd "M-]") 'helm-next-source)
   (define-key helm-map (kbd "M-[") 'helm-previous-source)
@@ -1221,12 +1222,9 @@ for more information."
 
 ;; disable auto-fill-mode when asked politely
 (defun enable-polite-auto-fill ()
-  (pcase (org-collect-keywords '("AUTOFILL"))
-    (`(("AUTOFILL" . ,val))
-     (when (not (equal (car val) "nil"))
-       (auto-fill-mode 1)))
-    (-
-     (auto-fill-mode 1))))
+  (when (and (org-keyword-activep "AUTOFILL" t)
+             (not (org-keyword-activep "LITERARY")))
+    (auto-fill-mode 1)))
 
 
 (add-hook 'text-mode-hook #'enable-polite-auto-fill)
@@ -2122,7 +2120,7 @@ after using split-paragraph-into-sentences.")
   
   
   ;; make sure to color latex
-  (setq-default org-highlight-latex-and-related '(latex script entities))
+  (setq-default org-highlight-latex-and-related '(latex entities))
   
   
   ;; latex formatting
@@ -3279,6 +3277,24 @@ This is a :filter-args advice for `message`."
     (set-window-margins (get-buffer-window) 2)
     (setq-local mode-line-format default-mode-line-format)
     (setq-local line-spacing nil)))
+
+
+(add-hook 'evil-insert-state-entry-hook
+          #'(lambda ()
+              (when line-spacing
+                (save-excursion
+                  (end-of-line)
+                  (unless (equal (char-before) ? )
+                    (insert ? ))))))
+
+
+(add-hook 'evil-insert-state-exit-hook
+          #'(lambda ()
+              (when line-spacing
+                (save-excursion
+                  (end-of-line)
+                  (when (equal (char-before) ? )
+                    (delete-backward-char 1))))))
 
 (use-package osx-dictionary
   :config

@@ -1269,6 +1269,7 @@ program.
   (setq-default helm-completion-style 'emacs)
   (setq-default helm-left-margin-width 1)
   (setq-default helm-buffers-left-margin-width 1)
+  (setq-default helm-buffer-details-flag nil)
 
   <<helm-keys>>
   <<helm-faces>>)
@@ -1427,12 +1428,9 @@ Hooks.
 #+begin_src emacs-lisp :tangle yes
 ;; disable auto-fill-mode when asked politely
 (defun enable-polite-auto-fill ()
-  (pcase (org-collect-keywords '("AUTOFILL"))
-    (`(("AUTOFILL" . ,val))
-     (when (not (equal (car val) "nil"))
-       (auto-fill-mode 1)))
-    (-
-     (auto-fill-mode 1))))
+  (when (and (org-keyword-activep "AUTOFILL" t)
+             (not (org-keyword-activep "LITERARY")))
+    (auto-fill-mode 1)))
 
 
 (add-hook 'text-mode-hook #'enable-polite-auto-fill)
@@ -2894,7 +2892,7 @@ Set defaults.
 
 
 ;; make sure to color latex
-(setq-default org-highlight-latex-and-related '(latex script entities))
+(setq-default org-highlight-latex-and-related '(latex entities))
 
 
 ;; latex formatting
@@ -4147,6 +4145,24 @@ This is a :filter-args advice for `message`."
     (set-window-margins (get-buffer-window) 2)
     (setq-local mode-line-format default-mode-line-format)
     (setq-local line-spacing nil)))
+
+
+(add-hook 'evil-insert-state-entry-hook
+          #'(lambda ()
+              (when line-spacing
+                (save-excursion
+                  (end-of-line)
+                  (unless (equal (char-before) ? )
+                    (insert ? ))))))
+
+
+(add-hook 'evil-insert-state-exit-hook
+          #'(lambda ()
+              (when line-spacing
+                (save-excursion
+                  (end-of-line)
+                  (when (equal (char-before) ? )
+                    (delete-backward-char 1))))))
 #+end_src
 
 Evil leader bindings.
