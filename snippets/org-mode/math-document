@@ -4,10 +4,31 @@
 # --
 #+latex_class: math-document
 #+autofill: nil
+#+option: title:nil
 
 #+begin_export latex
-\thispagestyle{empty}
-\clearpage\maketitle
+\title{$1}
+
+\newlength{\drop}
+
+\begin{titlepage}
+  \drop=0.1\textheight
+  \centering
+  \vspace*{\baselineskip}
+  \rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{2pt}
+  \rule{\textwidth}{0.4pt}\\\\[\baselineskip]
+  {\LARGE $1\\\\ [0.5\baselineskip] $2}\\\\[0.2\baselineskip]
+  \rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt}
+  \rule{\textwidth}{1.6pt}\\\\[\baselineskip]
+  \scshape
+  $3\par
+  \vspace*{\baselineskip}
+  {\large William Roque\par}
+  \vfill
+  {\scshape \today} \\[\baselineskip]
+  {\itshape Brigham Young University | william.aroque@gmail.com\par}
+\end{titlepage}
+
 \setcounter{page}{1}
 
 \setlength{\abovedisplayskip}{-10pt}
@@ -34,7 +55,5 @@
 
 \newcommand{\vecb}[1]{\mathbf{#1}}
 #+end_export
-
-#+title: $1
 
 $0

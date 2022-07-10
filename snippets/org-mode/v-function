@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: v-function
+# key: vf
+# --
+\vecb{${1:v}}(${2:t})$0

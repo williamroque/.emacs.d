@@ -91,6 +91,7 @@
 
   (mixed-pitch-mode 1)
   (olivetti-mode 1)
+  (flyspell-mode -1)
 
   (let ((inhibit-message t))
     (olivetti-set-width 64))
@@ -102,10 +103,7 @@
   (dolist (verse chapter)
     (insert (replace-regexp-in-string "^\\([0-9]+\\)" "*\\1*" (string-trim verse)))
 
-    (setq fill-column 70)
     (insert "\n\n"))
-
-  (fill-region 0 (point-max))
 
   (if verse-numbers
       (progn

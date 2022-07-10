@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: function-xyz
+# key: fxyz
+# --
+${1:f}(${2:x}, ${3:y}, ${4:z})$0

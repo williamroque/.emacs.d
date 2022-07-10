@@ -141,6 +141,13 @@
      (not (equal (car val) "nil")))
     (- default-value)))
 
+
+(defmacro with-suppressed-message (&rest body)
+  "Suppress new messages temporarily in the echo area and the `*Messages*' buffer while BODY is evaluated."
+  (declare (indent 0))
+  (let ((message-log-max nil))
+    `(with-temp-message (or (current-message) "") ,@body)))
+
 ;; colorscheme stuff
 (defvar ansi-color-names-vector
   ["#3c3836" "#fb4933" "#b8bb26" "#fabd2f" "#83a598" "#d3869b" "#8ec07c" "#ebdbb2"])
@@ -597,11 +604,22 @@ for more information."
                                   ((equal (buffer-name) "*scratch*") (message "(No changes need to be saved)"))
                                   ((equal major-mode 'wdired-mode) (wdired-finish-edit))
                                   ((equal major-mode 'org-agenda-mode) (org-save-all-org-buffers) (message "Org buffers saved."))
-                                  (t (call-interactively #'save-buffer)))))
+                                  (t
+                                   (if (buffer-modified-p)
+                                       (message "Wrote %s." (if (null (buffer-file-name))
+                                                                "file"
+                                                              (file-name-nondirectory (buffer-file-name))))
+                                     (message "(No changes need to be saved)"))
+                                   (with-suppressed-message
+                                       (call-interactively #'save-buffer))))))
   
   
     ;; convenient exiting
-    (evil-leader/set-key "e" #'kill-this-buffer)
+    (evil-leader/set-key "e" #'(lambda ()
+                                 (interactive)
+                                 (if (equal major-mode 'org-agenda-mode)
+                                     (org-agenda-exit)
+                                   (kill-this-buffer))))
     (evil-leader/set-key "E" #'kill-all-other-buffers)
     (evil-leader/set-key "x" #'(lambda ()
                                  (interactive)
@@ -1404,37 +1422,43 @@ after using split-paragraph-into-sentences.")
      '(nil nil)))
 
   (if (null start)
-      (if (equal (char-before) ?/)
-          (progn
-            (delete-backward-char 1)
-            (yas-expand-snippet "\\frac{$1}{$2}$0"))
+      (if (not (texmathp))
+          (insert "/")
+        (pcase (char-before)
+          (?/
+           (delete-backward-char 1)
+           (yas-expand-snippet "\\frac{$1}{$2}$0"))
+          (?.
+           (delete-backward-char 1)
+           (insert "/"))
+          (?,
+           (delete-backward-char 1)
+           (insert "\\big/"))
+          (-
+           (insert "/")
 
-        (insert "/")
+           (let ((found-brace 0)
+                 (limit (point))
+                 (match nil)
+                 (match-start nil))
+             (save-excursion
+               (goto-char (1- (point)))
+               (while (and
+                       (texmathp)
+                       (> (point) (line-beginning-position))
+                       (not (equal (char-after) ? ))
+                       (not (and (memq (char-after) '(?{ ?\()) (equal found-brace 0))))
+                 (pcase (char-after)
+                   ((or ?} ?\)) (setq found-brace (1+ found-brace)))
+                   ((or ?{ ?\() (setq found-brace (1- found-brace))))
+                 (goto-char (1- (point))))
+               (when (re-search-forward "\\(?:^\\(?1:.+\\)/\\)\\|\\(?:[ {(]\\(?1:.+\\)/\\)" limit t)
+                 (setq match (match-string 1))
+                 (setq match-start (match-beginning 1))))
 
-        (let ((found-brace 0)
-               (limit (point))
-               (match nil)
-               (match-start nil))
-          (save-excursion
-            (goto-char (1- (point)))
-            (while (and
-                    (texmathp)
-                    (> (point) (line-beginning-position))
-                    (not (equal (char-after) ? ))
-                    (progn
-                      (message "%s %s" (char-to-string (char-after)) found-brace)
-                      (not (and (equal (char-after) ?{) (equal found-brace 0)))))
-              (pcase (char-after)
-                (?} (setq found-brace (1+ found-brace)))
-                (?{ (setq found-brace (1- found-brace))))
-              (goto-char (1- (point))))
-            (when (re-search-forward "\\(?:^\\(?1:.+\\)/\\)\\|\\(?:[ {]\\(?1:.+\\)/\\)" limit t)
-              (setq match (match-string 1))
-              (setq match-start (match-beginning 1))))
-
-          (when match-start
-            (delete-region match-start limit)
-            (yas-expand-snippet (format "\\frac{%s}{$1}$0" match)))))
+             (when match-start
+               (delete-region match-start limit)
+               (yas-expand-snippet (format "\\frac{%s}{$1}$0" match)))))))
     (let ((numerator (buffer-substring start end)))
       (evil-insert-state)
       (delete-region start end)
@@ -2861,6 +2885,9 @@ after using split-paragraph-into-sentences.")
 
 (add-hook 'org-mode-hook #'org-toggle-blocks)
 
+(add-hook 'org-src-mode-hook #'(lambda ()
+                                 (setq header-line-format "")))
+
 (defvar my/current-line '(0 . 0)
   "(start . end) of current line in current buffer")
 (make-variable-buffer-local 'my/current-line)
@@ -3178,6 +3205,63 @@ This is a :filter-args advice for `message`."
 (add-hook 'org-mode-hook #'org-detect-distraction-free-keyword)
 
 
+(defvar distraction-free-background-set nil)
+
+
+(defvar stored-face-attributes nil)
+
+
+(defun set-temporary-face-attributes (attribute value faces)
+  (dolist (face faces)
+    (add-to-list 'stored-face-attributes
+                 (list face attribute (face-attribute face attribute)))
+    (set-face-attribute face nil attribute value)))
+
+
+(defun reset-temporary-face-attributes ()
+  (dolist (item stored-face-attributes)
+    (set-face-attribute (car item) nil (nth 1 item) (nth 2 item)))
+  (setq stored-face-attributes nil))
+
+
+(defun set-distraction-free-background ()
+  (if (org-keyword-activep "LITERARY")
+      (progn
+        (when (not distraction-free-background-set)
+          (setq evil-emacs-state-cursor `(,color-background box))
+          (setq evil-normal-state-cursor `(,color-background box))
+          (setq evil-insert-state-cursor `(,color-background bar))
+
+          (set-temporary-face-attributes
+           :foreground color-background
+           '(org-document-title))
+
+          (set-temporary-face-attributes
+           :background "#FBFBFB"
+           '(org-block-begin-line
+             org-block-end-line
+             yas-field-highlight-face))
+
+          (set-temporary-face-attributes
+           :foreground color-green
+           '(yas-field-highlight-face))
+
+          (set-background-color "#FBFBFB")
+          (set-foreground-color color-background))
+        (setq distraction-free-background-set t))
+    (when distraction-free-background-set
+      (setq evil-emacs-state-cursor `("white" box))
+      (setq evil-normal-state-cursor `("#fdf4c1" box))
+      (setq evil-insert-state-cursor `("#fdf4c1" bar))
+      (reset-temporary-face-attributes)
+      (set-background-color color-background)
+      (set-foreground-color color-foreground))
+    (setq distraction-free-background-set nil)))
+
+
+(add-hook 'post-command-hook #'set-distraction-free-background)
+
+
 (defun distraction-free (use-mixed-pitch &optional no-spell)
   (interactive "P")
   (if (equal olivetti-mode nil)
@@ -3428,8 +3512,9 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                  "\\usepackage{fancyhdr}\n"
                  "\\usepackage[explicit]{titlesec}\n"
 
-                 "\\titleformat{\\chapter}{\\normalfont\\huge\\bfseries}{#1}{}{}\n"
-                 "\\titleformat{\\section}{\\normalfont\\large\\bfseries}{\\thesection.}{.5em}{#1}\n"
+                 "\\titleformat{\\chapter}{\\normalfont\\huge}{#1}{}{}\n"
+                 "\\titleformat{\\section}{\\normalfont\\large}{\\thesection.}{.5em}{#1}\n"
+                 "\\titleformat{\\subsection}{\\normalfont\\large}{\\thesubsection.}{.5em}{#1}\n"
 
                  "\\titlespacing{\\chapter}{0pt}{0pt}{1em}\n"
 
@@ -3439,12 +3524,19 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                  "\\newtheoremstyle{boxed}{8pt}{8pt}{}{}{\\upshape\\bfseries}{.}{.5em}{}\n"
                  "\\theoremstyle{boxed}\n"
                  "\\newtheorem{theorem}{Theorem}\n"
+                 "\\numberwithin{theorem}{chapter}\n"
                  "\\newtheorem{note}{Note}\n"
+                 "\\numberwithin{note}{chapter}\n"
                  "\\newtheorem{exmp}{Example}\n"
+                 "\\numberwithin{exmp}{chapter}\n"
                  "\\newtheorem{corollary}{Corollary}\n"
+                 "\\numberwithin{corollary}{chapter}\n"
                  "\\newtheorem{exercise}{Exercise}\n"
+                 "\\numberwithin{exercise}{chapter}\n"
                  "\\newtheorem{definition}{Definition}\n"
+                 "\\numberwithin{definition}{chapter}\n"
                  "\\newtheorem{lemma}{Lemma}[theorem]\n"
+                 "\\numberwithin{lemma}{chapter}\n"
                  "\\usepackage{mdframed}\n"
                  "\\BeforeBeginEnvironment{theorem}{\\begin{mdframed}}\n"
                  "\\AfterEndEnvironment{theorem}{\\end{mdframed}}\n"
@@ -3475,6 +3567,79 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                ("\\section{%s}" . "\\section{%s}")
                ("\\subsection{%s}" . "\\subsection{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection{%s}")
+               ("\\paragraph{%s}" . "\\paragraph{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph{%s}")))
+
+
+(add-to-list 'org-latex-classes
+             `("math-homework"
+               ,(concat
+                 "\\documentclass[a4paper,12pt,oneside]{book}\n"
+                 "\\usepackage[margin=1in]{geometry}\n"
+                 "\\usepackage{csquotes}\n"
+                 "\\usepackage{amsmath}\n"
+                 "\\usepackage{amssymb}\n"
+
+                 "\\usepackage{float}\n"
+
+                 "\\usepackage{graphicx}\n"
+                 "\\usepackage[hidelinks]{hyperref}\n"
+                 "\\usepackage{fancyhdr}\n"
+                 "\\usepackage[explicit]{titlesec}\n"
+
+                 "\\titleformat{\\chapter}{\\normalfont\\huge}{#1}{}{}\n"
+                 "\\titleformat{\\section}{\\normalfont\\large}{\\thesection.}{.5em}{#1}\n"
+                 "\\titleformat{\\subsection}{\\normalfont\\large}{\\thesubsection.}{.5em}{#1}\n"
+
+                 "\\titlespacing{\\chapter}{0pt}{0pt}{1em}\n"
+
+                 "\\usepackage{amsthm}\n"
+                 "\\setlength{\\parskip}{.5em}\n"
+                 "\\setlength{\\parindent}{0pt}\n"
+                 "\\newtheoremstyle{boxed}{8pt}{8pt}{}{}{\\upshape\\bfseries}{.}{.5em}{}\n"
+                 "\\theoremstyle{boxed}\n"
+                 "\\newtheorem{theorem}{Theorem}\n"
+                 "\\numberwithin{theorem}{chapter}\n"
+                 "\\newtheorem{note}{Note}\n"
+                 "\\numberwithin{note}{chapter}\n"
+                 "\\newtheorem{exmp}{Example}\n"
+                 "\\numberwithin{exmp}{chapter}\n"
+                 "\\newtheorem{corollary}{Corollary}\n"
+                 "\\numberwithin{corollary}{chapter}\n"
+                 "\\newtheorem{exercise}{Exercise}\n"
+                 "\\numberwithin{exercise}{chapter}\n"
+                 "\\newtheorem{definition}{Definition}\n"
+                 "\\numberwithin{definition}{chapter}\n"
+                 "\\newtheorem{lemma}{Lemma}[theorem]\n"
+                 "\\numberwithin{lemma}{chapter}\n"
+                 "\\usepackage{mdframed}\n"
+                 "\\BeforeBeginEnvironment{theorem}{\\begin{mdframed}}\n"
+                 "\\AfterEndEnvironment{theorem}{\\end{mdframed}}\n"
+                 "\\BeforeBeginEnvironment{corollary}{\\begin{mdframed}}\n"
+                 "\\AfterEndEnvironment{corollary}{\\end{mdframed}}\n"
+                 "\\BeforeBeginEnvironment{exmp}{\\begin{mdframed}}\n"
+                 "\\AfterEndEnvironment{exmp}{\\end{mdframed}}\n"
+                 "\\BeforeBeginEnvironment{exercise}{\\begin{mdframed}}\n"
+                 "\\AfterEndEnvironment{exercise}{\\end{mdframed}}\n"
+                 "\\BeforeBeginEnvironment{definition}{\\begin{mdframed}}\n"
+                 "\\AfterEndEnvironment{definition}{\\end{mdframed}}\n"
+                 "\\pagestyle{fancy}\n"
+                 "\\fancyhf{}\n"
+
+                 "\\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}\n"
+
+                 "\\let\\oldtitle\\title\n"
+                 "\\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}\n"
+                 "\\fancyhead[L]{\\leftmark}\n"
+                 "\\fancyhead[R]{\\titletext}\n"
+                 "\\fancyfoot[R]{\\thepage}\n"
+                 "[NO-DEFAULT-PACKAGES]"
+                 "[PACKAGES]"
+                 "[EXTRA]")
+               ("\\chapter{%s}" . "\\chapter{%s}")
+               ("\\section*{%s}" . "\\section*{%s}")
+               ("\\subsection*{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection*{%s}" . "\\subsubsection*{%s}")
                ("\\paragraph{%s}" . "\\paragraph{%s}")
                ("\\subparagraph{%s}" . "\\subparagraph{%s}")))
 

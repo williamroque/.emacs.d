@@ -4,10 +4,31 @@
 # --
 #+latex_class: math-document
 #+autofill: nil
+#+option: title:nil
 
 #+begin_export latex
-\thispagestyle{empty}
-\clearpage\maketitle
+\title{Homework --- Sections $2 \& $3}
+
+\newlength{\drop}
+
+\begin{titlepage}
+\drop=0.1\textheight
+\centering
+\vspace*{\baselineskip}
+\rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{2pt}
+\rule{\textwidth}{0.4pt}\\\\[2\baselineskip]
+{\LARGE SECTIONS $2 \& $3}\\\\[\baselineskip]
+\rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt}
+\rule{\textwidth}{1.6pt}\\\\[\baselineskip]
+\scshape
+Homework for MATH 314\par
+\vspace*{\baselineskip}
+{\large William Roque\par}
+\vfill
+{\scshape \today} \\\\[\baselineskip]
+{\itshape Brigham Young University | william.aroque@gmail.com\par}
+\end{titlepage}
+
 \setcounter{page}{1}
 
 \setlength{\abovedisplayskip}{-10pt}
@@ -38,8 +59,6 @@
 #+begin_comment
 $1
 #+end_comment
-
-#+title: Homework --- Sections $2 & $3
 
 * Section $2
 
