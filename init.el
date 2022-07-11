@@ -926,8 +926,10 @@ for more information."
   
   
   ;; increment/decrement at point
-  (define-key global-map (kbd "C-9") #'evil-numbers/dec-at-pt)
-  (define-key global-map (kbd "C-0") #'evil-numbers/inc-at-pt)
+  (use-package evil-numbers
+    :config
+    (define-key global-map (kbd "C-9") #'evil-numbers/inc-at-pt)
+    (define-key global-map (kbd "C-0") #'evil-numbers/dec-at-pt))
   
   
   ;; convenient remap for ex state
@@ -1590,7 +1592,7 @@ after using split-paragraph-into-sentences.")
                       ("sqt" . "\\sqrt{$1$0")
 
                       ("equ" . " = $0")
-                      ("neq" . " \\neq $0")
+                      ("nequ" . " \\neq $0")
                       ("vm" . " - $0")
                       ("vp" . " + $0")
                       ("seq" . " &= $0")
@@ -2674,6 +2676,12 @@ after using split-paragraph-into-sentences.")
   (add-hook 'post-self-insert-hook #'correct-word-before-space)
   
   
+  ;; avoid triggering autocorrect
+  (define-key org-mode-map (kbd "S-SPC") #'(lambda ()
+                                             (interactive)
+                                             (insert ? )))
+  
+  
   (define-key org-mode-map (kbd "<f3>") #'(lambda ()
                                             (interactive)
                                             (if autocorrect-words-on-type
@@ -3232,19 +3240,28 @@ This is a :filter-args advice for `message`."
 
           (set-temporary-face-attributes
            :foreground color-background
-           '(org-document-title))
+           '(org-document-title
+             outline-1
+             outline-2
+             outline-3
+             outline-4
+             outline-5
+             outline-6
+             outline-7
+             outline-8))
 
           (set-temporary-face-attributes
-           :background "#FBFBFB"
+           :background "#FFF"
            '(org-block-begin-line
              org-block-end-line
+             sp-pair-overlay-face
              yas-field-highlight-face))
 
           (set-temporary-face-attributes
            :foreground color-green
            '(yas-field-highlight-face))
 
-          (set-background-color "#FBFBFB")
+          (set-background-color "#FFF")
           (set-foreground-color color-background))
         (setq distraction-free-background-set t))
     (when distraction-free-background-set
@@ -3265,6 +3282,7 @@ This is a :filter-args advice for `message`."
   (if (equal olivetti-mode nil)
       (progn
         (when use-mixed-pitch
+          (olivetti-set-width 75)
           (mixed-pitch-mode 1)
           (setq-local line-spacing 4))
         (setq-local default-mode-line-format mode-line-format)
@@ -3284,8 +3302,7 @@ This is a :filter-args advice for `message`."
               (when line-spacing
                 (save-excursion
                   (end-of-line)
-                  (unless (equal (char-before) ? )
-                    (insert ? ))))))
+                  (insert ? )))))
 
 
 (add-hook 'evil-insert-state-exit-hook

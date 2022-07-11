@@ -49,6 +49,7 @@
 
 \let\oldpartial\partial
 \renewcommand*{\partial}[2]{\frac{\oldpartial #1}{\oldpartial #2}}
+\renewcommand*{\hpartial}[2]{\oldpartial #1\big/\oldpartial #2}
 
 \newcommand{\curl}{\nabla\times}
 \newcommand{\divergence}{\nabla\cdot}
