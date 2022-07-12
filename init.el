@@ -148,6 +148,18 @@
   (let ((message-log-max nil))
     `(with-temp-message (or (current-message) "") ,@body)))
 
+
+(defmacro define-and-bind-text-object (key start-regex end-regex)
+  (let ((inner-name (make-symbol "inner-name"))
+        (outer-name (make-symbol "outer-name")))
+    `(progn
+       (evil-define-text-object ,inner-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+       (evil-define-text-object ,outer-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count t))
+       (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
+       (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
+
 ;; colorscheme stuff
 (defvar ansi-color-names-vector
   ["#3c3836" "#fb4933" "#b8bb26" "#fabd2f" "#83a598" "#d3869b" "#8ec07c" "#ebdbb2"])
@@ -374,7 +386,7 @@
 (global-set-key (kbd "M-k") 'evil-window-up)
 (global-set-key (kbd "M-l") 'evil-window-right)
 
-(setq-default mouse-autoselect-window nil)
+(setq-default mouse-autoselect-window t)
 
 (setq-default split-width-threshold 0)
 (setq-default split-height-threshold nil)
@@ -990,10 +1002,16 @@ for more information."
   (add-hook 'org-mode-hook (lambda ()
                              (delete ?b evil-embrace-evil-surround-keys)
   
+                             (embrace-add-pair ?e "\\left( " " \\right)")
+                             (embrace-add-pair ?r "\\left[ " " \\right]")
                              (embrace-add-pair ?i "/" "/")
                              (embrace-add-pair ?b "*" "*")
                              (embrace-add-pair ?u "_" "_")
-                             (embrace-add-pair ?c "=" "="))))
+                             (embrace-add-pair ?c "=" "=")))
+  
+  
+  (define-and-bind-text-object "e" "\\\\left( " " \\\\right)")
+  (define-and-bind-text-object "r" "\\\\left\\[ " " \\\\right\\]"))
 
 (use-package evil-owl
   :config
@@ -1042,9 +1060,14 @@ for more information."
 
 
 ;; smooth scrolling
-(setq scroll-margin 5
-      scroll-conservatively 9999
-      scroll-step 1)
+(setq-default scroll-margin 5)
+(setq-default scroll-conservatively 9999)
+(setq-default scroll-step 1)
+
+
+;; allow horizontal scrolling with mouse
+(setq-default mouse-wheel-tilt-scroll t)
+(setq-default mouse-wheel-flip-direction t)
 
 ;; use backslash to end search highlighting
 (define-key evil-normal-state-map (kbd "\\") #'evil-ex-nohighlight)
@@ -1278,6 +1301,101 @@ after using split-paragraph-into-sentences.")
   (if last-paragraph-sentence-split
       (join-sentences-into-paragraph)
     (split-paragraph-into-sentences)))
+
+(defvar rotate-text-rotations
+  '(("true" "false")
+    ("True" "False")
+    ("yes" "no")
+    ("+" "-"))
+  "List of text rotation sets.")
+
+
+(defun rotate-region (beg end)
+  "Rotate all matches in `rotate-text-rotations' between point and mark."
+  (interactive "r")
+  (let ((regexp (rotate-convert-rotations-to-regexp
+		 rotate-text-rotations))
+	(end-mark (copy-marker end)))
+    (save-excursion
+      (goto-char beg)
+      (while (re-search-forward regexp (marker-position end-mark) t)
+	(let* ((found (match-string 0))
+	       (replace (rotate-next found)))
+	  (replace-match replace))))))
+
+
+(defun rotate-string (string &optional rotations)
+  "Rotate all matches in STRING using associations in ROTATIONS.
+If ROTATIONS are not given it defaults to `rotate-text-rotations'."
+  (let ((regexp (rotate-convert-rotations-to-regexp
+		 (or rotations rotate-text-rotations)))
+	(start 0))
+    (while (string-match regexp string start)
+      (let* ((found (match-string 0 string))
+	     (replace (rotate-next
+		       found
+		       (or rotations rotate-text-rotations))))
+	(setq start (+ (match-end 0)
+		       (- (length replace) (length found))))
+	(setq string (replace-match replace nil t string))))
+    string))
+
+
+(defun rotate-next (string &optional rotations)
+  "Return the next element after STRING in ROTATIONS."
+  (let ((rots (rotate-get-rotations-for
+	       string
+	       (or rotations rotate-text-rotations))))
+    (if (> (length rots) 1)
+	(error (format "Ambiguous rotation for %s" string))
+      (if (< (length rots) 1)
+	  ;; If we get this far, this should not occur:
+	  (error (format "Unknown rotation for %s" string))
+	(let ((occurs-in-rots (member string (car rots))))
+	  (if (null occurs-in-rots)
+	      ;; If we get this far, this should *never* occur:
+	      (error (format "Unknown rotation for %s" string))
+	  (if (null (cdr occurs-in-rots))
+	      (caar rots)
+	    (cadr occurs-in-rots))))))))
+
+
+(defun rotate-get-rotations-for (string &optional rotations)
+  "Return the string rotations for STRING in ROTATIONS."
+  (remq nil (mapcar (lambda (rot) (if (member string rot) rot))
+		    (or rotations rotate-text-rotations))))
+
+
+(defun rotate-convert-rotations-to-regexp (rotations)
+  (regexp-opt (rotate-flatten-list rotations)))
+
+
+(defun rotate-flatten-list (list-of-lists)
+  "Flatten LIST-OF-LISTS to a single list.
+Example:
+  (rotate-flatten-list '((a b c) (1 ((2 3)))))
+    => (a b c 1 2 3)"
+  (if (null list-of-lists)
+      list-of-lists
+    (if (listp list-of-lists)
+	(append (rotate-flatten-list (car list-of-lists))
+		(rotate-flatten-list (cdr list-of-lists)))
+      (list list-of-lists))))
+
+
+(defun rotate-word-at-point ()
+  "Rotate word at point based on sets in `rotate-text-rotations'."
+  (interactive)
+  (let ((bounds (bounds-of-thing-at-point 'symbol))
+        (opoint (point)))
+    (when (consp bounds)
+      (let ((beg (car bounds))
+            (end (copy-marker (cdr bounds))))
+        (rotate-region beg end)
+        (goto-char (if (> opoint end) end opoint))))))
+
+
+(global-set-key (kbd "C-c r") #'rotate-word-at-point)
 
 ;; use C-j for command prompt
 (define-key evil-ex-completion-map (kbd "C-j") #'exit-minibuffer)
@@ -1562,6 +1680,7 @@ after using split-paragraph-into-sentences.")
                       ("Omega" . "\\Omega$0")
 
                       ("ln" . "\\ln $0")
+
                       ("cos" . "\\cos $0")
                       ("sec" . "\\sec $0")
                       ("sin" . "\\sin $0")
@@ -1571,6 +1690,27 @@ after using split-paragraph-into-sentences.")
                       ("acos" . "\\arccos $0")
                       ("asin" . "\\arcsin $0")
                       ("atan" . "\\arctan $0")
+
+                      ("ncos" . "\\cos^{$1 $0")
+                      ("nsec" . "\\sec^{$1 $0")
+                      ("nsin" . "\\sin^{$1 $0")
+                      ("ncsc" . "\\csc^{$1 $0")
+                      ("ntan" . "\\tan^{$1 $0")
+                      ("ncot" . "\\cot^{$1 $0")
+                      ("nacos" . "\\arccos^{$1 $0")
+                      ("nasin" . "\\arcsin^{$1 $0")
+                      ("natan" . "\\arctan^{$1 $0")
+
+                      ("2cos" . "\\cos^2 $0")
+                      ("2sec" . "\\sec^2 $0")
+                      ("2sin" . "\\sin^2 $0")
+                      ("2csc" . "\\csc^2 $0")
+                      ("2tan" . "\\tan^2 $0")
+                      ("2cot" . "\\cot^2 $0")
+                      ("2acos" . "\\arccos^2 $0")
+                      ("2asin" . "\\arcsin^2 $0")
+                      ("2atan" . "\\arctan^2 $0")
+
                       ("exp" . "\\exp$0")
                       ("lo" . "\\log$0")
                       ("ein" . " \\in $0")
@@ -2877,6 +3017,8 @@ after using split-paragraph-into-sentences.")
                  "*** TODO %?")
                 ("m" "Meeting" entry (file+headline "~/Documents/Education/schedule.org" "General")
                  "*** %?  :meeting:")
+                ("v" "Event" entry (file+headline "~/Documents/Education/schedule.org" "General")
+                 "*** %?  :event:")
                 ("s" "Sociology" entry (file+headline "~/Documents/Education/schedule.org" "Sociology")
                  "*** TODO %?")
                 ("f" "Family Finance" entry (file+headline "~/Documents/Education/schedule.org" "Family Finance")
