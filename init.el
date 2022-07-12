@@ -2396,6 +2396,21 @@ after using split-paragraph-into-sentences.")
   (evil-define-key 'normal org-mode-map (kbd "g d") #'org-deadline)
   
   
+  ;; schedule item without being a task
+  (evil-define-key 'normal org-mode-map (kbd "g .")
+    #'(lambda ()
+        (interactive)
+        (save-excursion
+          (if (equal (line-end-position) (point-max))
+              (open-line-down))
+          (save-excursion
+            (org-previous-visible-heading 1)
+            (goto-char (line-end-position))
+            (insert (format "\n%s" (with-temp-buffer
+                                     (org-time-stamp nil)))))
+          (delete-region (1- (line-beginning-position)) (line-end-position)))))
+  
+  
   ;; set tag
   (evil-define-key 'normal org-mode-map (kbd "g t") #'org-set-tags-command)
   
@@ -3705,13 +3720,15 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
 
 (defvar org-pdf-export-running nil)
+(defvar org-pdf-export-has-queue nil)
 
 
 (defun org-export-pdf-update ()
   "Export \"org-mode\" file to PDF in background."
   (interactive)
 
-  (when (not org-pdf-export-running)
+  (if org-pdf-export-running
+      (setq org-pdf-export-has-queue t)
     (setq org-pdf-export-running t)
     (let* ((output-path (format "%s.pdf" (file-name-sans-extension (buffer-file-name))))
            (output-buffer (generate-new-buffer "*Async shell command*"))
@@ -3725,11 +3742,15 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                     output-buffer)
                    (get-buffer-process output-buffer))))
       (if (process-live-p proc)
-        (set-process-sentinel proc #'(lambda (process signal)
-                                       (when (memq (process-status process) '(exit signal))
-                                         (setq org-pdf-export-running nil)
-                                         (kill-buffer "*Async shell command*")
-                                         (shell-command-sentinel process signal))))))))
+          (set-process-sentinel proc #'(lambda (process signal)
+                                         (when (memq (process-status process) '(exit signal))
+                                           (setq org-pdf-export-running nil)
+                                           (kill-buffer "*Async shell command*")
+                                           (shell-command-sentinel process signal)
+
+                                           (when org-pdf-export-has-queue
+                                             (setq org-pdf-export-has-queue nil)
+                                             (org-export-pdf-update)))))))))
 
 ;; org-mode custom HTML head export
 (defun org-html-export-head-hook (exporter)
