@@ -1643,7 +1643,7 @@ Example:
     (delete-region start end)))
 
 
-(define-key global-map (kbd "C-M-s") #'substitute-math-variables)
+(evil-define-key 'normal global-map (kbd "g r s") #'substitute-math-variables)
 
 (defvar anonymous-snippet ""
   "Stores a temporary-use snippet.")
@@ -3704,6 +3704,22 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
           (insert prefix)
           (insert (calc-eval expression)))))))
 
+(defun evaluate-math-expression-at-point (substition start end)
+  (interactive
+   (append (list (read-string "Evaluate at (e.g., \"x=1,y=2\"): "))
+           (if (use-region-p)
+               (list (region-beginning) (region-end))
+             (list (line-beginning-position) (line-end-position)))))
+
+  (save-excursion
+    (goto-char end)
+    (insert (let ((contents (buffer-substring start end)))
+              (with-temp-buffer
+                (insert (string-substitute-math-variables contents substition))
+                (clean-quick-calc (point-min) (point-max))
+                (buffer-string))))
+    (delete-region start end)))
+
 (defun evaluate-math-expression-at-limits (var a b start end)
   (interactive
    (append (split-string (read-string "Evaluate at (e.g., \"x,1,2\"): ") ",")
@@ -3723,7 +3739,8 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
     (delete-region start end)))
 
 
-(define-key global-map (kbd "C-M-S-s") #'evaluate-math-expression-at-limits)
+(evil-define-key 'normal global-map (kbd "g r l") #'evaluate-math-expression-at-limits)
+(evil-define-key 'normal global-map (kbd "g r p") #'evaluate-math-expression-at-point)
 
 (define-key global-map (kbd "C-'") #'clean-quick-calc)
 (define-key org-mode-map (kbd "C-'") #'clean-quick-calc)

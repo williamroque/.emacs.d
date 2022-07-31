@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: f-vec
+# key: F
+# --
+\vecb{F}$0
