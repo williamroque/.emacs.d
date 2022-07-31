@@ -2,7 +2,7 @@
 # name: math-homework
 # key: mhome
 # --
-#+latex_class: math-document
+#+latex_class: math-homework
 #+autofill: nil
 #+option: title:nil
 
@@ -45,10 +45,10 @@ Homework for MATH 314\par
 
 \newcommand{\stack}[2]{\mathrel{\overset{\makebox[0pt]{\mbox{\tiny #2}}}{#1}}}
 
-\newcommand{\diff}[2]{\frac{d #1}{d #2}}
+\newcommand{\diff}[2]{\dfrac{d #1}{d #2}}
 
 \let\oldpartial\partial
-\renewcommand*{\partial}[2]{\frac{\oldpartial #1}{\oldpartial #2}}
+\renewcommand*{\partial}[2]{\dfrac{\oldpartial #1}{\oldpartial #2}}
 \renewcommand*{\hpartial}[2]{\oldpartial #1\big/\oldpartial #2}
 
 \newcommand{\curl}{\nabla\times}

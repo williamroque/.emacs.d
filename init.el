@@ -937,11 +937,26 @@ for more information."
   (define-key evil-visual-state-map (kbd "RET") (kbd "@q"))
   
   
+  ;; select contents of last paste
+  (defun evil-select-pasted ()
+    (interactive)
+    (let ((start-marker (evil-get-marker ?\[))
+          (end-marker (evil-get-marker ?\])))
+      (evil-visual-select start-marker end-marker)))
+  
+  (evil-define-key 'normal global-map (kbd "g b") #'evil-select-pasted)
+  
+  
   ;; increment/decrement at point
   (use-package evil-numbers
     :config
-    (define-key global-map (kbd "C-9") #'evil-numbers/inc-at-pt)
-    (define-key global-map (kbd "C-0") #'evil-numbers/dec-at-pt))
+    (define-key global-map (kbd "C-9") #'evil-numbers/dec-at-pt)
+    (define-key global-map (kbd "C-0") #'evil-numbers/inc-at-pt))
+  
+  
+  ;; go to beginning and end of visual line by default
+  (evil-define-key 'normal global-map (kbd "0") #'evil-beginning-of-visual-line)
+  (evil-define-key 'normal global-map (kbd "$") #'evil-end-of-visual-line)
   
   
   ;; convenient remap for ex state
@@ -958,14 +973,20 @@ for more information."
   :config
   (evil-collection-init))
 
+(use-package evil-args
+  :config
+  (define-key evil-inner-text-objects-map "g" 'evil-inner-arg)
+  (define-key evil-outer-text-objects-map "g" 'evil-outer-arg)
+  (define-key evil-normal-state-map "L" 'evil-forward-arg)
+  (define-key evil-normal-state-map "H" 'evil-backward-arg))
+
 (defun add-general-embrace-pairs ()
   (embrace-add-pair ?\( "( " " )")
   (embrace-add-pair ?\) "(" ")")
   (embrace-add-pair ?\[ "[ " " ]")
   (embrace-add-pair ?\] "[" "]")
   (embrace-add-pair ?\{ "{ " " }")
-  (embrace-add-pair ?\} "{" "}")
-  (embrace-add-pair ?m "$" "$"))
+  (embrace-add-pair ?\} "{" "}"))
 
 
 (use-package evil-embrace
@@ -1004,6 +1025,8 @@ for more information."
   
                              (embrace-add-pair ?e "\\left( " " \\right)")
                              (embrace-add-pair ?r "\\left[ " " \\right]")
+                             (embrace-add-pair ?a "\\left\\langle " " \\right\\rangle")
+                             (embrace-add-pair ?m "\\( " " \\)")
                              (embrace-add-pair ?i "/" "/")
                              (embrace-add-pair ?b "*" "*")
                              (embrace-add-pair ?u "_" "_")
@@ -1011,7 +1034,9 @@ for more information."
   
   
   (define-and-bind-text-object "e" "\\\\left( " " \\\\right)")
-  (define-and-bind-text-object "r" "\\\\left\\[ " " \\\\right\\]"))
+  (define-and-bind-text-object "r" "\\\\left\\[ " " \\\\right\\]")
+  (define-and-bind-text-object "a" "\\\\left\\\\langle " " \\\\right\\\\rangle")
+  (define-and-bind-text-object "m" "\\\\( " " \\\\)"))
 
 (use-package evil-owl
   :config
@@ -1239,7 +1264,7 @@ for more information."
 
 
 ;; set fill column (obviously)
-(setq-default fill-column 80)
+(setq-default fill-column 75)
 
 
 ;; make sure sentences are not limited to those that are double-space-separated
@@ -1525,12 +1550,14 @@ Example:
                                      (if (equal j (1- cols)) "$%s" "$%s & ")
                                      (+ 1 (* i cols) j)))))
       (setq matrix-string (concat matrix-string (if (equal i (1- rows)) (format "\n\\end{%s}" env) "\\\\\\\n"))))
+    (setq my/unhiding-current-line nil)
     (yas-expand-snippet matrix-string)
     (add-hook 'yas-after-exit-snippet-hook #'align-yasnippet-matrix)))
 
 
 (defun align-yasnippet-matrix ()
   (align-regexp yas-snippet-beg yas-snippet-end "\\(\\s-*\\) &" 1 1 t)
+  (setq my/unhiding-current-line t)
   (remove-hook 'yas-after-exit-snippet-hook #'align-yasnippet-matrix))
 
 (defun snippet-convert-fraction (start end)
@@ -1586,6 +1613,54 @@ Example:
 (evil-define-key 'insert org-mode-map (kbd "/") #'snippet-convert-fraction)
 (evil-define-key 'visual org-mode-map (kbd "/") #'snippet-convert-fraction)
 
+;; TODO Create stronger criteria for variable subsitution (maybe incorporating thing at point, with exceptions for numbers and other variables)
+
+(defun string-substitute-math-variables (contents vars)
+  (with-temp-buffer
+    (insert contents)
+    (dolist (pair (split-string vars ","))
+      (-let (((var value) (split-string pair "=")))
+        (condition-case nil
+            (while (replace-regexp-in-region
+                    var
+                    (format "(%s)" value)
+                    (point-min) (point-max)))
+          (error nil))))
+    (buffer-string)))
+
+
+(defun substitute-math-variables (vars start end)
+  (interactive
+   (append (list (read-string "Enter variable-value pairs (e.g., \"x=4,y=7\"): "))
+           (if (use-region-p)
+               (list (region-beginning) (region-end))
+             (list (line-beginning-position) (line-end-position)))))
+
+  (save-excursion
+    (let ((contents (buffer-substring start end)))
+      (goto-char end)
+      (insert (string-substitute-math-variables contents vars)))
+    (delete-region start end)))
+
+
+(define-key global-map (kbd "C-M-s") #'substitute-math-variables)
+
+(defvar anonymous-snippet ""
+  "Stores a temporary-use snippet.")
+
+
+(defun create-anonymous-snippet (snippet)
+  (interactive "sSnippet: ")
+  (setq anonymous-snippet snippet))
+
+
+(define-key global-map (kbd "C-s") #'create-anonymous-snippet)
+
+
+(defun expand-anonymous-snippet ()
+  (interactive)
+  (yas-expand-snippet anonymous-snippet))
+
   ;; It may be interesting to note that the following combinations don't appear in
   ;; English: bx, cj, cv, cx, dx, fq, fx, gq, gx, hx, jc, jf, jg, jq, js, jv, jw,
   ;; jx, jz, kq, kx, mx, px, pz, qb, qc, qd, qf, qg, qh, qj, qk, ql, qm, qn, qp,
@@ -1602,7 +1677,8 @@ Example:
       ";i-" "ī"
       ";a-" "ā"
       ";u-" "ū"
-      ";e-" "ē")
+      ";e-" "ē"
+      "a-0" #'expand-anonymous-snippet)
 
     (aas-set-snippets 'org-mode
       "js" (lambda () (interactive)
@@ -1729,10 +1805,11 @@ Example:
                       ("2po" . "\\left( $1, $2 \\right)$0")
                       ("2ve" . "\\left\\langle $1, $2 \\right\\rangle$0")
 
-                      ("sqt" . "\\sqrt{$1$0")
+                      ("kq" . "\\sqrt{$1$0")
 
                       ("equ" . " = $0")
-                      ("nequ" . " \\neq $0")
+                      (">>" . " \\> $0")
+                      ("nqu" . " \\neq $0")
                       ("vm" . " - $0")
                       ("vp" . " + $0")
                       ("seq" . " &= $0")
@@ -2038,6 +2115,7 @@ Example:
   ;; add pairings for \left \right delimiters
   (sp-local-pair '(latex-mode org-mode) "\\left(" "\\right)")
   (sp-local-pair '(latex-mode org-mode) "\\left[" "\\right]")
+  (sp-local-pair '(latex-mode org-mode) "\\left\\langle" "\\right\\rangle")
 
 
   ;; Use pdf-tools to open PDF files
@@ -2317,35 +2395,6 @@ Example:
   ;; open link in the same window
   (add-to-list 'org-link-frame-setup '(file . find-file))
   
-  ;; quick-calc
-  (defun clean-quick-calc (start end)
-    (interactive
-     (if (region-active-p)
-         (list (region-beginning) (region-end))
-       '(nil nil)))
-  
-    (if (null start)
-        (with-temp-buffer
-          (quick-calc nil)
-          (kill-ring-save (point-min) (point-max)))
-      (progn
-        (let ((expression (replace-regexp-in-string
-                           "\\([abcxyz]\\|_[[:digit:]]\\)[[:space:]]*("
-                           "\\1*("
-                           (buffer-substring start end))))
-          (delete-region start (if (and (equal (evil-visual-type) 'line)
-                                        (not (equal end (point-max))))
-                                   (- end 1) end))
-          (save-excursion
-            (goto-char start)
-            (insert (calc-eval expression)))))))
-  
-  (define-key global-map (kbd "C-'") #'clean-quick-calc)
-  (define-key org-mode-map (kbd "C-'") #'clean-quick-calc)
-  
-  (add-hook 'calc-mode-hook #'(lambda ()
-                                (calc-latex-language nil)
-                                (calc-radians-mode)))
   
   ;; recalculate table
   (define-key org-mode-map (kbd "C-M-'") #'org-table-recalculate)
@@ -2359,6 +2408,24 @@ Example:
   
   ;; clear field
   (define-key org-mode-map (kbd "C-c SPC") #'org-table-blank-field)
+  
+  
+  ;; start timer
+  (evil-define-key 'normal org-mode-map (kbd "g t s") #'org-timer-start)
+  (evil-define-key 'normal org-mode-map (kbd "g t m")
+    #'(lambda ()
+        (interactive)
+        (message (org-timer-value-string))))
+  (evil-define-key 'normal org-mode-map (kbd "g t d") #'org-timer-set-timer)
+  (evil-define-key 'normal org-mode-map (kbd "g t i") #'org-timer)
+  (evil-define-key 'normal org-mode-map (kbd "g t .")
+    #'(lambda ()
+        (interactive)
+        (let ((final-timer-value (string-trim (org-timer-value-string))))
+          (let ((inhibit-message t))
+            (org-timer-stop))
+          (message "Timer stopped at %s." final-timer-value))))
+  (evil-define-key 'normal org-mode-map (kbd "g t ,") #'org-timer-pause-or-continue)
   
   
   ;; disable pairing for single quotes
@@ -2552,7 +2619,7 @@ Example:
   
   
   ;; set tag
-  (evil-define-key 'normal org-mode-map (kbd "g t") #'org-set-tags-command)
+  (evil-define-key 'normal org-mode-map (kbd "g T") #'org-set-tags-command)
   
   
   ;; save and close org capture
@@ -3017,12 +3084,12 @@ Example:
                  "*** TODO %?")
                 ("m" "Meeting" entry (file+headline "~/Documents/Education/schedule.org" "General")
                  "*** %?  :meeting:")
+                ("i" "BYU IS" entry (file+headline "~/Documents/Education/schedule.org" "Work")
+                 "*** TODO %?")
+                ("r" "Research" entry (file+headline "~/Documents/Education/schedule.org" "Research")
+                 "*** %?  :meeting:")
                 ("v" "Event" entry (file+headline "~/Documents/Education/schedule.org" "General")
                  "*** %?  :event:")
-                ("s" "Sociology" entry (file+headline "~/Documents/Education/schedule.org" "Sociology")
-                 "*** TODO %?")
-                ("f" "Family Finance" entry (file+headline "~/Documents/Education/schedule.org" "Family Finance")
-                 "*** TODO %?")
                 ("c" "Calculus" entry (file+headline "~/Documents/Education/schedule.org" "Calculus")
                  "*** TODO %?")
                 ("y" "Mythology" entry (file+headline "~/Documents/Education/schedule.org" "Mythology")
@@ -3056,14 +3123,19 @@ Example:
 (make-variable-buffer-local 'my/current-line)
 
 
+(defvar my/unhiding-current-line t
+  "Whether to unhide current line.")
+
+
 (defun my/unhide-current-line (limit)
   "Font-lock function"
-  (let ((start (max (point) (car my/current-line)))
-        (end (min limit (cdr my/current-line))))
-    (when (< start end)
-      (remove-text-properties start end '(invisible t display "" composition ""))
-      (goto-char limit)
-      t)))
+  (when my/unhiding-current-line
+    (let ((start (max (point) (car my/current-line)))
+          (end (min limit (cdr my/current-line))))
+      (when (< start end)
+        (remove-text-properties start end '(invisible t display "" composition ""))
+        (goto-char limit)
+        t))))
 
 
 (defun my/refontify-on-linemove ()
@@ -3142,6 +3214,33 @@ Example:
 (use-package helm-org
   :config
   (evil-define-key 'normal org-mode-map "?" #'helm-org-in-buffer-headings))
+
+(require 'appt)
+
+(setq-default appt-time-msg-list nil)
+(setq-default appt-display-interval '5)
+(setq-default appt-message-warning-time '15)
+(setq-default appt-display-mode-line nil)
+(setq-default appt-display-format 'window)
+
+(setq-default appt-disp-window-function (function appt-display-notification))
+
+(appt-activate 1)
+
+
+(defun appt-display-notification (min-to-app new-time msg)
+  (shell-command-to-string
+   (format
+    "terminal-notifier -title \"Appointment in %s\" -message \"%s\" -sender org.gnu.Emacs"
+    min-to-app
+    msg))
+  (let ((org-agenda-category-filter-preset '("-Calendar")))
+    (org-agenda-list)))
+
+
+(org-agenda-to-appt)
+(run-at-time "24:01" 3600 'org-agenda-to-appt)
+(add-hook 'org-agenda-finalize-hook #'org-agenda-to-appt)
 
 (add-hook 'org-agenda-mode-hook #'(lambda ()
                                     (olivetti-set-width 70)
@@ -3241,6 +3340,10 @@ Example:
             #'(lambda ()
                 (hl-line-mode 1)
                 (setq-local evil-normal-state-cursor '("#151719" bar))))
+  
+  
+  (advice-add #'org-agenda-redo :after #'(lambda (&rest args)
+                                           (evil-refresh-cursor)))
   
   
   ;; move cursor to first item
@@ -3569,6 +3672,68 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
           #'(lambda ()
               (evil-local-set-key 'normal (kbd "q") #'osx-dictionary-quit)))
 
+(defun clean-quick-calc (start end)
+  (interactive
+   (if (region-active-p)
+       (list (region-beginning) (region-end))
+     '(nil nil)))
+
+  (if (null start)
+      (with-temp-buffer
+        (quick-calc t)
+        (kill-ring-save (point-min) (point-max)))
+    (progn
+      (let* ((expression-start start)
+             (prefix (save-excursion
+                       (goto-char start)
+                       (condition-case nil
+                           (progn
+                             (re-search-forward "\\([[:space:]]*&= \\)\\|\\([[:space:]]*= \\)" end)
+                             (setq expression-start (match-end 0))
+                             (match-string 0))
+                         (error ""))))
+             (expression (replace-regexp-in-string
+                          "\\([abcxyz]\\|_[[:digit:]]\\)[[:space:]]*("
+                          "\\1*("
+                          (buffer-substring expression-start end))))
+        (delete-region start (if (and (equal (evil-visual-type) 'line)
+                                      (not (equal end (point-max))))
+                                 (- end 1) end))
+        (save-excursion
+          (goto-char start)
+          (insert prefix)
+          (insert (calc-eval expression)))))))
+
+(defun evaluate-math-expression-at-limits (var a b start end)
+  (interactive
+   (append (split-string (read-string "Evaluate at (e.g., \"x,1,2\"): ") ",")
+           (if (use-region-p)
+               (list (region-beginning) (region-end))
+             (list (line-beginning-position) (line-end-position)))))
+
+  (save-excursion
+    (goto-char end)
+    (insert (let ((contents (buffer-substring start end)))
+              (with-temp-buffer
+                (insert (format "(%s) - (%s)"
+                                (string-substitute-math-variables contents (format "%s=%s" var b))
+                                (string-substitute-math-variables contents (format "%s=%s" var a))))
+                (clean-quick-calc (point-min) (point-max))
+                (buffer-string))))
+    (delete-region start end)))
+
+
+(define-key global-map (kbd "C-M-S-s") #'evaluate-math-expression-at-limits)
+
+(define-key global-map (kbd "C-'") #'clean-quick-calc)
+(define-key org-mode-map (kbd "C-'") #'clean-quick-calc)
+
+(add-hook 'calc-mode-hook #'(lambda ()
+                              (calc-latex-language nil)
+                              (calc-symbolic-mode 1)
+                              (calc-frac-mode 1)
+                              (calc-radians-mode)))
+
 (defun follow-zoom-link (link-url)
   "Open zoommtg:// links."
   (shell-command (format "open 'zoommtg:%s'" link-url)))
@@ -3646,19 +3811,21 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
 (add-to-list 'org-latex-classes
              `("assignment"
-               ,(concat
-                 "\\documentclass[a4paper,12pt]{article}\n"
-                 "\\usepackage[doublespacing]{setspace}\n"
-                 "\\usepackage[margin=1in]{geometry}\n"
-                 "\\usepackage{csquotes}\n"
-                 "\\usepackage{amsmath}\n"
-                 "\\usepackage{graphicx}\n"
-                 "\\usepackage[hidelinks]{hyperref}\n"
-                 "\\usepackage[style=apa,backend=biber]{biblatex}\n"
-                 "\\usepackage[small]{titlesec}\n"
-                 "[NO-DEFAULT-PACKAGES]"
-                 "[PACKAGES]"
-                 "[EXTRA]")
+               "
+\\documentclass[a4paper,12pt]{article}
+
+\\usepackage[doublespacing]{setspace}
+\\usepackage[margin=1in]{geometry}
+\\usepackage{csquotes}
+\\usepackage{amsmath}
+\\usepackage{graphicx}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage[style=apa,backend=biber]{biblatex}
+\\usepackage[small]{titlesec}
+
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+[EXTRA]"
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -3667,18 +3834,22 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
 
 (add-to-list 'org-latex-classes
-             `("apa6"
-               ,(concat
-                 "\\documentclass[a4paper,man]{apa6}\n"
-                 "\\usepackage{csquotes}\n"
-                 "\\usepackage{graphicx}\n"
-                 "\\usepackage[hidelinks]{hyperref}\n"
-                 "\\usepackage[style=apa,backend=biber]{biblatex}\n"
-                 "\\renewcommand*{\\finalnamedelim}{ \\ifnumgreater{\\value{liststop}}{2}{\\finalandcomma}{} \\addspace\\&\\space}\n"
-                 "\\usepackage[skip=0pt]{parskip}\n"
-                 "[NO-DEFAULT-PACKAGES]"
-                 "[PACKAGES]"
-                 "[EXTRA]")
+             '("apa6"
+               "
+\\documentclass[a4paper,man]{apa6}
+
+\\usepackage{csquotes}
+\\usepackage{graphicx}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage[style=apa,backend=biber]{biblatex}
+
+\\renewcommand*{\\finalnamedelim}{ \\ifnumgreater{\\value{liststop}}{2}{\\finalandomma}{} \\addspace\\&\\space}
+
+\\usepackage[skip=0pt]{parskip}
+
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+[EXTRA]"
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
@@ -3687,72 +3858,130 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
 
 (add-to-list 'org-latex-classes
-             `("math-document"
-               ,(concat
-                 "\\documentclass[a4paper,12pt,oneside]{book}\n"
-                 "\\usepackage[margin=1in]{geometry}\n"
-                 "\\usepackage{csquotes}\n"
-                 "\\usepackage{amsmath}\n"
-                 "\\usepackage{amssymb}\n"
+             '("math-document"
+               "
+\\documentclass[a4paper,12pt,oneside]{book}
+\\usepackage[margin=1in]{geometry}
+\\usepackage{csquotes}
+\\usepackage{amsmath}
+\\usepackage{amssymb}
+\\usepackage{float}
+\\usepackage{graphicx}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage{fancyhdr}
+\\usepackage{xhfill}
+\\usepackage[svgnames]{xcolor}
+\\usepackage[explicit]{titlesec}
+\\usepackage[defaultsans,scale=1]{opensans}
+\\usepackage[T1]{fontenc}
+\\usepackage{anyfontsize}
+\\usepackage[many]{tcolorbox}
+\\usepackage{amsthm}
+\\usepackage{tikz}
+\\usepackage{microtype}
+\\usepackage{adjustbox}
 
-                 "\\usepackage{float}\n"
+\\definecolor{title-foreground}{RGB}{230,230,230}
+\\definecolor{subtitle-foreground}{RGB}{120,120,120}
+\\definecolor{chapter-foreground}{RGB}{80,80,80}
 
-                 "\\usepackage{graphicx}\n"
-                 "\\usepackage[hidelinks]{hyperref}\n"
-                 "\\usepackage{fancyhdr}\n"
-                 "\\usepackage[explicit]{titlesec}\n"
+\\definecolor{theorem-background}{RGB}{0,53,110}
+\\definecolor{definition-background}{RGB}{0,87,153}
+\\definecolor{example-background}{RGB}{86,152,179}
+\\definecolor{note-background}{RGB}{0,53,110}
 
-                 "\\titleformat{\\chapter}{\\normalfont\\huge}{#1}{}{}\n"
-                 "\\titleformat{\\section}{\\normalfont\\large}{\\thesection.}{.5em}{#1}\n"
-                 "\\titleformat{\\subsection}{\\normalfont\\large}{\\thesubsection.}{.5em}{#1}\n"
+\\colorlet{rulecolor}{Gainsboro!40!Lavender}
+\\titleformat{\\chapter}[display]
+{\\filcenter}{\\mbox{}\\xrfill[0.4ex]{3pt}[rulecolor]\\textsc{\\large\\enspace\\chaptername~\\thechapter}\\enspace\\xrfill[0.4ex]{3pt}[rulecolor]\\mbox{}}{0.3ex}
+{{\\color{rulecolor}\\titlerule[1pt]}\\vskip3ex\\huge\\sffamily\\color{chapter-foreground}#1}[\\vskip1.2ex{\\color{rulecolor}\\titlerule[1pt]}]
 
-                 "\\titlespacing{\\chapter}{0pt}{0pt}{1em}\n"
+\\titleformat{\\section}{\\sffamily\\large}{\\thesection.}{.5em}{#1}
+\\titleformat{\\subsection}{\\sffamily\\large}{\\thesubsection.}{.5em}{#1}
 
-                 "\\usepackage{amsthm}\n"
-                 "\\setlength{\\parskip}{.5em}\n"
-                 "\\setlength{\\parindent}{0pt}\n"
-                 "\\newtheoremstyle{boxed}{8pt}{8pt}{}{}{\\upshape\\bfseries}{.}{.5em}{}\n"
-                 "\\theoremstyle{boxed}\n"
-                 "\\newtheorem{theorem}{Theorem}\n"
-                 "\\numberwithin{theorem}{chapter}\n"
-                 "\\newtheorem{note}{Note}\n"
-                 "\\numberwithin{note}{chapter}\n"
-                 "\\newtheorem{exmp}{Example}\n"
-                 "\\numberwithin{exmp}{chapter}\n"
-                 "\\newtheorem{corollary}{Corollary}\n"
-                 "\\numberwithin{corollary}{chapter}\n"
-                 "\\newtheorem{exercise}{Exercise}\n"
-                 "\\numberwithin{exercise}{chapter}\n"
-                 "\\newtheorem{definition}{Definition}\n"
-                 "\\numberwithin{definition}{chapter}\n"
-                 "\\newtheorem{lemma}{Lemma}[theorem]\n"
-                 "\\numberwithin{lemma}{chapter}\n"
-                 "\\usepackage{mdframed}\n"
-                 "\\BeforeBeginEnvironment{theorem}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{theorem}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{corollary}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{corollary}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{exmp}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{exmp}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{exercise}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{exercise}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{definition}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{definition}{\\end{mdframed}}\n"
-                 "\\pagestyle{fancy}\n"
-                 "\\fancyhf{}\n"
+\\tcbuselibrary{theorems}
 
-                 "\\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}\n"
-                 "\\renewcommand{\\sectionmark}[1]{\\markright{SECTION \\thesection. \\uppercase{#1}}}\n"
+\\newtcbtheorem[number within=chapter]{old-theorem}{Theorem}{
+  breakable,
+  colback=theorem-background!10,
+  colframe=theorem-background!55!black,
+  fonttitle=\\bfseries\\sffamily}{th}
 
-                 "\\let\\oldtitle\\title\n"
-                 "\\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}\n"
-                 "\\fancyhead[L]{\\leftmark}\n"
-                 "\\fancyhead[R]{\\titletext}\n"
-                 "\\fancyfoot[C]{\\rightmark}\n"
-                 "\\fancyfoot[R]{\\thepage}\n"
-                 "[NO-DEFAULT-PACKAGES]"
-                 "[PACKAGES]"
-                 "[EXTRA]")
+\\newtcbtheorem[number within=chapter]{old-exmp}{Example}{
+  breakable,
+  colback=example-background!10,
+  colframe=example-background!55!black,
+  fonttitle=\\bfseries\\sffamily}{ex}
+
+\\newtcbtheorem[number within=chapter]{old-definition}{Definition}{
+  breakable,
+  colback=definition-background!10,
+  colframe=definition-background!65!black,
+  fonttitle=\\bfseries\\sffamily}{def}
+
+\\newtcolorbox{note}[1][]{
+  enhanced jigsaw,
+  borderline west={2pt}{0pt}{note-background},
+  sharp corners,
+  boxrule=0pt,
+  fonttitle={\\bfseries\\sffamily},
+  coltitle={black},
+  title={Note:\\ },
+  attach title to upper,
+  #1
+}
+
+\\renewenvironment{theorem}[1][]{%
+  \\begin{old-theorem}{#1}{}%
+    
+}{%
+  \\end{old-theorem}%
+}
+
+\\renewenvironment{exmp}{%
+  \\begin{old-exmp}{}{}%
+    
+}{%
+  \\end{old-exmp}%
+}
+
+\\renewenvironment{definition}{%
+  \\begin{old-definition}{}{}%
+    
+}{%
+  \\end{old-definition}%
+}
+
+\\newtheorem{exercise}{Exercise}
+\\numberwithin{exercise}{chapter}
+\\newtheorem{lemma}{Lemma}[theorem]
+\\numberwithin{lemma}{chapter}
+\\newtheorem{corollary}{Corollary}[theorem]
+\\numberwithin{corollary}{chapter}
+
+\\setlength{\\parskip}{.5em}
+\\setlength{\\parindent}{0pt}
+
+\\pagestyle{fancy}
+\\fancyhf{}
+\\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}
+\\renewcommand{\\sectionmark}[1]{\\markright{SECTION \\thesection. \\uppercase{#1}}}
+\\let\\oldtitle\\title
+\\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}
+\\fancyhead[L]{\\leftmark}
+\\fancyhead[R]{\\titletext}
+\\fancyfoot[C]{\\rightmark}
+\\fancyfoot[R]{\\thepage}
+
+\\newcommand*{\\textinrule}[3][]{%
+  \\makebox[#2]{#1%
+    \\leaders\\hrule height \\dimexpr.5ex+.2pt\\relax depth \\dimexpr -.5ex+.2pt\\relax \\hfill% Left rule
+    \\enskip{#3}\\enskip% Text (and surrounding spaces)
+    \\leaders\\hrule height \\dimexpr.5ex+.2pt\\relax depth \\dimexpr -.5ex+.2pt\\relax \\hfill\\kern0pt}% Right rule
+}
+
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+[EXTRA]"
                ("\\chapter{%s}" . "\\chapter{%s}")
                ("\\section{%s}" . "\\section{%s}")
                ("\\subsection{%s}" . "\\subsection{%s}")
@@ -3762,70 +3991,71 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
 
 (add-to-list 'org-latex-classes
-             `("math-homework"
-               ,(concat
-                 "\\documentclass[a4paper,12pt,oneside]{book}\n"
-                 "\\usepackage[margin=1in]{geometry}\n"
-                 "\\usepackage{csquotes}\n"
-                 "\\usepackage{amsmath}\n"
-                 "\\usepackage{amssymb}\n"
+             '("math-homework"
+               "
+\\documentclass[a4paper,12pt,oneside]{book}
+\\usepackage[margin=1in]{geometry}
+\\usepackage{csquotes}
+\\usepackage{amsmath}
+\\usepackage{amssymb}
 
-                 "\\usepackage{float}\n"
+\\usepackage{float}
 
-                 "\\usepackage{graphicx}\n"
-                 "\\usepackage[hidelinks]{hyperref}\n"
-                 "\\usepackage{fancyhdr}\n"
-                 "\\usepackage[explicit]{titlesec}\n"
+\\usepackage{graphicx}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage{fancyhdr}
+\\usepackage[explicit]{titlesec}
 
-                 "\\titleformat{\\chapter}{\\normalfont\\huge}{#1}{}{}\n"
-                 "\\titleformat{\\section}{\\normalfont\\large}{\\thesection.}{.5em}{#1}\n"
-                 "\\titleformat{\\subsection}{\\normalfont\\large}{\\thesubsection.}{.5em}{#1}\n"
+\\titleformat{\\chapter}{\\normalfont\\huge}{#1}{}{}
+\\titleformat{\\section}{\\normalfont\\large}{}{.5em}{#1}
+\\titleformat{\\subsection}{\\normalfont\\large}{}{.5em}{\\textit{#1}}
 
-                 "\\titlespacing{\\chapter}{0pt}{0pt}{1em}\n"
+\\titlespacing{\\chapter}{0pt}{0pt}{1em}
 
-                 "\\usepackage{amsthm}\n"
-                 "\\setlength{\\parskip}{.5em}\n"
-                 "\\setlength{\\parindent}{0pt}\n"
-                 "\\newtheoremstyle{boxed}{8pt}{8pt}{}{}{\\upshape\\bfseries}{.}{.5em}{}\n"
-                 "\\theoremstyle{boxed}\n"
-                 "\\newtheorem{theorem}{Theorem}\n"
-                 "\\numberwithin{theorem}{chapter}\n"
-                 "\\newtheorem{note}{Note}\n"
-                 "\\numberwithin{note}{chapter}\n"
-                 "\\newtheorem{exmp}{Example}\n"
-                 "\\numberwithin{exmp}{chapter}\n"
-                 "\\newtheorem{corollary}{Corollary}\n"
-                 "\\numberwithin{corollary}{chapter}\n"
-                 "\\newtheorem{exercise}{Exercise}\n"
-                 "\\numberwithin{exercise}{chapter}\n"
-                 "\\newtheorem{definition}{Definition}\n"
-                 "\\numberwithin{definition}{chapter}\n"
-                 "\\newtheorem{lemma}{Lemma}[theorem]\n"
-                 "\\numberwithin{lemma}{chapter}\n"
-                 "\\usepackage{mdframed}\n"
-                 "\\BeforeBeginEnvironment{theorem}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{theorem}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{corollary}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{corollary}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{exmp}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{exmp}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{exercise}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{exercise}{\\end{mdframed}}\n"
-                 "\\BeforeBeginEnvironment{definition}{\\begin{mdframed}}\n"
-                 "\\AfterEndEnvironment{definition}{\\end{mdframed}}\n"
-                 "\\pagestyle{fancy}\n"
-                 "\\fancyhf{}\n"
+\\usepackage{amsthm}
+\\setlength{\\parskip}{.5em}
+\\setlength{\\parindent}{0pt}
+\\newtheoremstyle{boxed}{8pt}{8pt}{}{}{\\upshape\\bfseries}{.}{.5em}{}
+\\theoremstyle{boxed}
+\\newtheorem{theorem}{Theorem}
+\\numberwithin{theorem}{chapter}
+\\newtheorem{note}{Note}
+\\numberwithin{note}{chapter}
+\\newtheorem{exmp}{Example}
+\\numberwithin{exmp}{chapter}
+\\newtheorem{corollary}{Corollary}
+\\numberwithin{corollary}{chapter}
+\\newtheorem{exercise}{Exercise}
+\\numberwithin{exercise}{chapter}
+\\newtheorem{definition}{Definition}
+\\numberwithin{definition}{chapter}
+\\newtheorem{lemma}{Lemma}[theorem]
+\\numberwithin{lemma}{chapter}
+\\usepackage{mdframed}
+\\BeforeBeginEnvironment{theorem}{\\begin{mdframed}}
+\\AfterEndEnvironment{theorem}{\\end{mdframed}}
+\\BeforeBeginEnvironment{corollary}{\\begin{mdframed}}
+\\AfterEndEnvironment{corollary}{\\end{mdframed}}
+\\BeforeBeginEnvironment{exmp}{\\begin{mdframed}}
+\\AfterEndEnvironment{exmp}{\\end{mdframed}}
+\\BeforeBeginEnvironment{exercise}{\\begin{mdframed}}
+\\AfterEndEnvironment{exercise}{\\end{mdframed}}
+\\BeforeBeginEnvironment{definition}{\\begin{mdframed}}
+\\AfterEndEnvironment{definition}{\\end{mdframed}}
+\\pagestyle{fancy}
+\\fancyhf{}
 
-                 "\\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}\n"
+\\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}
 
-                 "\\let\\oldtitle\\title\n"
-                 "\\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}\n"
-                 "\\fancyhead[L]{\\leftmark}\n"
-                 "\\fancyhead[R]{\\titletext}\n"
-                 "\\fancyfoot[R]{\\thepage}\n"
-                 "[NO-DEFAULT-PACKAGES]"
-                 "[PACKAGES]"
-                 "[EXTRA]")
+\\let\\oldtitle\\title
+\\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}
+\\fancyhead[L]{\\leftmark}
+\\fancyhead[R]{\\titletext}
+\\fancyfoot[R]{\\thepage}
+
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+[EXTRA]"
                ("\\chapter{%s}" . "\\chapter{%s}")
                ("\\section*{%s}" . "\\section*{%s}")
                ("\\subsection*{%s}" . "\\subsection*{%s}")
@@ -3996,13 +4226,14 @@ document.addEventListener('DOMContentLoaded', () => {
 (require 'holidays)
 
 
-(defvar brazil-holidays
+(defvar custom-holidays
   '((holiday-fixed 1 1 "Ano Novo")
     (holiday-easter-etc -47 "Carnaval")
     (holiday-easter-etc -2 "Paixão de Cristo")
     (holiday-easter-etc 0 "Páscoa")
     (holiday-fixed 4 21 "Tiradentes")
     (holiday-fixed 5 1 "Dia do Trabalhador")
+    (holiday-fixed 7 24 "Pioneer Day")
     (holiday-easter-etc +60 "Corpus Christi")
     (holiday-fixed 9 7 "Dia da Independência do Brasil")
     (holiday-fixed 10 12 "Nossa Senhora Aparecida")
@@ -4012,7 +4243,8 @@ document.addEventListener('DOMContentLoaded', () => {
   "Brazillian holidays.")
 
 
-(setq-default calendar-holidays (append calendar-holidays brazil-holidays))
+(setq-default calendar-holidays (append calendar-holidays custom-holidays))
+(setq-default org-agenda-include-diary t)
 
 (add-hook 'calendar-mode-hook #'(lambda ()
                                   (evil-local-set-key 'normal (kbd "q") #'(lambda ()

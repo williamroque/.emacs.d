@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
 # name: line-int
-# key: lint
+# key: lvint
 # --
-\int_{$1} $2 \cdot d\vecb{$3}$0
+\int_{$1} ${2:\vecb{F}} \cdot d\vecb{$3}$0

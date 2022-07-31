@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: sint
-# key: sint
+# name: lint
+# key: lint
 # --
 \int_{$1} $2 \> d$0

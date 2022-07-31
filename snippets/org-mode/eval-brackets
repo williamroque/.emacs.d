@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: eval-brackets
+# key: evl
+# --
+\bigg[ $1 \bigg]_{$2}^{$3}$0

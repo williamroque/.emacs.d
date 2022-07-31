@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: maxwell
+# key: max
+# --
+#+begin_src python :exports none :results output
+from maxwell import *
+clear()
+
+system.get_grid()
+
+$0
+#+end_src

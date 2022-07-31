@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: theorem-name
+# key: then
+# --
+#+attr_latex: :options [$1]$0
