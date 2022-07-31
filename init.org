@@ -234,15 +234,17 @@ Evil leader keybindings.
 
 ;; to add after index of list
 (defun insert-after (lst index newelt)
-  (push newelt (cdr (nthcdr index lst))) 
+  (if (or (null lst) (>= index (length lst)))
+      (push newelt lst)
+    (push newelt (cdr (nthcdr index lst))))
   lst)
 
 
 ;; easy way to wrap function for keyboard shortcut
 (defun wrap-fun (fun &rest args)
   `(lambda ()
-    (interactive)
-    (apply #',fun ',args)))
+     (interactive)
+     (apply #',fun ',args)))
 
 
 (defun org-keyword-activep (keyword &optional default-value)
@@ -1261,46 +1263,53 @@ the future. This also happens to be my first "actual" emacs lisp
 program.
 
 #+begin_src emacs-lisp :tangle yes
-;; create buffer toggle ring
-(defvar buffer-toggle-ring '(t))
+(defvar buffer-toggle-ring '())
 (defvar buffer-toggle-ring-index 0)
 
 
-;; remove current buffer from ring
+(defun display-buffer-toggle-ring ()
+  (interactive)
+  (if (equal (length buffer-toggle-ring) 0)
+      (message "Buffer ring empty.")
+    (message "%s" (string-join
+                   (mapcar (lambda (buffer)
+                             (propertize (buffer-name buffer) 'face 'helm-buffer-file))
+                           buffer-toggle-ring)
+                   "\n"))))
+
+
 (defun remove-current-from-buffer-ring ()
   "Remove current buffer from buffer ring."
   (when (member (current-buffer) buffer-toggle-ring)
     (setq buffer-toggle-ring (delete (current-buffer) buffer-toggle-ring))
-    (print-elements-of-list buffer-toggle-ring)
+    (display-buffer-toggle-ring)
     (setq buffer-toggle-ring-index (- buffer-toggle-ring-index 1))))
 
 
-;; add/remove current buffer from ring
 (defun toggle-buffer-in-buffer-ring ()
   "Add/remove current buffer from ring."
   (interactive)
   (if (member (current-buffer) buffer-toggle-ring)
       (remove-current-from-buffer-ring)
-    (insert-after buffer-toggle-ring buffer-toggle-ring-index (current-buffer))
-    (print-elements-of-list buffer-toggle-ring)
+    (setq buffer-toggle-ring (insert-after buffer-toggle-ring buffer-toggle-ring-index (current-buffer)))
+    (display-buffer-toggle-ring)
     (setq buffer-toggle-ring-index (+ buffer-toggle-ring-index 1))))
 
 
-;; switch to next buffer in ring
 (defun switch-to-next-buffer-in-ring ()
   "Switch to next buffer in ring."
   (interactive)
-  (when (> (length buffer-toggle-ring) 1)
-    (setq buffer-toggle-ring-index (+ (mod buffer-toggle-ring-index (- (length buffer-toggle-ring) 1)) 1))
+  (when (> (length buffer-toggle-ring) 0)
+    (setq buffer-toggle-ring-index (mod (+ buffer-toggle-ring-index 1) (length buffer-toggle-ring)))
     (switch-to-buffer (nth buffer-toggle-ring-index buffer-toggle-ring))))
 
 
-;; remove buffer from ring when buffer is closed
-(add-hook 'kill-buffer-hook 'remove-current-from-buffer-ring)
+(add-hook 'kill-buffer-hook #'remove-current-from-buffer-ring)
 
 
-(define-key evil-normal-state-map (kbd "<S-backspace>") 'toggle-buffer-in-buffer-ring)
-(define-key evil-normal-state-map (kbd "<backspace>") 'switch-to-next-buffer-in-ring)
+(evil-define-key 'normal global-map (kbd "<S-backspace>") #'toggle-buffer-in-buffer-ring)
+(evil-define-key 'normal global-map (kbd "<backspace>") #'switch-to-next-buffer-in-ring)
+(evil-define-key 'normal global-map (kbd "<C-backspace>") #'display-buffer-toggle-ring)
 #+end_src
 
 ** Helm
