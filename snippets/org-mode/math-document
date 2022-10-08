@@ -42,6 +42,7 @@
 \newcommand{\jhat}{\bm{\hat{\textnormal{\bfseries\j}}}}
 \newcommand{\khat}{\bm{\hat{\textnormal{\bfseries{k}}}}}
 \newcommand{\uhat}{\bm{\hat{\textnormal{\bfseries{u}}}}}
+\newcommand{\nhat}{\bm{\hat{\textnormal{\bfseries{n}}}}}
 
 \newcommand{\stack}[2]{\mathrel{\overset{\makebox[0pt]{\mbox{\tiny #2}}}{#1}}}
 
@@ -55,6 +56,21 @@
 \newcommand{\divergence}{\nabla\cdot}
 
 \newcommand{\vecb}[1]{\mathbf{#1}}
+
+\newcommand{\rank}[1]{\text{rank}(#1)}
+\newcommand{\Span}[1]{\text{span}(#1)}
+
+\newenvironment{amatrix}[1]{%
+  \left[\begin{array}{@{}*{#1}{c}|c@{}}
+}{%
+  \end{array}\right]
+}
+
+\newenvironment{aamatrix}[2]{%
+\left[\begin{array}{@{}*{#1}{c}|*{#2}{c}@{}}
+}{%
+\end{array}\right]
+}
 #+end_export
 
 $0

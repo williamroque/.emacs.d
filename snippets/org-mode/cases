@@ -3,5 +3,6 @@
 # key: cas
 # --
 \begin{cases}
-$1
-\end{cases}$0
+$1 & \text{if } $2\\\\
+$3 & \text{if } $0\\\\
+\end{cases}

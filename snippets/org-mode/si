@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: si
+# key: si
+# --
+\si{$1}$0

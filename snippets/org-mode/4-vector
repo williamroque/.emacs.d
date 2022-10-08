@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 4-vector
+# key: 4v
+# --
+\left\langle $1, $2, $3, $4 \right\rangle$0

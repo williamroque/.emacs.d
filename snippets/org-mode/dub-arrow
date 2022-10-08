@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: dub-arrow
+# key: da
+# --
+\leftrightarrow $0

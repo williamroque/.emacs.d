@@ -5,14 +5,26 @@
 (
 ("Schedule"
  (filename . "~/Documents/Education/schedule.org"))
-("Calculus"
- (filename . "~/Documents/Education/BYU/Calculus III/"))
-("Mythology"
- (filename . "~/Documents/Education/BYU/Mythology/"))
+("Research"
+ (filename . "~/Documents/Education/BYU/Research/"))
+("MATH 213"
+ (filename . "~/Documents/Education/BYU/Classes/MATH 213"))
+("MATH 215"
+ (filename . "~/Documents/Education/BYU/Classes/MATH 215"))
+("PHSCS 123"
+ (filename . "~/Documents/Education/BYU/Classes/PHSCS 123"))
+("PHSCS 127"
+ (filename . "~/Documents/Education/BYU/Classes/PHSCS 127"))
+("CS 111"
+ (filename . "~/Documents/Education/BYU/Classes/CS 111"))
+("REL C 200"
+ (filename . "~/Documents/Education/BYU/Classes/REL C 200"))
 ("Maxwell"
  (filename . "~/maxwell/"))
 ("Documents"
  (filename . "~/Documents/"))
+("Downloads"
+ (filename . "~/Downloads/"))
 ("init.org"
  (filename . "~/.emacs.d/init.org"))
 )

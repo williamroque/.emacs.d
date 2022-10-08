@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: bibentry
+# key: bib
+# --
+#+begin_src bibtex :tangle refs.bib
+$0
+#+end_src

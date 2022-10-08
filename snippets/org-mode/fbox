@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fbox
+# key: fb
+# --
+\fbox{$1}$0

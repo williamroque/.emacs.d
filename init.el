@@ -162,6 +162,9 @@
        (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
        (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
 
+
+(use-package ox-json)
+
 ;; colorscheme stuff
 (defvar ansi-color-names-vector
   ["#3c3836" "#fb4933" "#b8bb26" "#fabd2f" "#83a598" "#d3869b" "#8ec07c" "#ebdbb2"])
@@ -367,17 +370,13 @@
               (add-to-list 'default-frame-alist `(height . ,default-frame-height))
               (add-to-list 'default-frame-alist `(width  . ,default-frame-width))))
 
-(defvar center-frame-vertical-offset 28)
 (defvar should-center-frame t)
 
 
 (defun center-frame (frame)
   (if should-center-frame
-      (set-frame-position frame
-                          (- (round (/ (display-pixel-width) 2)) (round (/ (frame-outer-width) 2)))
-                          (- (round (/ (display-pixel-height) 2))
-                             (round (/ (frame-outer-height) 2))
-                             center-frame-vertical-offset))))
+      (modify-frame-parameters
+       frame '((user-position . t) (top . 0.5) (left . 0.5)))))
 
 (add-to-list 'after-make-frame-functions #'center-frame)
 
@@ -565,6 +564,12 @@ for more information."
                                            ((?  ? ) . ?\x200b)
                                            ((?t ?h) . ?\x03b8)
                                            ((?p ?i) . ?\x03c0)
+                                           ((?p ?h) . ?\x03c6)
+                                           ((?l ?a) . ?\x03bb)
+                                           ((?o ?m) . ?\x03c9)
+                                           ((?n ?u) . ?\x03bd)
+                                           ((?b ?e) . ?\x03b2)
+                                           ((?g ?a) . ?\x03b3)
                                            ((?t ?a) . ?\x03c4)
                                            ((?a ?l) . ?\x03b1)
                                            ((?r ?h) . ?\x03c1)
@@ -617,7 +622,10 @@ for more information."
                                  (cond
                                   ((equal (buffer-name) "*scratch*") (message "(No changes need to be saved)"))
                                   ((equal major-mode 'wdired-mode) (wdired-finish-edit))
-                                  ((equal major-mode 'org-agenda-mode) (org-save-all-org-buffers) (message "Org buffers saved."))
+                                  ((equal major-mode 'org-agenda-mode)
+                                   (org-save-all-org-buffers)
+                                   (message "Org buffers saved.")
+                                   (progenda-publish-schedule))
                                   (t
                                    (if (buffer-modified-p)
                                        (message "Wrote %s." (if (null (buffer-file-name))
@@ -655,11 +663,15 @@ for more information."
   
   
     ;; convenient way to evaluate buffer
-    (evil-leader/set-key "v" 'eval-buffer)
+    (evil-leader/set-key "v" #'eval-buffer)
   
   
     ;; convenient terminal opening
-    (evil-leader/set-key "t" 'vterm)
+    (evil-leader/set-key "t" #'(lambda ()
+                                 (interactive)
+                                 (vterm (format
+                                         "*vterm-%s*"
+                                         (make-temp-name "")))))
   
   
     (evil-leader/set-key "DEL" #'calendar)
@@ -696,15 +708,29 @@ for more information."
     
     
     ;; open desktop
-    (evil-leader/set-key "/" #'(lambda ()
+    (evil-leader/set-key "?" #'(lambda ()
                                  (interactive)
                                  (find-file (expand-file-name "~/Desktop/"))))
+    
+    
+    ;; open home
+    (evil-leader/set-key "/" #'(lambda ()
+                                 (interactive)
+                                 (find-file (expand-file-name "~/"))))
     ;; zoom in/out
     (evil-leader/set-key "=" #'text-scale-adjust)
     
     
     ;; toggle sentence split
     (evil-leader/set-key "s" #'toggle-sentence-split)
+    
+    
+    ;; switch input method
+    (evil-leader/set-key "\\" #'toggle-input-method)
+    
+    
+    ;; count occurrences
+    (evil-leader/set-key "F" #'count-matches)
     (evil-leader/set-key (kbd "m") 'magit)
     ;; open the minibuffer
     (evil-leader/set-key "k" 'helm-mini)
@@ -719,7 +745,21 @@ for more information."
     (evil-leader/set-key "N" #'cautious-line-toggle)
     (evil-leader/set-key "R" 'reveal-in-osx-finder)
     ;; open send mail buffer
-    (evil-leader/set-key "M" #'mail)
+    (evil-leader/set-key "M" #'(lambda ()
+                                 (interactive)
+                                 (switch-to-buffer "*mail*" nil t)
+                                 (mail-mode)
+                                 (company-mode -1)
+                                 (auto-fill-mode -1)
+                                 (distraction-free t)
+                                 (evil-insert-state)
+                                 (yas-minor-mode)
+                                 (yas-expand-snippet
+                                  "From: William Aguiar Roque <william.aroque@gmail.com>
+    To: $1
+    Subject: $2
+    --text follows this line--
+    $0")))
     
     ;; open read mail buffer
     (evil-leader/set-key "1" #'(lambda (refresh-email)
@@ -736,7 +776,13 @@ for more information."
                                    (org-agenda-list))))
     
     
-    (evil-leader/set-key "A" #'org-agenda-list)
+    (evil-leader/set-key "A" #'(lambda ()
+                                 (interactive)
+                                 (shell-command-to-string "/Users/jetblack/cbin/sync-calendar")
+                                 (org-agenda-list)))
+    
+    
+    (evil-leader/set-key "G" #'progenda-publish-schedule)
     ;; export org/latex file as HTML
     (evil-leader/set-key "h" #'(lambda ()
                                  (interactive)
@@ -759,21 +805,24 @@ for more information."
                                             (member (current-buffer) org-pdf-separate-window))
                                        (org-export-pdf-update))))
     
-    (evil-leader/set-key "P" #'(lambda (separate-window)
-                                 (interactive "P")
-                                 (if (equal separate-window 1)
-                                     (if (member (current-buffer) org-pdf-separate-window)
-                                         (progn
-                                           (setq org-pdf-separate-window (delete (current-buffer) org-pdf-separate-window))
-                                           (message "Stopped live compilation for this buffer."))
-                                       (message "Started live compilation for this buffer.")
-                                       (push (current-buffer) org-pdf-separate-window))
-                                   (if (equal major-mode 'org-mode)
-                                       (export-and-open-pdf separate-window)
-                                     (if (equal major-mode 'latex-mode)
-                                         (call-interactively 'TeX-command-run-all)
-                                       (browse-url-of-file))))))
+    (defun org-latex-preview-pdf (separate-window)
+      (interactive "P")
+      (cond ((equal separate-window 1)
+             (if (member (current-buffer) org-pdf-separate-window)
+                 (progn
+                   (setq org-pdf-separate-window (delete (current-buffer) org-pdf-separate-window))
+                   (message "Stopped live compilation for this buffer."))
+               (message "Started live compilation for this buffer.")
+               (push (current-buffer) org-pdf-separate-window)))
+            ((equal separate-window 2)
+             (expand-org-latex-workspace))
+            ((equal major-mode 'org-mode)
+             (export-and-open-pdf separate-window))
+            ((equal major-mode 'latex-mode)
+             (call-interactively 'TeX-command-run-all))
+            (t (browse-url-of-file))))
     
+    (evil-leader/set-key "P" #'org-latex-preview-pdf)
     
     ;; fill paragraph
     (evil-leader/set-key "p" #'fill-paragraph)
@@ -849,15 +898,16 @@ for more information."
                                    (setq ispell-pdict-modified-p nil))))
     (evil-leader/set-key "r" #'edit-next-placeholder)
     ;; open non-fullscreen window
-    (evil-leader/set-key (kbd "-") (lambda ()
-                                     (interactive)
-                                     (make-frame `((left . ,(- (round (/ (display-pixel-width) 2))
-                                                               (round (/ default-frame-pixel-width 2))))
-                                                   (top . ,(- (round (/ (display-pixel-height) 2))
-                                                              (round (/ default-frame-pixel-height 2))
-                                                              center-frame-vertical-offset))))
-                                     (run-at-time .2 nil (lambda ()
-                                                           (set-frame-parameter nil 'fullscreen nil)))))
+    (evil-leader/set-key (kbd "-") #'(lambda ()
+                                       (interactive)
+                                       (make-frame '((user-position . t) (top . 0.5) (left . 0.5)))
+                                       (run-at-time .2 nil (lambda ()
+                                                             (set-frame-parameter nil 'fullscreen nil)
+                                                             (center-frame (selected-frame))))))
+    
+    
+    ;; open fullscreen window
+    (evil-leader/set-key (kbd "_") #'make-frame)
     
     
     ;; switch frames easily
@@ -921,7 +971,10 @@ for more information."
   
     ;; bind jk to normal state
     (key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
-    (key-chord-mode 1))
+    (key-chord-mode 1)
+  
+  
+    (add-hook 'input-method-deactivate-hook #'(lambda () (key-chord-mode 1))))
   
   
   ;; make sure C-j executes in the command window
@@ -1022,23 +1075,18 @@ for more information."
                                (embrace-add-pair-regexp ?e "\\begin{[^{]*?}" "\\end{[^{]*?}"
                                                         #'embrace-with-latex-environment
                                                         (embrace-build-help "\\begin{environment}" "\\end{environment}"))))
-  (add-hook 'org-mode-hook (lambda ()
-                             (delete ?b evil-embrace-evil-surround-keys)
+  (add-hook 'org-mode-hook #'(lambda ()
+                               (delete ?b evil-embrace-evil-surround-keys)
   
-                             (embrace-add-pair ?e "\\left( " " \\right)")
-                             (embrace-add-pair ?r "\\left[ " " \\right]")
-                             (embrace-add-pair ?a "\\left\\langle " " \\right\\rangle")
-                             (embrace-add-pair ?m "\\( " " \\)")
-                             (embrace-add-pair ?i "/" "/")
-                             (embrace-add-pair ?b "*" "*")
-                             (embrace-add-pair ?u "_" "_")
-                             (embrace-add-pair ?c "=" "=")))
+                               (embrace-add-pair ?i "/" "/")
+                               (embrace-add-pair ?b "*" "*")
+                               (embrace-add-pair ?u "_" "_")))
   
   
-  (define-and-bind-text-object "e" "\\\\left( " " \\\\right)")
-  (define-and-bind-text-object "r" "\\\\left\\[ " " \\\\right\\]")
-  (define-and-bind-text-object "a" "\\\\left\\\\langle " " \\\\right\\\\rangle")
-  (define-and-bind-text-object "m" "\\\\( " " \\\\)"))
+  
+  (use-package evil-tex
+    :config
+    (add-hook 'org-mode-hook #'evil-tex-mode)))
 
 (use-package evil-owl
   :config
@@ -1080,11 +1128,19 @@ for more information."
 ;; repeat find char remap
 (define-key evil-normal-state-map (kbd "-") 'evil-repeat-find-char)
 
-(define-key evil-normal-state-map (kbd "J")
-  (lambda () (interactive) (scroll-up 3)))
-(define-key evil-normal-state-map (kbd "K")
-  (lambda () (interactive) (scroll-down 3)))
+(evil-define-key 'normal global-map (kbd "J") #'(lambda ()
+                                                  (interactive)
+                                                  (scroll-up 3)))
+(evil-define-key 'normal global-map (kbd "K") #'(lambda ()
+                                                  (interactive)
+                                                  (scroll-down 3)))
 
+(evil-define-key 'visual global-map (kbd "J") #'(lambda ()
+                                                  (interactive)
+                                                  (scroll-up 3)))
+(evil-define-key 'visual global-map (kbd "K") #'(lambda ()
+                                                  (interactive)
+                                                  (scroll-down 3)))
 
 ;; smooth scrolling
 (setq-default scroll-margin 5)
@@ -1102,6 +1158,11 @@ for more information."
 
 ;; use C-j in isearch
 (define-key isearch-mode-map (kbd "C-j") #'isearch-exit)
+
+
+;; travel between isearch occurences
+(define-key isearch-mode-map (kbd "C-n") #'isearch-repeat-forward)
+(define-key isearch-mode-map (kbd "C-p") #'isearch-repeat-backward)
 
 ;; swap ' and `
 (define-key evil-normal-state-map (kbd "`") #'evil-goto-mark-line)
@@ -1281,7 +1342,7 @@ for more information."
 
 ;; disable auto-fill-mode when asked politely
 (defun enable-polite-auto-fill ()
-  (when (and (org-keyword-activep "AUTOFILL" t)
+  (when (and (org-keyword-activep "AUTOFILL" nil)
              (not (org-keyword-activep "LITERARY")))
     (auto-fill-mode 1)))
 
@@ -1312,7 +1373,7 @@ after using split-paragraph-into-sentences.")
       (while (< (point) (cdr paragraph-bounds))
         (delete-char 1)
         (insert "\n\n")
-        (fill-paragraph)
+        ;; (fill-paragraph)
         (forward-sentence)
         (setq sentence-count (+ 1 sentence-count)))
       (setq last-paragraph-sentence-split
@@ -1326,7 +1387,8 @@ after using split-paragraph-into-sentences.")
           (end (marker-position (cdr last-paragraph-sentence-split))))
       (goto-char start)
       (join-line nil (+ 1 start) end)
-      (fill-paragraph))
+      ;; (fill-paragraph)
+      )
     (setq last-paragraph-sentence-split nil)))
 
 
@@ -1340,6 +1402,7 @@ after using split-paragraph-into-sentences.")
   '(("true" "false")
     ("True" "False")
     ("yes" "no")
+    ("0" "1")
     ("+" "-"))
   "List of text rotation sets.")
 
@@ -1429,7 +1492,7 @@ Example:
         (goto-char (if (> opoint end) end opoint))))))
 
 
-(global-set-key (kbd "C-c r") #'rotate-word-at-point)
+(evil-define-key 'normal global-map (kbd "g r r") #'rotate-word-at-point)
 
 ;; use C-j for command prompt
 (define-key evil-ex-completion-map (kbd "C-j") #'exit-minibuffer)
@@ -1526,6 +1589,8 @@ Example:
   (define-key yas-minor-mode-map [(tab)] nil)
   (define-key yas-minor-mode-map (kbd "TAB") nil)
 
+  (define-key yas-minor-mode-map (kbd "C-b") #'yas-prev-field)
+
   (define-key yas-minor-mode-map (kbd "C-,")
               #'(lambda ()
                   (interactive)
@@ -1545,13 +1610,13 @@ Example:
                              (yas-minor-mode)
                              (yas-activate-extra-mode 'latex-mode))))
 
-(defun insert-matrix-like (env rows cols)
+(defun insert-matrix-like (env rows cols &optional arguments)
   (interactive "sEnvironment: \nnRows: \nnColumns: ")
   (let ((beginning-marker (point-marker))
         (end-marker (save-excursion
                       (goto-char (1+ (point)))))
         (matrix-string ""))
-    (insert (format "\\begin{%s}\n" env))
+    (insert (format "\\begin{%s}%s\n" env (if arguments arguments "")))
     (dotimes (i rows)
       (dotimes (j cols)
         (setq matrix-string (concat matrix-string
@@ -1569,6 +1634,31 @@ Example:
   (setq my/unhiding-current-line t)
   (remove-hook 'yas-after-exit-snippet-hook #'align-yasnippet-matrix))
 
+(defun snippet-create-n-cases (n)
+  (let ((snippet-string "")
+        (yas-indent-line 'fixed)
+        (yas-wrap-around-region 'nil))
+    (dotimes (i n)
+      (setq snippet-string (format "%s$%d & \\text{if } $%d\\\\\\\n"
+                                   snippet-string
+                                   (+ (* 2 i) 1)
+                                   (+ (* 2 i) 2))))
+    (yas-expand-snippet (format "\\begin{cases}\n%s\\end{cases}" snippet-string))))
+
+(defun snippet-create-cases ()
+  (interactive)
+  (let ((n (save-excursion
+             (goto-char (- (point) 1))
+             (number-at-point))))
+    (if n
+        (progn
+          (save-excursion
+            (goto-char (- (point) 1))
+            (let ((bounds (bounds-of-thing-at-point 'number)))
+              (delete-region (car bounds) (cdr bounds))))
+          (snippet-create-n-cases n))
+      (snippet-create-n-cases 2))))
+
 (defun snippet-convert-fraction (start end)
   (interactive
    (if (region-active-p)
@@ -1581,7 +1671,7 @@ Example:
         (pcase (char-before)
           (?/
            (delete-backward-char 1)
-           (yas-expand-snippet "\\frac{$1}{$2}$0"))
+           (yas-expand-snippet "\\dfrac{$1}{$2}$0"))
           (?.
            (delete-backward-char 1)
            (insert "/"))
@@ -1612,15 +1702,33 @@ Example:
 
              (when match-start
                (delete-region match-start limit)
-               (yas-expand-snippet (format "\\frac{%s}{$1}$0" match)))))))
+               (yas-expand-snippet (format "\\dfrac{%s}{$1}$0" match)))))))
     (let ((numerator (buffer-substring start end)))
       (evil-insert-state)
       (delete-region start end)
-      (yas-expand-snippet (format "\\frac{%s}{$1}$0" numerator)))))
+      (yas-expand-snippet (format "\\dfrac{%s}{$1}$0" numerator)))))
 
 
 (evil-define-key 'insert org-mode-map (kbd "/") #'snippet-convert-fraction)
 (evil-define-key 'visual org-mode-map (kbd "/") #'snippet-convert-fraction)
+
+(defun swap-equation-sides (start end)
+  (interactive
+   (if (region-active-p)
+       (list (region-beginning) (region-end))
+     `(,(line-beginning-position) ,(line-end-position))))
+  (save-excursion
+    (goto-char start)
+    (re-search-forward "\\(.*?\\)\\([[:blank:]]*&?=[[:blank:]]*\\)\\(.*\\)" end)
+
+    (let ((LHS (match-string 1))
+          (equals (match-string 2))
+          (RHS (match-string 3)))
+      (delete-region start end)
+      (insert (format "%s%s%s" RHS equals LHS)))))
+
+(evil-define-key 'visual org-mode-map (kbd "=") #'swap-equation-sides)
+(evil-define-key 'normal org-mode-map (kbd "g =") #'swap-equation-sides)
 
 ;; TODO Create stronger criteria for variable subsitution (maybe incorporating thing at point, with exceptions for numbers and other variables)
 
@@ -1697,6 +1805,8 @@ Example:
 
     (aas-set-snippets 'org-mode
       :cond #'texmathp
+      "cas" #'snippet-create-cases
+      "=-0" #'swap-equation-sides
       "3det" (lambda () (interactive)
                (insert-matrix-like "vmatrix" 3 3))
       "2det" (lambda () (interactive)
@@ -1705,8 +1815,18 @@ Example:
                (insert-matrix-like "bmatrix" 3 3))
       "2mat" (lambda () (interactive)
                (insert-matrix-like "bmatrix" 2 2))
+      "2amat" (lambda () (interactive)
+               (insert-matrix-like "amatrix" 2 3 "{2}"))
+      "3amat" (lambda () (interactive)
+               (insert-matrix-like "amatrix" 3 4 "{3}"))
+      "4amat" (lambda () (interactive)
+               (insert-matrix-like "amatrix" 4 5 "{4}"))
       "matr" (lambda (rows cols) (interactive "nRows: \nnColumns: ")
                (insert-matrix-like "bmatrix" rows cols))
+      "amatr" (lambda (rows cols sep)
+                (interactive "nRows: \nnColumns: \nnSeparate at: ")
+                (insert-matrix-like "aamatrix" rows cols
+                                    (format "{%s}{%s}" sep (- cols sep))))
       "matl" #'insert-matrix-like)
 
     (let ((snippets '(("sup" . "^{$1$0")
@@ -1766,38 +1886,38 @@ Example:
 
                       ("ln" . "\\ln $0")
 
-                      ("cos" . "\\cos $0")
-                      ("sec" . "\\sec $0")
-                      ("sin" . "\\sin $0")
-                      ("csc" . "\\csc $0")
-                      ("tan" . "\\tan $0")
-                      ("cot" . "\\cot $0")
-                      ("acos" . "\\arccos $0")
-                      ("asin" . "\\arcsin $0")
-                      ("atan" . "\\arctan $0")
+                      ("cos" . "\\cos{$1$0")
+                      ("sec" . "\\sec{$1$0")
+                      ("sin" . "\\sin{$1$0")
+                      ("csc" . "\\csc{$1$0")
+                      ("tan" . "\\tan{$1$0")
+                      ("cot" . "\\cot{$1$0")
+                      ("acos" . "\\arccos{$1$0")
+                      ("asin" . "\\arcsin{$1$0")
+                      ("atan" . "\\arctan{$1$0")
 
-                      ("ncos" . "\\cos^{$1 $0")
-                      ("nsec" . "\\sec^{$1 $0")
-                      ("nsin" . "\\sin^{$1 $0")
-                      ("ncsc" . "\\csc^{$1 $0")
-                      ("ntan" . "\\tan^{$1 $0")
-                      ("ncot" . "\\cot^{$1 $0")
-                      ("nacos" . "\\arccos^{$1 $0")
-                      ("nasin" . "\\arcsin^{$1 $0")
-                      ("natan" . "\\arctan^{$1 $0")
+                      ("ncos" . "\\cos^{$1{$2}$0")
+                      ("nsec" . "\\sec^{$1{$2}$0")
+                      ("nsin" . "\\sin^{$1{$2}$0")
+                      ("ncsc" . "\\csc^{$1{$2}$0")
+                      ("ntan" . "\\tan^{$1{$2}$0")
+                      ("ncot" . "\\cot^{$1{$2}$0")
+                      ("nacos" . "\\arccos^{$1{$2}$0")
+                      ("nasin" . "\\arcsin^{$1{$2}$0")
+                      ("natan" . "\\arctan^{$1{$2}$0")
 
-                      ("2cos" . "\\cos^2 $0")
-                      ("2sec" . "\\sec^2 $0")
-                      ("2sin" . "\\sin^2 $0")
-                      ("2csc" . "\\csc^2 $0")
-                      ("2tan" . "\\tan^2 $0")
-                      ("2cot" . "\\cot^2 $0")
-                      ("2acos" . "\\arccos^2 $0")
-                      ("2asin" . "\\arcsin^2 $0")
-                      ("2atan" . "\\arctan^2 $0")
+                      ("2cos" . "\\cos^2{$2$0")
+                      ("2sec" . "\\sec^2{$2$0")
+                      ("2sin" . "\\sin^2{$2$0")
+                      ("2csc" . "\\csc^2{$2$0")
+                      ("2tan" . "\\tan^2{$2$0")
+                      ("2cot" . "\\cot^2{$2$0")
+                      ("2acos" . "\\arccos^2{$2$0")
+                      ("2asin" . "\\arcsin^2{$2$0")
+                      ("2atan" . "\\arctan^2{$2$0")
 
                       ("exp" . "\\exp$0")
-                      ("lo" . "\\log$0")
+                      ("log" . "\\log$0")
                       ("ein" . " \\in $0")
 
                       ("ooo" . "\\infty$0")
@@ -1921,7 +2041,7 @@ Example:
   ;; use C-return to escape external insert state
   (evil-define-key 'insert vterm-mode-map (kbd "<escape>") #'vterm-send-escape))
 
-(global-set-key (kbd "M-1") 'shell-command)
+(global-set-key (kbd "M-§") 'shell-command)
 
 (define-key minibuffer-local-map (kbd "C-o")
   (lambda ()
@@ -2091,12 +2211,17 @@ Example:
 
 (global-set-key (kbd "C-;") 'eval-expression)
 
+(define-key lisp-interaction-mode-map (kbd "C-j") #'newline)
+
 (setq-default sgml-basic-offset 4)
 (setq-default sgml-specials nil)
 
 (use-package emmet-mode
   :config
-  (add-hook 'html-mode-hook 'emmet-mode))
+  (add-hook 'html-mode-hook 'emmet-mode)
+
+  (define-key emmet-mode-keymap (kbd "C-j") #'newline)
+  (define-key emmet-mode-keymap (kbd "C-,") #'emmet-expand-line))
 
 (use-package latex
   :ensure auctex
@@ -2194,13 +2319,11 @@ Example:
 ;; hide ugly notmuch logo
 (setq-default notmuch-show-logo nil)
 
-(setq-default send-mail-function 'sendmail-send-it
-              sendmail-program "/usr/local/bin/msmtp"
+(setq-default send-mail-function 'sendmail-query-once
+              sendmail-program "/usr/sbin/sendmail"
               mail-specify-envelope-from t
               message-sendmail-envelope-from 'header
               mail-envelope-from 'header)
-
-(add-hook 'mail-mode-hook #'flyspell-mode)
 
 (defun get-all-marked-files-and-unmark ()
   "Return a list of marked files from all Dired buffers."
@@ -2282,26 +2405,58 @@ Example:
 
 (use-package pdf-tools
   :config
-
-
   (add-hook 'pdf-view-mode-hook
             #'(lambda ()
-                (internal-show-cursor (get-buffer-window) t)
-                (setq pdf-hiding-cursor t)))
-
-  (add-hook 'post-command-hook
-            #'(lambda ()
-                (when (and pdf-hiding-cursor (not (equal major-mode 'pdf-view-mode)))
-                  (internal-show-cursor (get-buffer-window) t))))
-
+                (add-to-list 'pdf-annot-default-annotation-properties '(text (icon . "Note")
+                                                                             (color . "#fff")))
+                (set (make-local-variable 'evil-normal-state-cursor) (list nil))))
 
   (pdf-tools-install))
 
 (define-key image-mode-map (kbd "g =") 'image-increase-size)
 (define-key image-mode-map (kbd "g -") 'image-decrease-size)
 
-;; (add-hook 'pdf-view-mode-hook #'(lambda ()
-;;                                   (pdf-view-themed-minor-mode 1)))
+(defvar pdf-has-set-light-mode nil
+  "Whether PDf view has turned on light mode.")
+
+(add-hook 'post-command-hook #'(lambda ()
+                                 (when (and (not (equal major-mode 'pdf-view-mode)) pdf-has-set-light-mode)
+                                   (reset-temporary-face-attributes)
+                                   (set-background-color color-background)
+                                   (set-foreground-color color-foreground)
+                                   (setq evil-normal-state-cursor '("#fdf4c1" box))
+                                   (setq pdf-has-set-light-mode nil))))
+
+(add-hook 'post-command-hook #'(lambda ()
+                                 (when (and (equal major-mode 'pdf-view-mode)
+                                            (equal (count-windows) 1))
+                                   (setq pdf-has-set-light-mode t)
+                                   (set-background-color "#FFF")
+                                   (set-foreground-color color-background)
+                                   (setq evil-normal-state-cursor '("#FFF" box))
+
+                                   (set-temporary-face-attributes
+                                    :background "#FFF"
+                                    '(header-line
+                                      mode-line))
+
+                                   (set-temporary-face-attributes
+                                    :foreground color-background
+                                    '(mode-line
+                                      mood-line-buffer-name
+                                      mood-line-major-mode
+                                      mood-line-modified
+                                      mood-line-status-error
+                                      mood-line-status-info
+                                      mood-line-status-neutral
+                                      mood-line-status-success
+                                      mood-line-status-warning
+                                      mood-line-unimportant)))))
+
+(evil-define-key 'visual pdf-view-mode-map (kbd "g h") #'pdf-annot-add-highlight-markup-annotation)
+
+(evil-define-key 'visual pdf-view-mode-map (kbd "g t") #'pdf-annot-add-text-annotation)
+(evil-define-key 'normal pdf-view-mode-map (kbd "g t") #'pdf-annot-add-text-annotation)
 
 (use-package org
   :hook ((org-mode . flyspell-mode)
@@ -2334,6 +2489,10 @@ Example:
   
   ;; prevent section indentation
   (setq-default org-adapt-indentation nil)
+  
+  
+  ;; use all agenda files as refile targets
+  (setq-default org-refile-targets '(("schedule.org" :maxlevel . 1)))
   
   
   ;; prevent section numbering in exports
@@ -2390,8 +2549,13 @@ Example:
           (align "center") 
           (indent "2em")
           (mathml nil)))
+  
+  
+  ;; change custom date format
+  (setq-default org-time-stamp-custom-formats '("<%A, %m/%d/%y>" . "<%A, %m/%d/%y, %H:%M>"))
   ;; disable company mode for org-mode
   (add-hook 'org-mode-hook #'(lambda () (company-mode -1)))
+  (add-hook 'text-mode-hook #'(lambda () (company-mode -1)))
   
   
   ;; make sure M-h binding works
@@ -2403,6 +2567,7 @@ Example:
   
   ;; open link in the same window
   (add-to-list 'org-link-frame-setup '(file . find-file))
+  (setq-default help-window-keep-selected t)
   
   
   ;; recalculate table
@@ -2455,13 +2620,13 @@ Example:
             (goto-char (point-max))
             (yas-expand-snippet
              (format
-              "\n%s ${1:%s}\n\n$2/${1:$(if (or (not (yas-field-value 2)) (equal (yas-field-value 2) \"\")) yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect.\"))})"
+              "\n%s ${1:%s}\n\n$2/${1:$(if (or (not (yas-field-value 2)) (equal (yas-field-value 2) \"\")) yas-text (downcase yas-text))}/ $0"
               (org-heading-asterisks) title)
              (point-max))
             (evil-insert-state))
         (goto-char (point-max))
         (yas-expand-snippet
-         "\n`(org-heading-asterisks)` $1\n\n$2/${1:$(if (equal (yas-field-value 2) \"\") yas-text (downcase yas-text))}/ $0 (${3:$$(yas-choose-value '(\"pow. \" \"mor. \" \"grim. \" \"hom. \" \"stew.\" \"lect.\"))})"
+         "\n`(org-heading-asterisks)` $1\n\n$2/${1:$(if (equal (yas-field-value 2) \"\") yas-text (downcase yas-text))}/ $0"
          (point-max))
         (evil-insert-state))
       (org-mark-ring-push old-point)))
@@ -2472,6 +2637,12 @@ Example:
     (make-string (if (> (org-outline-level) 0)
                      (max (org-outline-level) 2)
                    1) ?*))
+  
+  
+  ;; stop creating bookmarks after refiling
+  (plist-put org-bookmark-names-plist :last-capture nil)
+  (plist-put org-bookmark-names-plist :last-refile nil)
+  (plist-put org-bookmark-names-plist :last-capture-marker nil)
   (defun replace-all (regexp string)
     (save-excursion
       (goto-char (point-min))
@@ -2717,10 +2888,17 @@ Example:
   
   
   ;; make sure that window switching works
-  (evil-define-key 'normal org-mode-map (kbd "M-h") 'evil-window-left)
-  (evil-define-key 'normal org-mode-map (kbd "M-j") 'evil-window-down)
-  (evil-define-key 'normal org-mode-map (kbd "M-k") 'evil-window-up)
-  (evil-define-key 'normal org-mode-map (kbd "M-l") 'evil-window-right)
+  (evil-define-key 'normal org-mode-map (kbd "M-h") #'evil-window-left)
+  (evil-define-key 'normal org-mode-map (kbd "M-j") #'evil-window-down)
+  (evil-define-key 'normal org-mode-map (kbd "M-k") #'evil-window-up)
+  (evil-define-key 'normal org-mode-map (kbd "M-l") #'evil-window-right)
+  
+  
+  ;; insert today's date
+  (evil-define-key 'normal org-mode-map (kbd "g D") #'(lambda ()
+                                                        (interactive)
+                                                        (forward-char)
+                                                        (insert (format-time-string "%d/%m/%Y --- %A"))))
   (set-face-attribute 'org-block-begin-line nil
                       :extend t
                       :background color-background
@@ -2893,6 +3071,7 @@ Example:
          autocorrect-words-on-type
          (memq major-mode '(org-mode mail-mode text-mode))
          (not (texmathp))
+         (not (yas-active-snippets))
          (not (equal (TeX-current-macro) "text"))
          (not (org-in-src-block-p)))
         (when (and
@@ -3090,23 +3269,33 @@ Example:
 
 (setq-default org-capture-templates
               '(("g" "General" entry (file+headline "~/Documents/Education/schedule.org" "General")
-                 "*** TODO %?")
+                 "** TODO %?")
                 ("m" "Meeting" entry (file+headline "~/Documents/Education/schedule.org" "General")
-                 "*** %?  :meeting:")
+                 "** %?  :meeting:")
                 ("i" "BYU IS" entry (file+headline "~/Documents/Education/schedule.org" "Work")
-                 "*** TODO %?")
+                 "** TODO %?")
                 ("r" "Research" entry (file+headline "~/Documents/Education/schedule.org" "Research")
-                 "*** %?  :meeting:")
+                 "** TODO %?")
                 ("v" "Event" entry (file+headline "~/Documents/Education/schedule.org" "General")
-                 "*** %?  :event:")
-                ("c" "Calculus" entry (file+headline "~/Documents/Education/schedule.org" "Calculus")
-                 "*** TODO %?")
-                ("y" "Mythology" entry (file+headline "~/Documents/Education/schedule.org" "Mythology")
-                 "*** TODO %?")
+                 "** %?  :event:")
+                ("c" "MATH 215" entry (file+headline "~/Documents/Education/schedule.org" "MATH 215")
+                 "** TODO %?")
+                ("l" "MATH 213" entry (file+headline "~/Documents/Education/schedule.org" "MATH 213")
+                 "** TODO %?")
+                ("a" "PHSCS 127" entry (file+headline "~/Documents/Education/schedule.org" "PHSCS 127")
+                 "** TODO %?")
+                ("p" "CS 111" entry (file+headline "~/Documents/Education/schedule.org" "CS 111")
+                 "** TODO %?")
+                ("f" "REL C 200" entry (file+headline "~/Documents/Education/schedule.org" "REL C 200")
+                 "** TODO %?")
+                ("w" "PHSCS 123" entry (file+headline "~/Documents/Education/schedule.org" "PHSCS 123")
+                 "** TODO %?")
+                ("s" "PHSCS 191" entry (file+headline "~/Documents/Education/schedule.org" "PHSCS 191")
+                 "** TODO %?")
                 ("j" "Major" entry (file+headline "~/Documents/Education/schedule.org" "Major")
-                 "*** TODO %?")
+                 "** TODO %?")
                 ("e" "Emacs" entry (file+headline "~/Documents/Education/schedule.org" "Emacs")
-                 "*** TODO %?")))
+                 "** TODO %?")))
 
 (use-package mixed-pitch
   :config
@@ -3257,6 +3446,22 @@ Example:
                                     (setq default-mode-line-format mode-line-format)
                                     (setq mode-line-format nil)))
 
+(defvar progenda-schedule-path "/Users/jetblack/Documents/Education/schedule.org")
+(defvar progenda-publish-path "/Users/jetblack/Documents/Education/Progenda/")
+
+(defun progenda-publish-schedule ()
+  (interactive)
+  (save-window-excursion
+    (let* ((json-data (with-current-buffer (find-file-noselect progenda-schedule-path)
+                        (ox-json-export-to-buffer)
+                        (let ((contents (buffer-string)))
+                          (kill-buffer)
+                          contents)))
+           (js-data (concat "const data = " json-data)))
+      (write-region js-data nil (concat progenda-publish-path "data.js"))))
+  (shell-command-to-string (format "cd %s && git add . && git commit -m 'Updated.' && git push" progenda-publish-path))
+  (message "Published schedule."))
+
 (with-eval-after-load 'org-agenda
   ;; set directory for global org files
   (setq-default org-agenda-files '("~/Documents/Education/schedule.org"
@@ -3345,6 +3550,11 @@ Example:
   (set-face-attribute 'org-agenda-structure nil
                       :foreground "#bdb491"
                       :weight 'ultra-bold)
+  
+  
+  (setq-default org-priority-faces `((?A . (:foreground ,color-red :weight bold))
+                                     (?B . (:foreground ,color-light-orange :weight medium))
+                                     (?C . (:foreground ,color-light-green :weight normal))))
   (add-hook 'org-agenda-mode-hook
             #'(lambda ()
                 (hl-line-mode 1)
@@ -3394,6 +3604,14 @@ Example:
   
   ;; reschedule task
   (evil-define-key 'normal org-agenda-mode-map (kbd "s") #'org-agenda-schedule)
+  
+  
+  ;; refile task
+  (evil-define-key 'normal org-agenda-mode-map (kbd "R") #'org-agenda-refile)
+  
+  
+  ;; search for task
+  (evil-define-key 'normal org-agenda-mode-map (kbd "S") #'org-search-view)
   
   
   ;; reload
@@ -3510,6 +3728,7 @@ This is a :filter-args advice for `message`."
           (set-temporary-face-attributes
            :foreground color-background
            '(org-document-title
+             header-line
              outline-1
              outline-2
              outline-3
@@ -3524,6 +3743,7 @@ This is a :filter-args advice for `message`."
            '(org-block-begin-line
              org-block-end-line
              sp-pair-overlay-face
+             header-line
              yas-field-highlight-face))
 
           (set-temporary-face-attributes
@@ -3533,7 +3753,10 @@ This is a :filter-args advice for `message`."
           (set-background-color "#FFF")
           (set-foreground-color color-background))
         (setq distraction-free-background-set t))
-    (when distraction-free-background-set
+    (when (and distraction-free-background-set
+               (not pdf-has-set-light-mode)
+               (or helm-alive-p
+                   (not (equal major-mode 'minibuffer-mode))))
       (setq evil-emacs-state-cursor `("white" box))
       (setq evil-normal-state-cursor `("#fdf4c1" box))
       (setq evil-insert-state-cursor `("#fdf4c1" bar))
@@ -3891,6 +4114,8 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 \\usepackage{csquotes}
 \\usepackage{amsmath}
 \\usepackage{amssymb}
+\\usepackage{gensymb}
+\\usepackage{siunitx}
 \\usepackage{float}
 \\usepackage{graphicx}
 \\usepackage[hidelinks]{hyperref}
@@ -4024,6 +4249,8 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 \\usepackage{csquotes}
 \\usepackage{amsmath}
 \\usepackage{amssymb}
+\\usepackage{gensymb}
+\\usepackage{siunitx}
 
 \\usepackage{float}
 
@@ -4201,6 +4428,17 @@ document.addEventListener('DOMContentLoaded', () => {
             (shell-command (format "open %s" (org-html-export-to-html))))))
     (message "Please make sure this a `.org` file.")))
 
+(defun expand-org-latex-workspace ()
+  (interactive)
+  (toggle-buffer-in-buffer-ring)
+  (evil-goto-line)
+  (org-latex-preview-pdf 1)
+  (make-frame '((fullscreen . fullboth)))
+  (export-and-open-pdf t)
+  (evil-collection-pdf-view-goto-page)
+  (toggle-buffer-in-buffer-ring)
+  (evil-window-left 1))
+
 (use-package ichthys-mode
   :load-path "lisp/"
   :config
@@ -4253,24 +4491,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 (defvar custom-holidays
-  '((holiday-fixed 1 1 "Ano Novo")
+  '((holiday-fixed 1 1 "New Year's Day")
+    (holiday-float 1 1 3 "Martin Luther King Day")
+    (holiday-fixed 2 2 "Groundhog Day")
+    (holiday-fixed 2 14 "Valentine's Day")
+    (holiday-float 2 1 3 "President's Day")
+    (holiday-fixed 3 17 "St. Patrick's Day")
+    (holiday-fixed 4 1 "April Fools' Day")
+    (holiday-float 5 0 2 "Mother's Day")
+    (holiday-float 5 1 -1 "Memorial Day")
+    (holiday-fixed 6 14 "Flag Day")
+    (holiday-fixed 6 19 "Juneteenth")
+    (holiday-float 6 0 3 "Father's Day")
+    (holiday-fixed 7 4 "Independence Day")
+    (holiday-fixed 7 25 "Pioneer Day")
+    (holiday-float 9 1 1 "Labor Day")
+    (holiday-float 10 1 2 "Columbus Day")
+    (holiday-fixed 10 31 "Halloween")
+    (holiday-fixed 11 11 "Veteran's Day")
+    (holiday-float 11 4 4 "Thanksgiving")
+    (holiday-easter-etc)
+    (holiday-fixed 12 25 "Christmas")
+    (solar-equinoxes-solstices)
+    (holiday-sexp calendar-daylight-savings-starts
+                  (format "Daylight Saving Time Begins %s"
+                          (solar-time-string
+                           (/ calendar-daylight-savings-starts-time . #1=((float 60)))
+                           calendar-standard-time-zone-name)))
+    (holiday-sexp calendar-daylight-savings-ends
+                  (format "Daylight Saving Time Ends %s"
+                          (solar-time-string
+                           (/ calendar-daylight-savings-ends-time . #1#)
+                           calendar-daylight-time-zone-name)))
     (holiday-easter-etc -47 "Carnaval")
     (holiday-easter-etc -2 "Paixão de Cristo")
-    (holiday-easter-etc 0 "Páscoa")
     (holiday-fixed 4 21 "Tiradentes")
     (holiday-fixed 5 1 "Dia do Trabalhador")
-    (holiday-fixed 7 24 "Pioneer Day")
-    (holiday-easter-etc +60 "Corpus Christi")
+    (holiday-fixed 7 25 "Pioneer Day")
+    (holiday-easter-etc 60 "Corpus Christi")
     (holiday-fixed 9 7 "Dia da Independência do Brasil")
     (holiday-fixed 10 12 "Nossa Senhora Aparecida")
     (holiday-fixed 11 2 "Finados")
     (holiday-fixed 11 15 "Proclamação da República")
     (holiday-fixed 12 25 "Natal"))
-  "Brazillian holidays.")
+  "Only the ones I want (though frankly, I'd like to observe more).")
 
 
-(setq-default calendar-holidays (append calendar-holidays custom-holidays))
 (setq-default org-agenda-include-diary t)
+(setq-default calendar-holidays custom-holidays)
 
 (add-hook 'calendar-mode-hook #'(lambda ()
                                   (evil-local-set-key 'normal (kbd "q") #'(lambda ()

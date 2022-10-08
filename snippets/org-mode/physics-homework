@@ -1,13 +1,13 @@
 # -*- mode: snippet -*-
-# name: math-homework
-# key: mhome
+# name: physics-homework
+# key: phome
 # --
 #+latex_class: math-homework
 #+autofill: nil
 #+option: title:nil
 
 #+begin_export latex
-\title{Homework --- Section $2}
+\title{Homework --- Set $2}
 
 \newlength{\drop}
 
@@ -17,7 +17,7 @@
 \vspace*{\baselineskip}
 \rule{\textwidth}{1.6pt}\vspace*{-\baselineskip}\vspace*{2pt}
 \rule{\textwidth}{0.4pt}\\\\[2\baselineskip]
-{\LARGE SECTION $2}\\\\[\baselineskip]
+{\LARGE SET $2}\\\\[\baselineskip]
 \rule{\textwidth}{0.4pt}\vspace*{-\baselineskip}\vspace{3.2pt}
 \rule{\textwidth}{1.6pt}\\\\[\baselineskip]
 \scshape
@@ -56,29 +56,14 @@ Homework for $3\par
 \newcommand{\divergence}{\nabla\cdot}
 
 \newcommand{\vecb}[1]{\mathbf{#1}}
-
-\newcommand{\rank}[1]{\text{rank}(#1)}
-\newcommand{\Span}[1]{\text{span}(#1)}
-
-\newenvironment{amatrix}[1]{%
-  \left[\begin{array}{@{}*{#1}{c}|c@{}}
-}{%
-  \end{array}\right]
-}
-
-\newenvironment{aamatrix}[2]{%
-\left[\begin{array}{@{}*{#1}{c}|*{#2}{c}@{}}
-}{%
-\end{array}\right]
-}
 #+end_export
 
 #+begin_comment
 $1
 #+end_comment
 
-* Section $2
+* Set $2
 
-** Problem $4
+** Problem 1
 
 $0

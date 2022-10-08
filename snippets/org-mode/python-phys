@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: python-phys
+# key: ph
+# --
+#+begin_src python
+from physics import format_answers, Q_
+
+$0
+
+return format_answers()
+#+end_src

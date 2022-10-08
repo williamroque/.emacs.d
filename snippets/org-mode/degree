@@ -2,4 +2,4 @@
 # name: degree
 # key: deg
 # --
-^\circ
+\degree
