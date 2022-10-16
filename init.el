@@ -382,6 +382,8 @@
 
 (global-set-key (kbd "M-w") 'evil-quit)
 
+(define-key global-map (kbd "M-t") #'transpose-frame)
+
 (global-set-key (kbd "M-h") 'evil-window-left)
 (global-set-key (kbd "M-j") 'evil-window-down)
 (global-set-key (kbd "M-k") 'evil-window-up)
@@ -573,6 +575,7 @@ for more information."
                                            ((?t ?a) . ?\x03c4)
                                            ((?a ?l) . ?\x03b1)
                                            ((?r ?h) . ?\x03c1)
+                                           ((?m ?m) . ?\x03bc)
                                            ((?. ?.) . ?\x0307)))
   
   
@@ -770,15 +773,18 @@ for more information."
                                  (notmuch)))
     (evil-leader/set-key "u" #'distraction-free)
     ;; open agenda without calendar; the proper way to do this is with a custom view
-    (evil-leader/set-key "a" #'(lambda ()
-                                 (interactive)
-                                 (let ((org-agenda-category-filter-preset '("-Calendar")))
-                                   (org-agenda-list))))
+    (evil-leader/set-key "a" #'(lambda (dedicate-monitor)
+                                 (interactive "P")
+                                 (if dedicate-monitor
+                                     (dedicate-monitor-to-org-agenda)
+                                   (let ((org-agenda-category-filter-preset '("-Calendar")))
+                                     (org-agenda-list)))))
     
     
-    (evil-leader/set-key "A" #'(lambda ()
-                                 (interactive)
-                                 (shell-command-to-string "/Users/jetblack/cbin/sync-calendar")
+    (evil-leader/set-key "A" #'(lambda (sync)
+                                 (interactive "P")
+                                 (if sync
+                                     (shell-command-to-string "/Users/jetblack/cbin/sync-calendar"))
                                  (org-agenda-list)))
     
     
@@ -791,6 +797,41 @@ for more information."
                                    (if (equal major-mode 'latex-mode)
                                        (call-interactively 'TeX-command-run-all)
                                      (browse-url-of-file)))))
+    
+    
+    (defvar org-export-html-live-online nil
+      "Whether the live Org HTML export server is on.")
+    
+    
+    (defun org-export-html-toggle-live-server ()
+      "Toggle the liver Org HTMl export server."
+      (if org-export-html-live-online
+          (progn
+            (kill-process "org-export-html-live-server")
+            (message "Killed live export server.")
+            (setq org-export-html-live-online nil))
+        (let ((html-path (format "%s.html" (file-name-base (buffer-file-name)))))
+          (message html-path)
+          (set-process-sentinel (start-process "org-export-html-live-server"
+                                               "*Org Live Export*"
+                                               "/Users/jetblack/.npm-global/bin/reload"
+                                               "-b"
+                                               "-s"
+                                               html-path)
+                                #'(lambda (process event)
+                                    (when (memq (process-status process) '(exit signal))
+                                      (kill-buffer "*Org Live Export*")))))
+        (message "Started live export server.")
+        (setq org-export-html-live-online t)))
+    
+    
+    (evil-leader/set-key "H" #'(lambda (start-server)
+                                 (interactive "P")
+                                 (if start-server
+                                     (org-export-html-toggle-live-server)
+                                   (when (equal major-mode 'org-mode)
+                                     (org-html-export-to-html)
+                                     (shell-command (format "open -a Vivaldi" ))))))
     
     
     ;; export org/latex file as PDF
@@ -907,7 +948,9 @@ for more information."
     
     
     ;; open fullscreen window
-    (evil-leader/set-key (kbd "_") #'make-frame)
+    (evil-leader/set-key (kbd "_") #'(lambda ()
+                                       (interactive)
+                                       (make-frame '((fullscreen . fullboth)))))
     
     
     ;; switch frames easily
@@ -927,15 +970,15 @@ for more information."
     
     
     ;; quit emacs -- shouldn't technically be here
-    (evil-leader/set-key (kbd "q") (lambda ()
-                                     (interactive)
-                                     (kill-all-buffers-except-scratch)
-                                     (when (yes-or-no-p "Truly really truly quit Emacs? ")
-                                       (kill-emacs))))
+    (evil-leader/set-key (kbd "q") #'(lambda ()
+                                       (interactive)
+                                       (kill-all-buffers-except-scratch)
+                                       (when (yes-or-no-p "Truly really truly quit Emacs? ")
+                                         (kill-emacs))))
     
     
-    ;; transpose frame
-    (define-key global-map (kbd "M-t") 'transpose-frame))
+    ;; toggle fullscreen more easily
+    (evil-leader/set-key (kbd "RET") #'toggle-frame-fullscreen))
   (evil-mode 1)
   
   
@@ -2492,7 +2535,7 @@ Example:
   
   
   ;; use all agenda files as refile targets
-  (setq-default org-refile-targets '(("schedule.org" :maxlevel . 1)))
+  (setq-default org-refile-targets '((org-agenda-files :maxlevel . 1)))
   
   
   ;; prevent section numbering in exports
@@ -2739,12 +2782,12 @@ Example:
   
   
   ;; use RET for newline and to fill paragraph
-  (define-key org-mode-map (kbd "<RET>")
-    #'(lambda ()
-        (interactive)
-        (newline)
-        (when (equal (char-before (- (point) 1)) ?\C-j)
-          (fill-paragraph))))
+  ;; (define-key org-mode-map (kbd "<RET>")
+  ;;   #'(lambda ()
+  ;;       (interactive)
+  ;;       (newline)
+  ;;       (when (equal (char-before (- (point) 1)) ?\C-j)
+  ;;         (fill-paragraph))))
   
   
   ;; toggle link display
@@ -3048,8 +3091,10 @@ Example:
     :config
   
     (require 'bibtex)
+    (require 'doi-utils)
     (require 'org-ref-pdf)
     (require 'org-ref-url-utils)
+    (require 'org-ref-arxiv)
     (require 'org-ref-bibtex)
     (require 'org-ref-isbn)
   
@@ -3060,6 +3105,25 @@ Example:
                   bibtex-autokey-titlewords 2
                   bibtex-autokey-titlewords-stretch 1
                   bibtex-autokey-titleword-length 5)
+  
+    (defun bibtex-generate-autokey ()
+      (let* ((names (bibtex-autokey-get-names))
+             (year (bibtex-autokey-get-year))
+             (title (bibtex-autokey-get-title))
+             (autokey (concat bibtex-autokey-prefix-string
+                              title
+                              (unless (or (equal names "")
+                                          (equal year ""))
+                                bibtex-autokey-name-year-separator)
+                              names
+                              (unless (or (and (equal names "")
+                                               (equal year ""))
+                                          (equal title ""))
+                                bibtex-autokey-year-title-separator)
+                              year)))
+        (if bibtex-autokey-before-presentation-function
+            (funcall bibtex-autokey-before-presentation-function autokey)
+          autokey)))
   
     (define-key org-mode-map (kbd "C-]") #'org-ref-insert-link))
   (defvar autocorrect-words-on-type t
@@ -3446,6 +3510,14 @@ Example:
                                     (setq default-mode-line-format mode-line-format)
                                     (setq mode-line-format nil)))
 
+(defun dedicate-monitor-to-org-agenda ()
+  (interactive)
+  (modify-frame-parameters nil '((fullscreen . fullboth)))
+  (let ((org-agenda-category-filter-preset '("-Calendar")))
+    (org-agenda-list))
+  (olivetti-set-width 72)
+  (text-scale-set 1.5))
+
 (defvar progenda-schedule-path "/Users/jetblack/Documents/Education/schedule.org")
 (defvar progenda-publish-path "/Users/jetblack/Documents/Education/Progenda/")
 
@@ -3568,6 +3640,12 @@ Example:
   ;; move cursor to first item
   (advice-add 'org-agenda-list :after #'(lambda (&rest args)
                                           (org-agenda-next-item 1)))
+  
+  
+  (add-hook 'org-agenda-finalize-hook #'(lambda ()
+                                          (interactive)
+                                          (if (> text-scale-mode-amount 0)
+                                              (olivetti-set-width 72))))
   ;; make sure normal state is enabled by default in org agenda
   (evil-set-initial-state 'org-agenda-mode 'normal)
   
@@ -4040,6 +4118,260 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
   (yas-expand-snippet "\\\\( $0 \\\\)")
   (evil-insert-state))
 
+(defun arxiv-local-add-bibtex-entry (arxiv-number)
+  "Add bibtex entry for ARXIV-NUMBER to current buffer."
+  (interactive
+   (list (read-string
+          "arxiv: "
+          (arxiv-maybe-arxiv-id-from-current-kill))))
+  (save-excursion
+    (goto-char (point-max))
+    (when (not (looking-at "^")) (insert "\n"))
+    (insert (arxiv-get-bibtex-entry-via-arxiv-api arxiv-number))
+    (org-ref-clean-bibtex-entry)
+    (goto-char (point-max))
+    (when (not (looking-at "^")) (insert "\n"))))
+
+
+(defun arxiv-local-get-pdf-add-bibtex-entry (arxiv-number pdfdir)
+  "Add bibtex entry for ARXIV-NUMBER to current buffer.
+Remove troublesome chars from the bibtex key, retrieve a pdf
+for ARXIV-NUMBER and save it to PDFDIR with the same name of the
+key."
+  (interactive
+   (list (read-string
+          "arxiv: "
+          (arxiv-maybe-arxiv-id-from-current-kill))
+         default-directory))
+
+  (arxiv-local-add-bibtex-entry arxiv-number)
+
+  (save-excursion
+    (let ((key ""))
+      (goto-char (point-max))
+      (bibtex-beginning-of-entry)
+      (re-search-forward bibtex-entry-maybe-empty-head)
+      (if (match-beginning bibtex-key-in-head)
+          (progn
+            (setq key (delete-and-extract-region
+                       (match-beginning bibtex-key-in-head)
+                       (match-end bibtex-key-in-head)))
+            ;; remove potentially troublesome characters from key
+            ;; as it will be used as  a filename
+            (setq key (replace-regexp-in-string   "\"\\|\\*\\|/\\|:\\|<\\|>\\|\\?\\|\\\\\\||\\|\\+\\|,\\|\\.\\|;\\|=\\|\\[\\|]\\|!\\|@"
+                                                  "" key))
+            ;; check if the key is in the buffer
+            (when (save-excursion
+                    (bibtex-search-entry key))
+              (save-excursion
+                (bibtex-search-entry key)
+                (bibtex-copy-entry-as-kill)
+                (switch-to-buffer-other-window "*duplicate entry*")
+                (bibtex-yank))
+              (setq key (bibtex-read-key "Duplicate Key found, edit: " key))))
+        (setq key (bibtex-read-key "Key not found, insert: ")))
+      (insert key)
+      (arxiv-get-pdf arxiv-number (concat pdfdir key ".pdf"))
+      ;; Check that it worked, and insert a field for it.
+      (when (file-exists-p (concat pdfdir key ".pdf"))
+        (bibtex-end-of-entry)
+        (backward-char)
+        (insert (format "  file = {%s}\n  " (concat pdfdir key ".pdf")))))))
+
+
+(defun doi-utils-local-async-download-pdf ()
+  "Download the PDF for bibtex entry at point asynchronously.
+It is not fully async, only the download is. Fully async is
+harder because you need to run `doi-utils-get-pdf-url' async
+too. "
+  (interactive)
+  (require 'async)
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let (;; get doi, removing http://dx.doi.org/ if it is there.
+          (doi (replace-regexp-in-string
+                "https?://\\(dx.\\)?.doi.org/" ""
+                (bibtex-autokey-get-field "doi")))
+          (key (cdr (assoc "=key=" (bibtex-parse-entry))))
+          (pdf-url)
+          (pdf-file))
+
+      (setq pdf-file (concat default-directory key ".pdf"))
+
+      (unless doi (error "No DOI found to get a pdf for"))
+
+      (when (file-exists-p pdf-file)
+        (error "%s already exists. Delete to re-download" pdf-file))
+
+      ;; (doi-utils-get-pdf-url "10.1063/1.5019667")
+      ;; If you get here, try getting the pdf file
+      (async-start
+       `(lambda ()
+          (setq package-user-dir ,package-user-dir)
+          (require 'package)
+          (package-initialize)
+          (setq load-path (list ,@load-path))
+          (require 'doi-utils)
+
+          (setq pdf-url (doi-utils-get-pdf-url ,doi))
+          (when pdf-url
+            (url-copy-file pdf-url ,pdf-file t)
+
+            (let* ((header (with-temp-buffer
+                             (set-buffer-multibyte nil)
+                             (insert-file-contents-literally ,pdf-file nil 0 5)
+                             (buffer-string)))
+                   (valid (and (stringp header)
+                               (string-equal (encode-coding-string header 'utf-8) "%PDF-"))))
+              (if valid
+                  (format "%s downloaded" ,pdf-file)
+                (delete-file ,pdf-file)
+                (require 'browse-url)
+                (browse-url pdf-url)
+                (message "Invalid pdf (file deleted). Header = %s" header)))))
+       `(lambda (result)
+          (message "doi-utils-async-download-pdf: %s"  result))))))
+
+
+(defun doi-utils-local-get-bibtex-entry-pdf (&optional arg)
+  "Download pdf for entry at point if the pdf does not already exist locally.
+The entry must have a doi. The pdf will be saved, by the name
+%s.pdf where %s is the bibtex label. Files will not be
+overwritten. The pdf will be checked to make sure it is a pdf,
+and not some html failure page. You must have permission to
+access the pdf. We open the pdf at the end if
+`doi-utils-open-pdf-after-download' is non-nil.
+
+With one prefix ARG, directly get the pdf from a file (through
+`read-file-name') instead of looking up a DOI. With a double
+prefix ARG, directly get the pdf from an open buffer (through
+`read-buffer-to-switch') instead. These two alternative methods
+work even if the entry has no DOI, and the pdf file is not
+checked."
+  (interactive "P")
+  (save-excursion
+    (bibtex-beginning-of-entry)
+    (let (;; get doi, removing http://dx.doi.org/ if it is there.
+          (doi (replace-regexp-in-string
+                "https?://\\(dx.\\)?.doi.org/" ""
+                (bibtex-autokey-get-field "doi")))
+          (key (cdr (assoc "=key=" (bibtex-parse-entry))))
+          (pdf-url)
+          (pdf-file))
+
+      (setq pdf-file (concat default-directory key ".pdf"))
+      ;; now get file if needed.
+      (unless (file-exists-p pdf-file)
+	(cond
+	 ((and (not arg)
+	       doi
+	       (setq pdf-url (doi-utils-get-pdf-url doi)))
+	  (url-copy-file pdf-url pdf-file)
+	  ;; now check if we got a pdf
+          (if (org-ref-pdf-p pdf-file)
+              (message "%s saved" pdf-file)
+            (delete-file pdf-file)
+            (message "No pdf was downloaded.")
+            (browse-url pdf-url)))
+	 ((equal arg '(4))
+	  (copy-file (expand-file-name (read-file-name "Pdf file: " nil nil t))
+		     pdf-file))
+	 ((equal arg '(16))
+	  (with-current-buffer (read-buffer-to-switch "Pdf buffer: ")
+	    (write-file pdf-file)))
+	 (t
+	  (message "We don't have a recipe for this journal.")))
+
+	(when (file-exists-p pdf-file)
+	  (bibtex-set-field "file" pdf-file))
+
+	(when (and doi-utils-open-pdf-after-download (file-exists-p pdf-file))
+	  (org-open-file pdf-file))))))
+
+
+(defun doi-utils-add-bibtex-entry-from-doi (doi)
+  "Add DOI entry to end of a file in the current directory.
+Pick the file ending with .bib or in .  If you have an active region that
+starts like a DOI, that will be the initial prompt.  If no region
+is selected and the first entry of the ‘kill-ring’ starts like a
+DOI, then that is the intial prompt.  Otherwise, you have to type
+or paste in a DOI.
+Argument BIBFILE the bibliography to use."
+  (interactive
+   (list (read-string
+          "DOI: "
+          ;; now set initial input
+          (doi-utils-maybe-doi-from-region-or-current-kill))))
+
+  
+  ;; Wrap in save-window-excursion to restore your window arrangement after this
+  ;; is done.
+  (save-excursion
+      ;; Check if the doi already exists
+      (goto-char (point-min))
+      (if (re-search-forward (concat doi "\\_>") nil t)
+          (message "%s is already in this file" doi)
+        (goto-char (point-max))
+
+	(when (not (looking-back "\n\n" (min 3 (point))))
+	  (insert "\n\n"))
+
+        (doi-utils-insert-bibtex-entry-from-doi doi))))
+
+
+(defun doi-utils-local-add-bibtex-entry-from-doi (doi)
+  "Add DOI entry to end of a file in the current directory.
+Pick the file ending with .bib or in .  If you have an active region that
+starts like a DOI, that will be the initial prompt.  If no region
+is selected and the first entry of the ‘kill-ring’ starts like a
+DOI, then that is the intial prompt.  Otherwise, you have to type
+or paste in a DOI.
+Argument BIBFILE the bibliography to use."
+  (interactive
+   (list (read-string
+          "DOI: "
+          ;; now set initial input
+          (doi-utils-maybe-doi-from-region-or-current-kill))))
+
+  ;; Wrap in save-window-excursion to restore your window arrangement after this
+  ;; is done.
+  (save-excursion
+      ;; Check if the doi already exists
+      (goto-char (point-min))
+      (if (re-search-forward (concat doi "\\_>") nil t)
+          (message "%s is already in this file" doi)
+        (goto-char (point-max))
+
+	(when (not (looking-back "\n\n" (min 3 (point))))
+	  (insert "\n\n"))
+
+        (doi-utils-insert-bibtex-entry-from-doi doi))))
+
+
+(defun orcb-local-download-pdf ()
+  "Try to get the pdf in an entry."
+  ;; try to get pdf
+  (when doi-utils-download-pdf
+    (if doi-utils-async-download
+        (doi-utils-local-async-download-pdf)
+      (doi-utils-local-get-bibtex-entry-pdf))))
+
+
+(setq-default org-ref-clean-bibtex-entry-hook '(org-ref-bibtex-format-url-if-doi
+                                                orcb-key-comma
+                                                org-ref-replace-nonascii
+                                                orcb-&
+                                                orcb-%
+                                                org-ref-title-case-article
+                                                orcb-clean-year
+                                                orcb-key
+                                                orcb-clean-doi
+                                                orcb-clean-pages
+                                                orcb-check-journal
+                                                org-ref-sort-bibtex-entry
+                                                orcb-fix-spacing
+                                                orcb-local-download-pdf))
+
 (defun org-ref-read-key ()
   "Read a key with completion."
   (unless bibtex-completion-display-formats-internal
@@ -4052,8 +4384,11 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 	 (choice (completing-read "org-ref BibTeX entries: " candidates)))
     (cdr (assoc "=key=" (assoc choice candidates)))))
 
-(evil-define-key 'normal bibtex-mode-map (kbd "C-]") #'doi-insert-bibtex)
-(evil-define-key 'insert bibtex-mode-map (kbd "C-]") #'doi-insert-bibtex)
+(evil-define-key 'insert bibtex-mode-map (kbd "C-]") #'doi-utils-add-bibtex-entry-from-doi)
+(evil-define-key 'normal bibtex-mode-map (kbd "C-]") #'doi-utils-add-bibtex-entry-from-doi)
+
+(evil-define-key 'insert bibtex-mode-map (kbd "C-M-]") #'arxiv-local-get-pdf-add-bibtex-entry)
+(evil-define-key 'normal bibtex-mode-map (kbd "C-M-]") #'arxiv-local-get-pdf-add-bibtex-entry)
 
 (setq org-latex-default-packages-alist '())
 
