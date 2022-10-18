@@ -95,6 +95,9 @@
              (car (cdr (cdr (process-command process))))
              (substring signal 0 -1)))))
 
+(defvar emacs-configuration-directory (file-name-directory (or load-file-name (buffer-file-name)))
+  "Get directory of emacs configuration.")
+
 (setq-default initial-scratch-message "")
 
 (setq initial-major-mode 'org-mode)
@@ -978,7 +981,11 @@ for more information."
     
     
     ;; toggle fullscreen more easily
-    (evil-leader/set-key (kbd "RET") #'toggle-frame-fullscreen))
+    (evil-leader/set-key (kbd "RET") #'toggle-frame-fullscreen)
+    
+    
+    ;; swap window sides
+    (evil-leader/set-key (kbd "y") #'window-swap-states))
   (evil-mode 1)
   
   
@@ -4712,14 +4719,18 @@ Argument BIBFILE the bibliography to use."
                                              (setq org-pdf-export-has-queue nil)
                                              (org-export-pdf-update)))))))))
 
+(defvar org-html-custom-css-path (concat emacs-configuration-directory "org_style.css")
+  "Path to default custom css.")
+
+
 ;; org-mode custom HTML head export
 (defun org-html-export-head-hook (exporter)
-  "Insert custom inline css."
+  "Insert custom inline head."
   (when (eq exporter 'html)
     (let* ((dir (ignore-errors (file-name-directory (buffer-file-name))))
            (path (concat dir "style.css"))
            (homestyle (or (null dir) (null (file-exists-p path))))
-           (final (if homestyle "~/.org_style.css" path)))
+           (final (if homestyle org-html-custom-css-path path)))
       (setq org-html-head-include-default-style nil)
       (setq org-html-head (concat
                            "<style type=\"text/css\">\n"
@@ -4729,8 +4740,8 @@ Argument BIBFILE the bibliography to use."
                              (buffer-string))
                            "/*]]>*/-->\n"
                            "</style>\n"
-                           "<script>\n"
-                           "
+                           "\n"
+                           "<script>
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('table.currency td.org-right').forEach(elem => {
         const text = elem.innerText;
@@ -4740,11 +4751,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-"
-                           "</script>")))))
+</script>")))))
 
 
 (add-hook 'org-export-before-processing-hook #'org-html-export-head-hook)
+
+
+(setq-default org-html-mathjax-template
+              "<script type=\"text/x-mathjax-config\">
+    MathJax.Ajax.config.path[\"mhchem\"] = \"https://cdnjs.cloudflare.com/ajax/libs/mathjax-mhchem/3.3.2\";
+    MathJax.Hub.Config({
+        displayAlign: \"%ALIGN\",
+        displayIndent: \"%INDENT\",
+
+        \"HTML-CSS\": { scale: %SCALE,
+                        linebreaks: { automatic: \"%LINEBREAKS\" },
+                        webFont: \"%FONT\"
+                       },
+        SVG: {scale: %SCALE,
+              linebreaks: { automatic: \"%LINEBREAKS\" },
+              font: \"%FONT\"},
+        NativeMML: {scale: %SCALE},
+        TeX: { equationNumbers: {autoNumber: \"%AUTONUMBER\"},
+               MultLineWidth: \"%MULTLINEWIDTH\",
+               TagSide: \"%TAGSIDE\",
+               TagIndent: \"%TAGINDENT\",
+               extensions: [\"[mhchem]/mhchem.js\"]
+             },
+    });
+</script>
+<script src=\"%PATH\"></script>")
 
 (defun export-colored (num simple-separatorp)
   (interactive
