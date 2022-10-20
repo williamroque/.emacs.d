@@ -204,8 +204,10 @@ Kill all buffers except for scratch.
 (defun kill-all-buffers-except-scratch ()
   "Kill all buffers except for *scratch*."
   (interactive)
-  (mapc 'kill-buffer 
-        (delete (get-buffer "*scratch*") (buffer-list)))
+  (mapc #'(lambda (name)
+            (when (not (string-prefix-p "*scratch" name))
+              (kill-buffer name)))
+        (helm-buffer-list))
   (message "Killed all buffers except *scratch*."))
 #+end_src
 
@@ -225,7 +227,7 @@ Evil leader keybindings.
 
 
 ;; make the scratch buffer the only one
-(evil-leader/set-key "B" 'kill-all-buffers-except-scratch)
+(evil-leader/set-key "B" #'kill-all-buffers-except-scratch)
 #+end_src
 
 * Utilities
@@ -616,6 +618,16 @@ Resize window more easily.
 (global-set-key (kbd "C-c h") #'evil-window-set-height)
 #+end_src
 
+Use the =perspective= package.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package perspective
+  :config
+  (setq-default persp-suppress-no-prefix-key-warning t)
+
+  (persp-mode))
+#+end_src
+
 Evil leader keybindings.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref window-frame-leader
@@ -675,7 +687,7 @@ Mode line config.
 
 (setq-default display-time-default-load-average nil)
 (setq-default display-time-day-and-date t)
-(setq-default display-time-format "%H:%M")
+(setq-default display-time-format " %H:%M")
 (display-time)
 #+end_src
 
@@ -993,6 +1005,10 @@ If COMMAND is nil, the key-chord is removed."
 (evil-define-key nil evil-normal-state-map ";" 'evil-ex)
 (evil-define-key nil evil-visual-state-map ";" 'evil-ex)
 (evil-define-key 'normal 'dired-mode-map ";" 'evil-ex)
+
+
+;; define a prefix key for perspective
+(define-key evil-normal-state-map (kbd "g p") 'perspective-map)
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :noweb no-export
@@ -1041,7 +1057,7 @@ mode's variables are set and right before the rest of the evil config.
   (evil-leader/set-key "f" #'(lambda ()
                                (interactive)
                                (cond
-                                ((equal (buffer-name) "*scratch*") (message "(No changes need to be saved)"))
+                                ((string-prefix-p "*scratch" (buffer-name)) (message "(No changes need to be saved)"))
                                 ((equal major-mode 'wdired-mode) (wdired-finish-edit))
                                 ((equal major-mode 'org-agenda-mode)
                                  (org-save-all-org-buffers)
@@ -1464,6 +1480,15 @@ Define key bindings.
 
 
 (global-set-key (kbd "M-x") 'helm-M-x)
+#+end_src
+
+Redefine buffers list to be more careful.
+
+#+begin_src emacs-lisp :tangle yes
+(defun helm-buffer-list ()
+  "Return the current list of buffers.
+The list is reordered with `helm-buffer-list-reorder-fn'."
+  (helm-buffer-list-1))
 #+end_src
 
 *** Helm ag
@@ -3361,7 +3386,8 @@ Set defaults.
         (scale "90") 
         (align "center") 
         (indent "2em")
-        (mathml nil)))
+        (mathml nil)
+        (font "Neo-Euler")))
 
 
 ;; change custom date format
@@ -4674,7 +4700,7 @@ This is a :filter-args advice for `message`."
 
 
 (defun org-detect-distraction-free-keyword ()
-  (if (and (org-keyword-activep "DFREE" t) (not (equal (buffer-name) "*scratch*")))
+  (if (and (org-keyword-activep "DFREE" t) (not (string-prefix-p "*scratch" (buffer-name))))
       (distraction-free (org-keyword-activep "LITERARY"))))
 
 

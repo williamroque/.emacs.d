@@ -28,7 +28,7 @@ body {
 }
 
 div#content {
-    min-width: 450px;
+    width: 96%;
     max-width: 800px;
     padding: 0 50px;
 }

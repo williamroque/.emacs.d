@@ -109,8 +109,10 @@
 (defun kill-all-buffers-except-scratch ()
   "Kill all buffers except for *scratch*."
   (interactive)
-  (mapc 'kill-buffer 
-        (delete (get-buffer "*scratch*") (buffer-list)))
+  (mapc #'(lambda (name)
+            (when (not (string-prefix-p "*scratch" name))
+              (kill-buffer name)))
+        (helm-buffer-list))
   (message "Killed all buffers except *scratch*."))
 
 (use-package scratch
@@ -402,13 +404,19 @@
 (global-set-key (kbd "C-c w") #'evil-window-set-width)
 (global-set-key (kbd "C-c h") #'evil-window-set-height)
 
+(use-package perspective
+  :config
+  (setq-default persp-suppress-no-prefix-key-warning t)
+
+  (persp-mode))
+
 (use-package mood-line
   :config
   (mood-line-mode)
   
   (setq-default display-time-default-load-average nil)
   (setq-default display-time-day-and-date t)
-  (setq-default display-time-format "%H:%M")
+  (setq-default display-time-format " %H:%M")
   (display-time)
   (set-face-attribute 'mood-line-buffer-name nil
                       :inherit 'mode-line-buffer-id
@@ -626,7 +634,7 @@ for more information."
     (evil-leader/set-key "f" #'(lambda ()
                                  (interactive)
                                  (cond
-                                  ((equal (buffer-name) "*scratch*") (message "(No changes need to be saved)"))
+                                  ((string-prefix-p "*scratch" (buffer-name)) (message "(No changes need to be saved)"))
                                   ((equal major-mode 'wdired-mode) (wdired-finish-edit))
                                   ((equal major-mode 'org-agenda-mode)
                                    (org-save-all-org-buffers)
@@ -903,7 +911,7 @@ for more information."
     
     
     ;; make the scratch buffer the only one
-    (evil-leader/set-key "B" 'kill-all-buffers-except-scratch)
+    (evil-leader/set-key "B" #'kill-all-buffers-except-scratch)
     ;; run scripts
     (evil-leader/set-key "," #'run-script-without-args)
     (evil-leader/set-key "'" #'run-script-without-args)
@@ -1067,7 +1075,11 @@ for more information."
   ;; convenient remap for ex state
   (evil-define-key nil evil-normal-state-map ";" 'evil-ex)
   (evil-define-key nil evil-visual-state-map ";" 'evil-ex)
-  (evil-define-key 'normal 'dired-mode-map ";" 'evil-ex))
+  (evil-define-key 'normal 'dired-mode-map ";" 'evil-ex)
+  
+  
+  ;; define a prefix key for perspective
+  (define-key evil-normal-state-map (kbd "g p") 'perspective-map))
 
 (use-package evil-surround
   :config
@@ -1348,6 +1360,11 @@ for more information."
                       :extend t
                       :background 'unspecified
                       :foreground color-red))
+
+(defun helm-buffer-list ()
+  "Return the current list of buffers.
+The list is reordered with `helm-buffer-list-reorder-fn'."
+  (helm-buffer-list-1))
 
 (use-package helm-ag)
 
@@ -2598,7 +2615,8 @@ Example:
           (scale "90") 
           (align "center") 
           (indent "2em")
-          (mathml nil)))
+          (mathml nil)
+          (font "Neo-Euler")))
   
   
   ;; change custom date format
@@ -3776,7 +3794,7 @@ This is a :filter-args advice for `message`."
 
 
 (defun org-detect-distraction-free-keyword ()
-  (if (and (org-keyword-activep "DFREE" t) (not (equal (buffer-name) "*scratch*")))
+  (if (and (org-keyword-activep "DFREE" t) (not (string-prefix-p "*scratch" (buffer-name))))
       (distraction-free (org-keyword-activep "LITERARY"))))
 
 

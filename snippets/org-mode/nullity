@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: nullity
+# key: nlt
+# --
+\text{nullity}($1)$0

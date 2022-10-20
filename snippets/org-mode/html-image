@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: html-image
+# key: himg
+# --
+#+attr_html: :width 400
+#+caption: $2
+[[./$1]]
+$0
