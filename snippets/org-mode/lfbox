@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: lfbox
+# key: lfb
+# --
+#+latex: \fbox{$1}$0

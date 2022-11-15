@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: python-tangle-reference
+# key: pref
+# --
+#+begin_src python :tangle no :noweb-ref $1
+$0
+#+end_src

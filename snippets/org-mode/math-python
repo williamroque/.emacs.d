@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: math-python
+# key: mpy
+# --
+#+begin_src python :exports none :results output
+import numpy as np
+from numpy.linalg import *
+
+$0
+#+end_src

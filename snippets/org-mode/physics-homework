@@ -6,6 +6,12 @@
 #+autofill: nil
 #+option: title:nil
 
+#+latex_header: \usepackage{tcolorbox}
+#+latex_header: \usepackage{textalpha}
+#+latex_header: \usepackage{gensymb}
+#+latex_header: \usepackage{siunitx}
+#+latex_header: \usepackage{upquote}
+
 #+begin_export latex
 \title{Homework --- Set $2}
 

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: chemical-equation
+# key: ce
+# --
+\ce{$1}$0

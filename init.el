@@ -109,10 +109,8 @@
 (defun kill-all-buffers-except-scratch ()
   "Kill all buffers except for *scratch*."
   (interactive)
-  (mapc #'(lambda (name)
-            (when (not (string-prefix-p "*scratch" name))
-              (kill-buffer name)))
-        (helm-buffer-list))
+  (mapc 'kill-buffer 
+        (delete (get-buffer "*scratch*") (buffer-list)))
   (message "Killed all buffers except *scratch*."))
 
 (use-package scratch
@@ -404,11 +402,7 @@
 (global-set-key (kbd "C-c w") #'evil-window-set-width)
 (global-set-key (kbd "C-c h") #'evil-window-set-height)
 
-(use-package perspective
-  :config
-  (setq-default persp-suppress-no-prefix-key-warning t)
-
-  (persp-mode))
+(setq-default pop-up-windows nil)
 
 (use-package mood-line
   :config
@@ -747,7 +741,10 @@ for more information."
     (evil-leader/set-key "F" #'count-matches)
     (evil-leader/set-key (kbd "m") 'magit)
     ;; open the minibuffer
-    (evil-leader/set-key "k" 'helm-mini)
+    (evil-leader/set-key "k" #'(lambda ()
+                                 (interactive)
+                                 (let ((pop-up-windows t))
+                                   (call-interactively #'helm-mini))))
     
     
     ;; open command minibuffer
@@ -1075,11 +1072,7 @@ for more information."
   ;; convenient remap for ex state
   (evil-define-key nil evil-normal-state-map ";" 'evil-ex)
   (evil-define-key nil evil-visual-state-map ";" 'evil-ex)
-  (evil-define-key 'normal 'dired-mode-map ";" 'evil-ex)
-  
-  
-  ;; define a prefix key for perspective
-  (define-key evil-normal-state-map (kbd "g p") 'perspective-map))
+  (evil-define-key 'normal 'dired-mode-map ";" 'evil-ex))
 
 (use-package evil-surround
   :config
@@ -1145,10 +1138,40 @@ for more information."
                                (embrace-add-pair ?u "_" "_")))
   
   
-  
   (use-package evil-tex
     :config
-    (add-hook 'org-mode-hook #'evil-tex-mode)))
+    (add-hook 'org-mode-hook #'evil-tex-mode)
+  
+    (setq-default evil-tex-surround-delimiters
+                  `((?m "\\( " . " \\)")
+                    (?M "\\[ " . " \\]")
+                    (?c . ,#'evil-tex-surround-command-prompt)
+                    (?e . ,#'evil-tex-surround-env-prompt)
+                    (?d . ,#'evil-tex-surround-delim-prompt)
+                    (?\; . ,#'evil-tex-surround-cdlatex-accents-prompt)
+                    (?q "`" . "'")
+                    (?Q "``" . "''")
+                    (?^ "^{" . "}")
+                    (?_ "_{" . "}")
+                    (?T "&" . "&")))
+  
+    (setq-default evil-tex-delim-map
+                  (let ((keymap (make-sparse-keymap)))
+                    (evil-tex-bind-to-delim-map
+                     '(("P"  "(" . ")")
+                       ("p"  "\\left( " . " \\right)")
+                       ("S"  "[" . "]")
+                       ("s"  "\\left[ " . " \\right]")
+                       ("C"  "\\{ " . " \\}")
+                       ("c"  "\\left\\{ " . " \\right\\}")
+                       ("R"  "\\langle " . " \\rangle")
+                       ("r"  "\\left\\langle " . " \\right\\rangle")
+                       ("v" "\\left\\lvert " . " \\right\\rvert")
+                       ("V" "\\lvert " . " \\rvert")
+                       ("n" "\\left\\lVert " . " \\right\\rVert") ; (n for norm)
+                       ("N" "\\lVert " . " \\rVert"))
+                     keymap)
+                    keymap))))
 
 (use-package evil-owl
   :config
@@ -1696,6 +1719,23 @@ Example:
     (add-hook 'yas-after-exit-snippet-hook #'align-yasnippet-matrix)))
 
 
+(defun align-matrix (start end)
+  (interactive "r")
+  (if (not (region-active-p))
+      (save-mark-and-excursion
+        (let ((inhibit-message t))
+          (er/mark-LaTeX-inside-environment))
+        (setq start (point))
+        (setq end (mark))))
+  (setq my/unhiding-current-line nil)
+  (align-regexp start end "\\(\\s-*\\) &" 1 1 t)
+  (setq my/unhiding-current-line t))
+
+
+(evil-define-key 'visual org-mode-map (kbd "g r a") #'align-matrix)
+(evil-define-key 'normal org-mode-map (kbd "g r a") #'align-matrix)
+
+
 (defun align-yasnippet-matrix ()
   (align-regexp yas-snippet-beg yas-snippet-end "\\(\\s-*\\) &" 1 1 t)
   (setq my/unhiding-current-line t)
@@ -1758,12 +1798,13 @@ Example:
                        (texmathp)
                        (> (point) (line-beginning-position))
                        (not (equal (char-after) ? ))
+                       (not (equal (char-after) ?-))
                        (not (and (memq (char-after) '(?{ ?\()) (equal found-brace 0))))
                  (pcase (char-after)
                    ((or ?} ?\)) (setq found-brace (1+ found-brace)))
                    ((or ?{ ?\() (setq found-brace (1- found-brace))))
                  (goto-char (1- (point))))
-               (when (re-search-forward "\\(?:^\\(?1:.+\\)/\\)\\|\\(?:[ {(]\\(?1:.+\\)/\\)" limit t)
+               (when (re-search-forward "\\(?:^\\(?1:.+\\)/\\)\\|\\(?:[ -{(]\\(?1:.+\\)/\\)" limit t)
                  (setq match (match-string 1))
                  (setq match-start (match-beginning 1))))
 
@@ -1890,6 +1931,8 @@ Example:
                (insert-matrix-like "amatrix" 4 5 "{4}"))
       "matr" (lambda (rows cols) (interactive "nRows: \nnColumns: ")
                (insert-matrix-like "bmatrix" rows cols))
+      "cmat" (lambda (rows) (interactive "nRows: ")
+               (insert-matrix-like "bmatrix" rows 1))
       "amatr" (lambda (rows cols sep)
                 (interactive "nRows: \nnColumns: \nnSeparate at: ")
                 (insert-matrix-like "aamatrix" rows cols
@@ -2007,8 +2050,10 @@ Example:
                       (">>" . " \\> $0")
                       ("nqu" . " \\neq $0")
                       ("vm" . " - $0")
+                      ("vj" . "-$0")
                       ("vp" . " + $0")
                       ("seq" . " &= $0")
+                      ("sim" . "&\\sim $0")
                       ("amp" . " & $0")
                       ("gtn" . " > $0")
                       ("sgt" . " &> $0")
@@ -3159,6 +3204,7 @@ Example:
     (if (and
          autocorrect-words-on-type
          (memq major-mode '(org-mode mail-mode text-mode))
+         (null (get-char-property (point) 'face))
          (not (texmathp))
          (not (yas-active-snippets))
          (not (equal (TeX-current-macro) "text"))
@@ -4030,7 +4076,10 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
              (expression (replace-regexp-in-string
                           "\\([abcxyz]\\|_[[:digit:]]\\)[[:space:]]*("
                           "\\1*("
-                          (buffer-substring expression-start end))))
+                          (replace-regexp-in-string
+                           "\\\\left\\|\\\\right"
+                           ""
+                           (buffer-substring expression-start end)))))
         (delete-region start (if (and (equal (evil-visual-type) 'line)
                                       (not (equal end (point-max))))
                                  (- end 1) end))
@@ -4038,6 +4087,8 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
           (goto-char start)
           (insert prefix)
           (insert (calc-eval expression)))))))
+
+(setq-default calc-highlight-selections-with-faces t)
 
 (defun evaluate-math-expression-at-point (substition start end)
   (interactive
@@ -4077,8 +4128,54 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 (evil-define-key 'normal global-map (kbd "g r l") #'evaluate-math-expression-at-limits)
 (evil-define-key 'normal global-map (kbd "g r p") #'evaluate-math-expression-at-point)
 
+(put 'latex 'math-matrix-formatter
+     (lambda (a)
+       (if (and (integerp calc-language-option)
+                (or (= calc-language-option 0)
+                    (> calc-language-option 1)
+                    (< calc-language-option -1)))
+           (append '(vleft 0 "\\begin{bmatrix}")
+                   (math-compose-tex-matrix (cdr a) t)
+                   '("\\end{bmatrix}"))
+         (append '(horiz "\\begin{bmatrix} ")
+                 (math-compose-tex-matrix (cdr a) t)
+                 '(" \\end{bmatrix}")))))
+
+(defun calc-copy-as-kill ()
+    "Copy the top of stack as kill."
+    (interactive)
+    (let ((buffer (generate-new-buffer "*copy-here*")))
+      (unwind-protect
+          (progn
+            (cl-letf
+                (((symbol-function 'calc-find-writable-buffer)
+                  (lambda (buf mode) buffer)))
+              (call-interactively 'calc-copy-to-buffer))
+            (with-current-buffer buffer
+              (kill-new (buffer-substring-no-properties (point-min) (point-max))))
+            (message "Copied the result: %s" (car kill-ring)))
+        (and (buffer-name buffer)
+             (kill-buffer buffer)))))
+
 (define-key global-map (kbd "C-'") #'clean-quick-calc)
 (define-key org-mode-map (kbd "C-'") #'clean-quick-calc)
+
+(define-key global-map (kbd "C-M-'") #'calc)
+(define-key org-mode-map (kbd "C-M-'") #'calc)
+
+(define-key global-map (kbd "C-M-;") #'calc-embedded)
+(define-key org-mode-map (kbd "C-M-;") #'calc-embedded)
+
+(add-hook 'calc-mode-hook
+          #'(lambda ()
+              (evil-local-set-key 'normal (kbd "q") #'(lambda ()
+                                                        (interactive)
+                                                        (calc-quit)))))
+(evil-define-key 'normal calc-mode-map (kbd "q") #'calc-quit)
+
+(evil-define-key 'normal calc-mode-map (kbd "r r") #'calc-reset)
+
+(define-key calc-mode-map (kbd "C-c C-y") #'calc-copy-as-kill)
 
 (add-hook 'calc-mode-hook #'(lambda ()
                               (calc-latex-language nil)

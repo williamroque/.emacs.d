@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: single-spacing
+# key: spac
+# --
+#+latex: \singlespacing

@@ -2,6 +2,4 @@
 # name: determinant
 # key: det
 # --
-\begin{vmatrix}
-$0
-\end{vmatrix}
+\det{\left( $1 \right)}$0

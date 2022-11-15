@@ -57,8 +57,8 @@ Homework for $3\par
 
 \newcommand{\vecb}[1]{\mathbf{#1}}
 
-\newcommand{\rank}[1]{\text{rank}(#1)}
-\newcommand{\Span}[1]{\text{span}(#1)}
+\newcommand{\rank}[1]{\text{rank}\left(#1\right)}
+\newcommand{\Span}[1]{\text{span}\left(#1\right)}
 
 \newenvironment{amatrix}[1]{%
   \left[\begin{array}{@{}*{#1}{c}|c@{}}
