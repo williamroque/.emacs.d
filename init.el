@@ -4133,6 +4133,11 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
   "The gravitational constant.")
 (calc-define-constant "G" 'var-G "c k G")
 
+
+(defvar var-C `(special-const (math-read-expr "299792458 m/s"))
+  "The speed of light in a vacuum.")
+(calc-define-constant "C" 'var-C "c k C")
+
 (setq-default calc-highlight-selections-with-faces t)
 
 (defun evaluate-math-expression-at-point (substition start end)

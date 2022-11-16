@@ -5092,6 +5092,11 @@ Add constants.
 (defvar var-G `(special-const (math-read-expr "6.6743e-11 m^3/kg/s^2"))
   "The gravitational constant.")
 (calc-define-constant "G" 'var-G "c k G")
+
+
+(defvar var-C `(special-const (math-read-expr "299792458 m/s"))
+  "The speed of light in a vacuum.")
+(calc-define-constant "C" 'var-C "c k C")
 #+end_src
 
 Calc styling.
