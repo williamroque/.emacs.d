@@ -748,11 +748,14 @@ for more information."
     
     
     ;; open command minibuffer
-    (evil-leader/set-key ";" 'helm-M-x)
+    (evil-leader/set-key ";" #'(lambda ()
+                                 (interactive)
+                                 (let ((pop-up-windows t))
+                                   (call-interactively #'helm-M-x))))
     
     
     ;; for helm-ag
-    (evil-leader/set-key "g" 'helm-ag)
+    (evil-leader/set-key "g" #'helm-ag)
     (evil-leader/set-key "N" #'cautious-line-toggle)
     (evil-leader/set-key "R" 'reveal-in-osx-finder)
     ;; open send mail buffer
@@ -4061,7 +4064,8 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
   (if (null start)
       (with-temp-buffer
-        (quick-calc t)
+        (let ((calc-latex-language t))
+          (quick-calc t))
         (kill-ring-save (point-min) (point-max)))
     (progn
       (let* ((expression-start start)
@@ -4087,6 +4091,47 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
           (goto-char start)
           (insert prefix)
           (insert (calc-eval expression)))))))
+
+(defvar calc-special-constants '(("")
+                                 ("e" . (special-const (math-e)))
+                                 ("pi" . (special-const (math-pi)))
+                                 ("i" . (special-const (math-imaginary 1)))
+                                 ("phi" . (special-const (math-phi)))
+                                 ("gamma" . (special-const (math-gamma-const)))))
+
+
+(defun calc-copy-special-constant (&optional sconst var)
+  (interactive)
+  (let ((sc calc-special-constants))
+    (calc-wrapper
+     (or sconst (setq sconst (completing-read "Special constant: " sc nil t)))
+     (unless (string= sconst "")
+       (let ((value (cdr (assoc sconst sc))))
+         (or var (setq var (calc-read-var-name
+                            (format "Copy special constant %s, to: "
+                                    sconst))))
+         (if var
+             (let ((msg (calc-store-value var value "")))
+               (message "Special constant \"%s\" copied to \"%s\"%s"
+                        sconst (calc-var-name var) msg))))))))
+
+(defun calc-define-constant (name variable key)
+  "Define a constant for Calc from a predefined variable."
+  (add-to-list 'calc-special-constants `(,name . (special-const ,variable)))
+
+  (let ((name name)
+        (variable variable))
+    (evil-define-key 'normal calc-mode-map (kbd key)
+      `(lambda ()
+          (interactive)
+          (calc-slow-wrapper
+           (if calc-symbolic-mode
+               (calc-pop-push-record 0 ,name '(var ,(intern name) ,variable))
+             (calc-pop-push-record 0 ,name (symbol-value ,variable))))))))
+
+(defvar var-G `(special-const (math-read-expr "6.6743e-11 m^3/kg/s^2"))
+  "The gravitational constant.")
+(calc-define-constant "G" 'var-G "c k G")
 
 (setq-default calc-highlight-selections-with-faces t)
 
@@ -4141,7 +4186,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                  (math-compose-tex-matrix (cdr a) t)
                  '(" \\end{bmatrix}")))))
 
-(defun calc-copy-as-kill ()
+(defun calc-copy-as-kill-clean ()
     "Copy the top of stack as kill."
     (interactive)
     (let ((buffer (generate-new-buffer "*copy-here*")))
@@ -4175,13 +4220,14 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
 (evil-define-key 'normal calc-mode-map (kbd "r r") #'calc-reset)
 
-(define-key calc-mode-map (kbd "C-c C-y") #'calc-copy-as-kill)
+(define-key calc-mode-map (kbd "C-c C-y") #'calc-copy-as-kill-clean)
 
 (add-hook 'calc-mode-hook #'(lambda ()
-                              (calc-latex-language nil)
                               (calc-symbolic-mode 1)
                               (calc-frac-mode 1)
-                              (calc-radians-mode)))
+                              (calc-radians-mode)
+
+                              (setq-default calc-gnuplot-default-device "qt")))
 
 (defun follow-zoom-link (link-url)
   "Open zoommtg:// links."
