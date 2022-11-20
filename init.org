@@ -5012,7 +5012,7 @@ Convenient way to use quick-calc.
 
   (if (null start)
       (with-temp-buffer
-        (let ((calc-latex-language t))
+        (let ((calc-language 'latex))
           (quick-calc t))
         (kill-ring-save (point-min) (point-max)))
     (progn
@@ -5038,7 +5038,8 @@ Convenient way to use quick-calc.
         (save-excursion
           (goto-char start)
           (insert prefix)
-          (insert (calc-eval expression)))))))
+          (let ((calc-language 'latex))
+            (insert (calc-eval expression))))))))
 #+end_src
 
 Add special constants to "s k".
@@ -5216,6 +5217,7 @@ Hooks.
                               (calc-frac-mode 1)
                               (calc-radians-mode)
 
+                              (setq-default calc-show-banner nil)
                               (setq-default calc-gnuplot-default-device "qt")))
 #+end_src
 

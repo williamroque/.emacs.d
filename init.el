@@ -4064,7 +4064,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
   (if (null start)
       (with-temp-buffer
-        (let ((calc-latex-language t))
+        (let ((calc-language 'latex))
           (quick-calc t))
         (kill-ring-save (point-min) (point-max)))
     (progn
@@ -4090,7 +4090,8 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
         (save-excursion
           (goto-char start)
           (insert prefix)
-          (insert (calc-eval expression)))))))
+          (let ((calc-language 'latex))
+            (insert (calc-eval expression))))))))
 
 (defvar calc-special-constants '(("")
                                  ("e" . (special-const (math-e)))
@@ -4232,6 +4233,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
                               (calc-frac-mode 1)
                               (calc-radians-mode)
 
+                              (setq-default calc-show-banner nil)
                               (setq-default calc-gnuplot-default-device "qt")))
 
 (defun follow-zoom-link (link-url)
