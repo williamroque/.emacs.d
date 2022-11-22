@@ -2,29 +2,41 @@
 ;; Automatically generated file!!! DO NOT EDIT!!!
 
 (setq url-cookie-storage
- '((".sciencedirect.com"
-  [url-cookie "mbox" "session%238996ddf2b15f4a4c90a0e07b9b158a7c%231652310048%7CPC%238996ddf2b15f4a4c90a0e07b9b158a7c.34_0%231715552988" "Sun May 12 22:29:48 2024 GMT" "/" ".sciencedirect.com" nil]
-  [url-cookie "mboxes" "%7B%22search-selected-text-mbox%22%3A%7B%22variation%22%3A%22B1%22%7D%7D" "Sun May 12 22:29:48 2024 GMT" "/" ".sciencedirect.com" nil])
- (".symbolab.com"
-  [url-cookie "sy2.ampId" "bb391513-c753-4b1f-9dbf-d8cfc5f43719" "Wed Apr 02 23:17:23 2036 GMT" "/" ".symbolab.com" nil]
-  [url-cookie "sy2.lang_preference" "en" "Tue Jul 25 23:19:20 2023 GMT" "/" ".symbolab.com" nil]
-  [url-cookie "sy2.variation" "5" "Sun Oct 23 23:17:23 2022 GMT" "/" ".symbolab.com" nil])
+ '((".springer.com"
+  [url-cookie "idp_marker" "92b3d620-80ca-4dbe-b464-1d8f5b97d66f" "Fri May 07 02:19:43 2032 GMT" "/" ".springer.com" nil])
  (".arxiv.org"
   [url-cookie "browser" "128.187.116.7.1665763513122298" "Sun Oct 06 16:05:13 2052 GMT" "/" ".arxiv.org" nil])
- (".springer.com"
-  [url-cookie "idp_marker" "92b3d620-80ca-4dbe-b464-1d8f5b97d66f" "Fri May 07 02:19:43 2032 GMT" "/" ".springer.com" nil]))
+ (".symbolab.com"
+  [url-cookie "sy2.lang_preference" "en" "Tue Jul 25 23:19:20 2023 GMT" "/" ".symbolab.com" nil]
+  [url-cookie "sy2.ampId" "bb391513-c753-4b1f-9dbf-d8cfc5f43719" "Wed Apr 02 23:17:23 2036 GMT" "/" ".symbolab.com" nil])
+ ("mathdetail.com"
+  [url-cookie "ezoadgid_72231" "-1" "Tue, 22 Nov 2022 06:53:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "ezoref_72231" "" "Tue, 22 Nov 2022 08:23:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "ezoab_72231" "mod33" "Tue, 22 Nov 2022 08:23:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "active_template::72231" "pub_site.1669098197" "Thu, 24 Nov 2022 06:23:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "ezopvc_72231" "13" "Tue, 22 Nov 2022 06:53:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "ezepvv" "447" "Wed, 23 Nov 2022 06:23:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "ezovid_72231" "80154457" "Tue, 22 Nov 2022 06:53:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "lp_72231" "https://www.mathdetail.com/col.php" "Tue, 22 Nov 2022 06:53:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "ezovuuidtime_72231" "1669098197" "Thu, 24 Nov 2022 06:23:17 UTC" "/" "mathdetail.com" nil]
+  [url-cookie "ezovuuid_72231" "46584072-d466-4fac-4fa1-d64b95687677" "Tue, 22 Nov 2022 06:53:17 UTC" "/" "mathdetail.com" nil])
+ (".sciencedirect.com"
+  [url-cookie "mboxes" "%7B%22search-selected-text-mbox%22%3A%7B%22variation%22%3A%22B1%22%7D%7D" "Sun May 12 22:29:48 2024 GMT" "/" ".sciencedirect.com" nil]
+  [url-cookie "mbox" "session%238996ddf2b15f4a4c90a0e07b9b158a7c%231652310048%7CPC%238996ddf2b15f4a4c90a0e07b9b158a7c.34_0%231715552988" "Sun May 12 22:29:48 2024 GMT" "/" ".sciencedirect.com" nil]))
 )
 (setq url-cookie-secure-storage
- '((".sciencedirect.com"
-  [url-cookie "EUID" "bd1e9b88-666f-4e5d-9f11-354ffb96bb41" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t]
-  [url-cookie "id_ab" "AEG" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t])
- (".box.com"
-  [url-cookie "box_visitor_id" "6313fe1a72e022.01948524" "Mon Sep 04 01:23:38 2023 GMT" "/" ".box.com" t])
+ '((".onlinelibrary.wiley.com"
+  [url-cookie "MACHINE_LAST_SEEN" "2022-05-11T15%3A43%3A41.799-07%3A00" "Tue, 07-Mar-2023 22:43:41 GMT" "/" ".onlinelibrary.wiley.com" t]
+  [url-cookie "MAID" "opxM7+Qhu+I8On/usQpC9A==" "Tue, 07-Mar-2023 22:43:41 GMT" "/" ".onlinelibrary.wiley.com" t])
  (".app.box.com"
   [url-cookie "cn" "54" "Mon Sep 04 01:23:38 2023 GMT" "/" ".app.box.com" t])
- (".onlinelibrary.wiley.com"
-  [url-cookie "MAID" "opxM7+Qhu+I8On/usQpC9A==" "Tue, 07-Mar-2023 22:43:41 GMT" "/" ".onlinelibrary.wiley.com" t]
-  [url-cookie "MACHINE_LAST_SEEN" "2022-05-11T15%3A43%3A41.799-07%3A00" "Tue, 07-Mar-2023 22:43:41 GMT" "/" ".onlinelibrary.wiley.com" t]))
+ (".box.com"
+  [url-cookie "box_visitor_id" "6313fe1a72e022.01948524" "Mon Sep 04 01:23:38 2023 GMT" "/" ".box.com" t])
+ ("mathdetail.com"
+  [url-cookie "ezosuibasgeneris-1" "6a823b9f-59ce-4126-4f75-4a30acfb8d1f" "Wed, 22 Nov 2023 06:23:17 UTC" "/" "mathdetail.com" t])
+ (".sciencedirect.com"
+  [url-cookie "id_ab" "AEG" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t]
+  [url-cookie "EUID" "bd1e9b88-666f-4e5d-9f11-354ffb96bb41" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t]))
 )
 
 ;; Local Variables:

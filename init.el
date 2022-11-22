@@ -1936,6 +1936,12 @@ Example:
                (insert-matrix-like "bmatrix" rows cols))
       "cmat" (lambda (rows) (interactive "nRows: ")
                (insert-matrix-like "bmatrix" rows 1))
+      "2cv" (lambda () (interactive)
+              (insert-matrix-like "bmatrix" 2 1))
+      "3cv" (lambda () (interactive)
+              (insert-matrix-like "bmatrix" 3 1))
+      "4cv" (lambda () (interactive)
+              (insert-matrix-like "bmatrix" 4 1))
       "amatr" (lambda (rows cols sep)
                 (interactive "nRows: \nnColumns: \nnSeparate at: ")
                 (insert-matrix-like "aamatrix" rows cols
@@ -2587,7 +2593,7 @@ Example:
   (setq-default org-src-preserve-indentation t)
   (setq-default org-src-window-setup 'current-window)
   (setq-default org-src-tab-acts-natively t)
-  (setq-default org-html-htmlize-output-type 'css)
+  (setq-default org-html-htmlize-output-type 'inline-css)
   
   
   ;; prevent org from splitting line on meta return       
@@ -2623,7 +2629,7 @@ Example:
   
   
   ;; make sure to color latex
-  (setq-default org-highlight-latex-and-related '(latex entities))
+  (setq-default org-highlight-latex-and-related '(native entities))
   
   
   ;; latex formatting
@@ -2659,7 +2665,7 @@ Example:
   
   ;; change MathJax formatting
   (setf org-html-mathjax-options
-        '((path "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML")
+        '((path "https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML")
           (scale "90") 
           (align "center") 
           (indent "2em")
@@ -4222,9 +4228,12 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
               (evil-local-set-key 'normal (kbd "q") #'(lambda ()
                                                         (interactive)
                                                         (calc-quit)))))
+
 (evil-define-key 'normal calc-mode-map (kbd "q") #'calc-quit)
 
 (evil-define-key 'normal calc-mode-map (kbd "r r") #'calc-reset)
+
+(evil-define-key 'normal calc-mode-map (kbd "i") nil)
 
 (define-key calc-mode-map (kbd "C-c C-y") #'calc-copy-as-kill-clean)
 
@@ -4887,6 +4896,89 @@ Argument BIBFILE the bibliography to use."
                                              (setq org-pdf-export-has-queue nil)
                                              (org-export-pdf-update)))))))))
 
+(defun org-html-template (contents info)
+  "Return complete document string after HTML conversion.
+CONTENTS is the transcoded contents string.  INFO is a plist
+holding export options."
+  (concat
+   (when (and (not (org-html-html5-p info)) (org-html-xhtml-p info))
+     (let* ((xml-declaration (plist-get info :html-xml-declaration))
+	    (decl (or (and (stringp xml-declaration) xml-declaration)
+		      (cdr (assoc (plist-get info :html-extension)
+				  xml-declaration))
+		      (cdr (assoc "html" xml-declaration))
+		      "")))
+       (when (not (or (not decl) (string= "" decl)))
+	 (format "%s\n"
+		 (format decl
+			 (or (and org-html-coding-system
+				  (fboundp 'coding-system-get)
+				  (coding-system-get org-html-coding-system 'mime-charset))
+			     "iso-8859-1"))))))
+   (org-html-doctype info)
+   "\n"
+   (concat "<html"
+	   (cond ((org-html-xhtml-p info)
+		  (format
+		   " xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"%s\" xml:lang=\"%s\""
+		   (plist-get info :language) (plist-get info :language)))
+		 ((org-html-html5-p info)
+		  (format " lang=\"%s\"" (plist-get info :language))))
+	   ">\n")
+   "<head>\n"
+   (org-html--build-meta-info info)
+   (org-html--build-head info)
+   (org-html--build-mathjax-config info)
+   "</head>\n"
+   "<body>\n"
+   (let ((link-up (org-trim (plist-get info :html-link-up)))
+	 (link-home (org-trim (plist-get info :html-link-home))))
+     (unless (and (string= link-up "") (string= link-home ""))
+       (format (plist-get info :html-home/up-format)
+	       (or link-up link-home)
+	       (or link-home link-up))))
+   ;; Preamble.
+   (org-html--build-pre/postamble 'preamble info)
+   ;; Document title.
+   (when (plist-get info :with-title)
+     (let ((title (and (plist-get info :with-title)
+		       (plist-get info :title)))
+	   (subtitle (plist-get info :subtitle))
+	   (html5-fancy (org-html--html5-fancy-p info)))
+       (when title
+	 (format
+	  (if html5-fancy
+	      "<header>\n<h1 class=\"title\">%s</h1>\n%s</header>"
+	    "<h1 class=\"title\">%s%s</h1>\n")
+	  (org-export-data title info)
+	  (if subtitle
+	      (format
+	       (if html5-fancy
+		   "<p class=\"subtitle\" role=\"doc-subtitle\">%s</p>\n"
+		 (concat "\n" (org-html-close-tag "br" nil info) "\n"
+			 "<span class=\"subtitle\">%s</span>\n"))
+	       (org-export-data subtitle info))
+	    "")))))
+   ;; Document contents.
+   (let ((div (assq 'content (plist-get info :html-divs))))
+     (format "<%s id=\"%s\" class=\"%s\">\n"
+             (nth 1 div)
+             (nth 2 div)
+             (plist-get info :html-content-class)))
+   contents
+   (format "</%s>\n" (nth 1 (assq 'content (plist-get info :html-divs))))
+   ;; Postamble.
+   (org-html--build-pre/postamble 'postamble info)
+   ;; Possibly use the Klipse library live code blocks.
+   (when (plist-get info :html-klipsify-src)
+     (concat "<script>" (plist-get info :html-klipse-selection-script)
+	     "</script><script src=\""
+	     org-html-klipse-js
+	     "\"></script><link rel=\"stylesheet\" type=\"text/css\" href=\""
+	     org-html-klipse-css "\"/>"))
+   ;; Closing document.
+   "</body>\n</html>"))
+
 (defvar org-html-custom-css-path (concat emacs-configuration-directory "org_style.css")
   "Path to default custom css.")
 
@@ -4934,7 +5026,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         \"HTML-CSS\": { scale: %SCALE,
                         linebreaks: { automatic: \"%LINEBREAKS\" },
-                        webFont: \"%FONT\"
+                        fonts: [\"%FONT\"]
                        },
         SVG: {scale: %SCALE,
               linebreaks: { automatic: \"%LINEBREAKS\" },
