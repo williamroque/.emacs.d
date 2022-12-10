@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: exists
+# key: xi
+# --
+\exists$0

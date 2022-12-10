@@ -109,6 +109,7 @@
 (defun kill-all-buffers-except-scratch ()
   "Kill all buffers except for *scratch*."
   (interactive)
+  (setq calc-embedded-active nil)
   (mapc 'kill-buffer 
         (delete (get-buffer "*scratch*") (buffer-list)))
   (message "Killed all buffers except *scratch*."))
@@ -282,6 +283,12 @@
                     :foreground color-dark-subdued)
 
 
+(set-face-attribute 'show-paren-match nil
+                    :background nil
+                    :foreground color-red
+                    :weight 'bold)
+
+
 (with-eval-after-load 'hl-line
   (set-face-attribute 'hl-line nil
                       :background "#1e1e1e"))
@@ -394,6 +401,14 @@
 
 (setq-default mouse-autoselect-window t)
 
+(use-package windresize
+  :config
+
+  (define-key windresize-map (kbd "l") #'windresize-right)
+  (define-key windresize-map (kbd "h") #'windresize-left)
+  (define-key windresize-map (kbd "k") #'windresize-up)
+  (define-key windresize-map (kbd "j") #'windresize-down))
+
 (setq-default split-width-threshold 0)
 (setq-default split-height-threshold nil)
 
@@ -412,6 +427,34 @@
   (setq-default display-time-day-and-date t)
   (setq-default display-time-format " %H:%M")
   (display-time)
+  
+  (defun mood-line-segment-pdf-page ()
+    "Displays the current page in the mode-line."
+    (concat (when (equal major-mode 'pdf-view-mode)
+              (format "― Page %s" (pdf-view-current-page)))))
+  
+  (setq-default mode-line-format
+                        '((:eval
+                           (mood-line--format
+                            ;; Left
+                            (format-mode-line
+                             '(" "
+                               (:eval (mood-line-segment-modified))
+                               (:eval (mood-line-segment-buffer-name))
+                               (:eval (mood-line-segment-position))
+                               (:eval (mood-line-segment-pdf-page))))
+  
+                            ;; Right
+                            (format-mode-line
+                             '((:eval (mood-line-segment-eol))
+                               (:eval (mood-line-segment-encoding))
+                               (:eval (mood-line-segment-vc))
+                               (:eval (mood-line-segment-major-mode))
+                               (:eval (mood-line-segment-misc-info))
+                               (:eval (mood-line-segment-flycheck))
+                               (:eval (mood-line-segment-flymake))
+                               (:eval (mood-line-segment-process))
+                               " "))))))
   (set-face-attribute 'mood-line-buffer-name nil
                       :inherit 'mode-line-buffer-id
                       :foreground "#ebdbb2")
@@ -606,6 +649,7 @@ for more information."
   (defun kill-all-other-buffers ()
     "Kill all buffers except for this and *scratch*."
     (interactive)
+    (setq calc-embedded-active nil)
     (mapc 'kill-buffer 
           (delete (current-buffer)
                   (delete (get-buffer "*scratch*") (buffer-list))))
@@ -649,6 +693,7 @@ for more information."
                                  (interactive)
                                  (if (equal major-mode 'org-agenda-mode)
                                      (org-agenda-exit)
+                                   (setq calc-embedded-active nil)
                                    (kill-this-buffer))))
     (evil-leader/set-key "E" #'kill-all-other-buffers)
     (evil-leader/set-key "x" #'(lambda ()
@@ -993,7 +1038,11 @@ for more information."
     
     
     ;; swap window sides
-    (evil-leader/set-key (kbd "y") #'window-swap-states))
+    (evil-leader/set-key (kbd "y") #'window-swap-states)
+    
+    
+    ;; swap window sides
+    (evil-leader/set-key (kbd "z") #'windresize))
   (evil-mode 1)
   
   
@@ -1141,6 +1190,25 @@ for more information."
                                (embrace-add-pair ?u "_" "_")))
   
   
+  (defun evil-tex-brace-movement-backwards ()
+    "Brace movement similar to S-TAB in cdlatex.
+  
+  Example: (| symbolizes point)
+  \frac{a}{|} => \frac{a|}{}
+  \frac{a}{b|} => \frac{a|}{b}"
+    (interactive)
+    ;; go to the closing } of the current scope
+    (search-forward "}" (line-end-position))
+    (backward-sexp)
+    ;; encountered a {? go to just before its terminating }
+    (when (save-excursion
+            (backward-char)
+            (looking-at "}"))
+      (backward-sexp)
+      (forward-char)
+      (forward-sexp)))
+  
+  
   (use-package evil-tex
     :config
     (add-hook 'org-mode-hook #'evil-tex-mode)
@@ -1174,7 +1242,49 @@ for more information."
                        ("n" "\\left\\lVert " . " \\right\\rVert") ; (n for norm)
                        ("N" "\\lVert " . " \\rVert"))
                      keymap)
-                    keymap))))
+                    keymap))
+  
+    (setq-default evil-tex-env-map
+                  (let ((keymap (make-sparse-keymap)))
+                    (evil-tex-bind-to-env-map
+                     '(("x" . evil-tex-get-env-for-surrounding)
+                       ("e" . "equation")
+                       ("E" . "equation*")
+                       ("f" . "figure")
+                       ("i" . "itemize")
+                       ("I" . "enumerate")
+                       ("b" . "frame")
+                       ("a" . "align")
+                       ("A" . "align*")
+                       ("y" . "array")
+                       ("n" . "alignat")
+                       ("N" . "alignat*")
+                       ("r" . "eqnarray")
+                       ("l" . "flalign")
+                       ("L" . "flalign*")
+                       ("g" . "gather")
+                       ("G" . "gather*")
+                       ("mb" . "bmatrix")
+                       ("mv" . "vmatrix")
+                       ("ma" . "amatrix")
+                       ("c" . "cases")
+                       ("z" . "tikzpicture")
+                       ;; prefix t - theorems
+                       ("ta" . "axiom")
+                       ("tc" . "corollary")
+                       ("tC" . "claim")
+                       ("td" . "definition")
+                       ("te" . "examples")
+                       ("ts" . "exercise")
+                       ("tl" . "lemma")
+                       ("tp" . "proof")
+                       ("tq" . "question")
+                       ("tr" . "remark")
+                       ("tt" . "theorem"))
+                     keymap)
+                    keymap))
+  
+    (define-key evil-tex-mode-map (kbd "M-p") #'evil-tex-brace-movement-backwards)))
 
 (use-package evil-owl
   :config
@@ -1586,6 +1696,12 @@ Example:
 
 
 (evil-define-key 'normal global-map (kbd "g r r") #'rotate-word-at-point)
+
+(use-package vlf
+  :config
+  (require 'vlf-setup)
+
+  (setq-default vlf-application 'dont-ask))
 
 ;; use C-j for command prompt
 (define-key evil-ex-completion-map (kbd "C-j") #'exit-minibuffer)
@@ -2190,6 +2306,8 @@ Example:
                             nil
                           '(display-buffer-same-window)))))
 
+(define-key global-map (kbd "<f12>") #'compile)
+
 (use-package flycheck
   :config
   (set-face-attribute 'flycheck-error nil
@@ -2381,6 +2499,21 @@ Example:
   ;; Update PDF buffers after successful LaTeX runs
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer))
+
+(defface font-latex-sedate-face
+  '((((class grayscale) (background light)) (:foreground "DimGray"))
+    (((class grayscale) (background dark))  (:foreground "LightGray"))
+    (((class color) (background light)) (:foreground color-blue))
+    (((class color) (background dark))  (:foreground color-blue))
+   ;;;(t (:underline t))
+    )
+  "Face used to highlight sedate stuff."
+  :group 'font-latex-highlighting-faces)
+
+
+(set-face-attribute 'font-latex-sedate-face nil
+                    :foreground color-blue
+                    :weight 'bold)
 
 (defun run-current-python (arguments)
   "Run current Python file."
@@ -3028,8 +3161,8 @@ Example:
   
   
   (set-face-attribute 'org-block nil
-                      :foreground "#fdf4c1"
-                      :background "#121112")
+                      :foreground color-foreground
+                      :background color-background)
   
   
   (set-face-attribute 'org-code nil
@@ -3887,6 +4020,7 @@ This is a :filter-args advice for `message`."
            :foreground color-background
            '(org-document-title
              header-line
+             org-block
              outline-1
              outline-2
              outline-3
@@ -3900,6 +4034,7 @@ This is a :filter-args advice for `message`."
            :background "#FFF"
            '(org-block-begin-line
              org-block-end-line
+             org-block
              sp-pair-overlay-face
              header-line
              yas-field-highlight-face))
@@ -4185,19 +4320,6 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 (evil-define-key 'normal global-map (kbd "g r l") #'evaluate-math-expression-at-limits)
 (evil-define-key 'normal global-map (kbd "g r p") #'evaluate-math-expression-at-point)
 
-(put 'latex 'math-matrix-formatter
-     (lambda (a)
-       (if (and (integerp calc-language-option)
-                (or (= calc-language-option 0)
-                    (> calc-language-option 1)
-                    (< calc-language-option -1)))
-           (append '(vleft 0 "\\begin{bmatrix}")
-                   (math-compose-tex-matrix (cdr a) t)
-                   '("\\end{bmatrix}"))
-         (append '(horiz "\\begin{bmatrix} ")
-                 (math-compose-tex-matrix (cdr a) t)
-                 '(" \\end{bmatrix}")))))
-
 (defun calc-copy-as-kill-clean ()
     "Copy the top of stack as kill."
     (interactive)
@@ -4217,8 +4339,12 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 (define-key global-map (kbd "C-'") #'clean-quick-calc)
 (define-key org-mode-map (kbd "C-'") #'clean-quick-calc)
 
-(define-key global-map (kbd "C-M-'") #'calc)
-(define-key org-mode-map (kbd "C-M-'") #'calc)
+(define-key global-map (kbd "C-M-'") #'(lambda (&optional arg interactive)
+                                         (interactive "P\np")
+                                         (calc arg t interactive)))
+(define-key org-mode-map (kbd "C-M-'") #'(lambda (&optional arg interactive)
+                                         (interactive "P\np")
+                                         (calc arg t interactive)))
 
 (define-key global-map (kbd "C-M-;") #'calc-embedded)
 (define-key org-mode-map (kbd "C-M-;") #'calc-embedded)
@@ -4237,13 +4363,35 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 
 (define-key calc-mode-map (kbd "C-c C-y") #'calc-copy-as-kill-clean)
 
+(evil-define-key 'normal calc-mode-map (kbd "M-k") #'evil-window-up)
+(evil-define-key 'normal calc-mode-map (kbd "M-w") #'evil-quit)
+
 (add-hook 'calc-mode-hook #'(lambda ()
                               (calc-symbolic-mode 1)
                               (calc-frac-mode 1)
                               (calc-radians-mode)
 
+                              (setq-default calc-symbolic-mode t)
+                              (setq-default calc-angle-mode 'rad)
+                              (setq-default calc-prefer-frac t)
+                              (setq-default calc-gnuplot-default-device "qt")
                               (setq-default calc-show-banner nil)
-                              (setq-default calc-gnuplot-default-device "qt")))
+                              (setq-default calc-display-trail nil)))
+
+
+(with-eval-after-load 'calc-lang
+  (put 'latex 'math-matrix-formatter
+       (lambda (a)
+         (if (and (integerp calc-language-option)
+                  (or (= calc-language-option 0)
+                      (> calc-language-option 1)
+                      (< calc-language-option -1)))
+             (append '(vleft 0 "\\begin{bmatrix}")
+                     (math-compose-tex-matrix (cdr a) t)
+                     '("\\end{bmatrix}"))
+           (append '(horiz "\\begin{bmatrix} ")
+                   (math-compose-tex-matrix (cdr a) t)
+                   '(" \\end{bmatrix}"))))))
 
 (defun follow-zoom-link (link-url)
   "Open zoommtg:// links."
@@ -4580,7 +4728,7 @@ Argument BIBFILE the bibliography to use."
 (add-to-list 'org-latex-classes
              `("assignment"
                "
-\\documentclass[a4paper,12pt]{article}
+\\documentclass[letterpaper,12pt]{article}
 
 \\usepackage[doublespacing]{setspace}
 \\usepackage[margin=1in]{geometry}
@@ -4604,7 +4752,7 @@ Argument BIBFILE the bibliography to use."
 (add-to-list 'org-latex-classes
              '("apa6"
                "
-\\documentclass[a4paper,man]{apa6}
+\\documentclass[letterpaper,man]{apa6}
 
 \\usepackage{csquotes}
 \\usepackage{graphicx}
@@ -4628,7 +4776,7 @@ Argument BIBFILE the bibliography to use."
 (add-to-list 'org-latex-classes
              '("math-document"
                "
-\\documentclass[a4paper,12pt,oneside]{book}
+\\documentclass[letterpaper,12pt,oneside]{book}
 \\usepackage[margin=1in]{geometry}
 \\usepackage{csquotes}
 \\usepackage{amsmath}
@@ -4763,7 +4911,7 @@ Argument BIBFILE the bibliography to use."
 (add-to-list 'org-latex-classes
              '("math-homework"
                "
-\\documentclass[a4paper,12pt,oneside]{book}
+\\documentclass[letterpaper,12pt,oneside]{book}
 \\usepackage[margin=1in]{geometry}
 \\usepackage{csquotes}
 \\usepackage{amsmath}
