@@ -3,22 +3,10 @@
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (
-("Schedule"
- (filename . "~/Documents/Education/schedule.org"))
-("Research"
- (filename . "~/Documents/Education/BYU/Research/"))
-("MATH 213"
- (filename . "~/Documents/Education/BYU/Classes/MATH 213"))
-("MATH 215"
- (filename . "~/Documents/Education/BYU/Classes/MATH 215"))
-("PHSCS 123"
- (filename . "~/Documents/Education/BYU/Classes/PHSCS 123"))
-("PHSCS 127"
- (filename . "~/Documents/Education/BYU/Classes/PHSCS 127"))
-("CS 111"
- (filename . "~/Documents/Education/BYU/Classes/CS 111"))
-("REL C 200"
- (filename . "~/Documents/Education/BYU/Classes/REL C 200"))
+("Mosenkov Research"
+ (filename . "~/Documents/Education/BYU/Research/Mosenkov/"))
+("Boizelle Research"
+ (filename . "~/Documents/Education/BYU/Research/Boizelle/"))
 ("Maxwell"
  (filename . "~/maxwell/"))
 ("Documents"
@@ -26,5 +14,4 @@
 ("Downloads"
  (filename . "~/Downloads/"))
 ("init.org"
- (filename . "~/.emacs.d/init.org"))
-)
+ (filename . "~/.emacs.d/init.org")))

@@ -180,24 +180,39 @@
   :config
   (load-theme 'doom-tomorrow-night t))
 
-(defconst color-background        "#121112")
-(defconst color-light-background  "#1D1F21")
-(defconst color-foreground        "#FDF4C1")
-(defconst color-light-subdued     "#EBDBB2")
-(defconst color-dark-subdued      "#313533")
-(defconst color-darkish-subdued   "#515553")
-(defconst color-medium-subdued    "#717171")
-(defconst color-red               "#CC6666")
-(defconst color-light-red         "#886950")
-(defconst color-orange            "#FE8019")
-(defconst color-light-orange      "#F0C674")
-(defconst color-green             "#6CA17A")
-(defconst color-light-green       "#B5BD68")
-(defconst color-yellow            "#E0DBA9")
-(defconst color-blue              "#81A2BE")
-(defconst color-light-blue        "#41728E")
-(defconst color-brown             "#BD9977")
-(defconst color-dark-brown        "#605846")
+(defconst color-background          "#181818")
+(defconst color-white-background    "#FFFFFF")
+(defconst color-lighter-background  "#1D1F21")
+(defconst color-foreground          "#EBDBB2")
+(defconst color-light-subdued       "#EBDBB2")
+(defconst color-dark-subdued        "#414543")
+(defconst color-darkish-subdued     "#515553")
+(defconst color-medium-subdued      "#717171")
+(defconst color-darkish-grey        "#212121")
+(defconst color-red                 "#D85C68")
+(defconst color-light-red           "#886950")
+(defconst color-orange              "#FE8019")
+(defconst color-light-orange        "#F0C674")
+(defconst color-green               "#6CA17A")
+(defconst color-light-green         "#B5BD68")
+(defconst color-yellow              "#E0DBA9")
+(defconst color-bright-yellow       "#DEB44B")
+(defconst color-blue                "#81A2BE")
+(defconst color-light-blue          "#41728E")
+(defconst color-brown               "#BD9977")
+(defconst color-dark-brown          "#605846")
+(defconst color-purple              "#B294BB")
+(defconst color-gold                "#F1A041")
+
+(defface operator-lock
+  `((t :foreground ,color-red))
+  "Face for operators."
+  :group 'python-mode)
+
+(defface method-call-lock
+  `((t :foreground ,color-red))
+  "Face for method calls."
+  :group 'python-mode)
 
 (set-face-attribute 'default nil
                     :weight 'medium
@@ -205,7 +220,7 @@
                     :width 'normal
                     :family "Victor Mono"
                     :background color-background
-                    :foreground "#fdf4c1")
+                    :foreground color-light-subdued)
 
 
 (set-face-attribute 'fixed-pitch nil
@@ -225,7 +240,7 @@
 
 (set-face-attribute 'mode-line nil
                     :box nil
-                    :background "#121112"
+                    :background color-background
                     :foreground color-light-subdued)
 
 
@@ -235,13 +250,14 @@
 
 (set-face-attribute 'mode-line-inactive nil
                     :box nil
-                    :background color-light-background
+                    :background color-lighter-background
                     :foreground color-light-subdued)
 
 
 (set-face-attribute 'font-lock-keyword-face nil
                     :weight 'bold
-                    :foreground color-red)
+                    :slant 'italic
+                    :foreground color-blue)
 
 
 (set-face-attribute 'font-lock-comment-face nil
@@ -249,7 +265,7 @@
 
 
 (set-face-attribute 'font-lock-function-name-face nil
-                    :foreground color-green)
+                    :foreground color-red)
 
 
 (set-face-attribute 'font-lock-constant-face nil
@@ -257,11 +273,11 @@
 
 
 (set-face-attribute 'font-lock-variable-name-face nil
-                    :foreground color-yellow)
+                    :foreground color-foreground)
 
 
 (set-face-attribute 'font-lock-type-face nil
-                    :foreground color-green)
+                    :foreground color-gold)
 
 
 (set-face-attribute 'lazy-highlight nil 
@@ -275,8 +291,9 @@
 
 
 (set-face-attribute 'line-number-current-line nil
+                    :weight 'normal
                     :background color-background
-                    :foreground color-orange)
+                    :foreground color-gold)
 
 
 (set-face-attribute 'shadow nil
@@ -289,9 +306,22 @@
                     :weight 'bold)
 
 
+(set-face-attribute 'operator-lock nil
+                    :foreground color-gold)
+
+
+(set-face-attribute 'font-lock-builtin-face nil
+                    :foreground color-blue)
+
+
+(set-face-attribute 'secondary-selection nil
+                    :foreground nil
+                    :background color-lighter-background)
+
+
 (with-eval-after-load 'hl-line
   (set-face-attribute 'hl-line nil
-                      :background "#1e1e1e"))
+                      :background color-darkish-grey))
 
 (defun toggle-line-numbers ()
   "Toggle line numbers."
@@ -457,40 +487,40 @@
                                " "))))))
   (set-face-attribute 'mood-line-buffer-name nil
                       :inherit 'mode-line-buffer-id
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-major-mode nil
                       :inherit 'bold
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-modified nil
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-status-error nil
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-status-info nil
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-status-neutral nil
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-status-success nil
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-status-warning nil
-                      :foreground "#ebdbb2")
+                      :foreground color-light-subdued)
   
   
   (set-face-attribute 'mood-line-unimportant nil
-                      :foreground "#ebdbb2"))
+                      :foreground color-light-subdued))
 
 (let ((alist `((?! . ,(regexp-opt '("!!" "!=" "!==")))
                (?# . ,(regexp-opt '("##" "###" "####" "#(" "#?" "#[" "#_" "#_(" "#{")))
@@ -730,6 +760,7 @@ for more information."
     (evil-leader/set-key "DEL" #'calendar)
     (evil-leader/set-key "c" #'org-capture)
     (evil-leader/set-key "d" #'osx-dictionary-search-input)
+    (evil-leader/set-key "K" #'ranger)
     ;; open dired at cwd or go up directory
     (evil-leader/set-key "I" #'(lambda ()
                                  (interactive)
@@ -931,10 +962,6 @@ for more information."
                                  (cond
                                   ((equal major-mode 'org-mode) (org-open-at-point))
                                   ((equal major-mode 'notmuch-show-mode) (shr-browse-url)))))
-    
-    
-    ;; convenient way to toggle latex preview in org-mode
-    (evil-leader/set-key "l" #'org-latex-preview)
     
     
     ;; convenient way to execute all code blocks at once
@@ -1449,19 +1476,19 @@ for more information."
   (global-set-key (kbd "M-x") 'helm-M-x)
   (set-face-attribute 'helm-candidate-number nil
                       :extend t
-                      :foreground "#BAA659"
-                      :background "#121112")
+                      :foreground color-medium-subdued
+                      :background color-background)
   
   
   (set-face-attribute 'helm-header-line-left-margin nil
                       :extend t
-                      :foreground "#BAB771"
-                      :background "#121112")
+                      :foreground color-medium-subdued
+                      :background color-background)
   
   
   (set-face-attribute 'helm-selection nil
                       :extend t
-                      :background "#191919"
+                      :background color-darkish-grey
                       :weight 'bold)
   
   
@@ -1480,8 +1507,8 @@ for more information."
   
   (set-face-attribute 'helm-source-header nil
                       :extend t
-                      :background "#121112"
-                      :foreground "#7d7461"
+                      :background color-background
+                      :foreground color-medium-subdued
                       :slant 'italic
                       :family "Victor Mono")
   
@@ -1702,6 +1729,10 @@ Example:
   (require 'vlf-setup)
 
   (setq-default vlf-application 'dont-ask))
+
+(use-package caps-lock
+  :config
+  (define-key global-map (kbd "C-c C-SPC") #'caps-lock-mode))
 
 ;; use C-j for command prompt
 (define-key evil-ex-completion-map (kbd "C-j") #'exit-minibuffer)
@@ -2308,6 +2339,8 @@ Example:
 
 (define-key global-map (kbd "<f12>") #'compile)
 
+(add-hook 'prog-mode-hook #'hs-minor-mode)
+
 (use-package flycheck
   :config
   (set-face-attribute 'flycheck-error nil
@@ -2413,16 +2446,6 @@ Example:
 ;; set python path
 (setenv "PYTHONPATH" (shell-command-to-string "$SHELL --login -c 'echo -n $PYTHONPATH'"))
 
-(defface method-call-lock
-  '((t :foreground "#b5bd68"))
-  "Face for method calls."
-  :group 'python-mode)
-
-(defface operator-lock
-  '((t :foreground "#cc6666"))
-  "Face for operators."
-  :group 'python-mode)
-
 (font-lock-add-keywords 'python-mode
                         `((,(concat
                              "\\."
@@ -2432,6 +2455,19 @@ Example:
 
 (add-hook 'python-mode-hook (lambda ()
                               (embrace-add-pair ?d "\"\"\"" "\"\"\"")))
+
+(defun underline-title ()
+  (interactive)
+  (let* ((len (- (line-end-position)
+                 (save-excursion
+                   (evil-first-non-blank)
+                   (point))))
+         (line (make-string len ?\-)))
+    (end-of-line)
+    (newline-and-indent)
+    (insert line)))
+
+(define-key python-mode-map (kbd "C-c t") #'underline-title)
 
 (setq-default lsp-rust-server 'rust-analyzer)
 
@@ -2451,6 +2487,14 @@ Example:
 (global-set-key (kbd "C-;") 'eval-expression)
 
 (define-key lisp-interaction-mode-map (kbd "C-j") #'newline)
+
+(use-package elisp-format)
+
+(evil-define-key 'visual emacs-lisp-mode-map (kbd "g /") #'elisp-format-region)
+(evil-define-key 'normal emacs-lisp-mode-map (kbd "g /") #'elisp-format-buffer)
+
+(evil-define-key 'visual lisp-interaction-mode-map (kbd "g /") #'elisp-format-region)
+(evil-define-key 'normal lisp-interaction-mode-map (kbd "g /") #'elisp-format-buffer)
 
 (setq-default sgml-basic-offset 4)
 (setq-default sgml-specials nil)
@@ -2573,11 +2617,13 @@ Example:
 ;; hide ugly notmuch logo
 (setq-default notmuch-show-logo nil)
 
-(setq-default send-mail-function 'sendmail-query-once
+(setq-default send-mail-function 'mailclient-send-it
               sendmail-program "/usr/sbin/sendmail"
               mail-specify-envelope-from t
               message-sendmail-envelope-from 'header
               mail-envelope-from 'header)
+
+(use-package ranger)
 
 (defun get-all-marked-files-and-unmark ()
   "Return a list of marked files from all Dired buffers."
@@ -2646,6 +2692,8 @@ Example:
                                                 (scroll-up 3)))
 (evil-define-key 'normal dired-mode-map (kbd "C-j") 'dired-find-file)
 
+(evil-define-key 'normal dired-mode-map (kbd "T") #'dired-create-empty-file)
+
 (evil-define-key 'normal 'dired-mode-map "q" 'evil-owl-record-macro)
 
 (define-key dired-mode-map (kbd "<f5>") #'toggle-dired-show-hidden-files)
@@ -2685,12 +2733,12 @@ Example:
                                  (when (and (equal major-mode 'pdf-view-mode)
                                             (equal (count-windows) 1))
                                    (setq pdf-has-set-light-mode t)
-                                   (set-background-color "#FFF")
+                                   (set-background-color color-white-background)
                                    (set-foreground-color color-background)
-                                   (setq evil-normal-state-cursor '("#FFF" box))
+                                   (setq evil-normal-state-cursor `(,color-white-background box))
 
                                    (set-temporary-face-attributes
-                                    :background "#FFF"
+                                    :background color-white-background
                                     '(header-line
                                       mode-line))
 
@@ -2766,9 +2814,31 @@ Example:
   
   
   ;; latex formatting
+  (setq-default org-format-latex-header "\\documentclass{article}
+  \\usepackage[usenames]{color}
+  [PACKAGES]
+  [DEFAULT-PACKAGES]
+  \\pagestyle{empty}             % do not remove
+  % The settings below are copied from fullpage.sty
+  \\setlength{\\textwidth}{\\paperwidth}
+  \\addtolength{\\textwidth}{-3cm}
+  \\setlength{\\oddsidemargin}{1.5cm}
+  \\addtolength{\\oddsidemargin}{-2.54cm}
+  \\setlength{\\evensidemargin}{\\oddsidemargin}
+  \\setlength{\\textheight}{\\paperheight}
+  \\addtolength{\\textheight}{-\\headheight}
+  \\addtolength{\\textheight}{-\\headsep}
+  \\addtolength{\\textheight}{-\\footskip}
+  \\addtolength{\\textheight}{-3cm}
+  \\setlength{\\topmargin}{1.5cm}
+  \\addtolength{\\topmargin}{-2.54cm}
+  \\usepackage{euler}
+  \\usepackage{amsmath}")
+  
+  
   (setq-default org-format-latex-options '(:foreground default
                                                        :background default
-                                                       :scale 1.0
+                                                       :scale 1.3
                                                        :html-foreground "Black"
                                                        :html-background "Transparent"
                                                        :html-scale 0.4
@@ -3200,7 +3270,9 @@ Example:
   
   (set-face-attribute 'org-todo nil
                       :weight 'bold
-                      :foreground color-dark-brown)
+                      :foreground color-dark-brown
+                      :height 0.8
+                      :family "Victor Mono")
   
   
   (set-face-attribute 'org-verbatim nil
@@ -3547,28 +3619,16 @@ Example:
 (setq-default org-capture-templates
               '(("g" "General" entry (file+headline "~/Documents/Education/schedule.org" "General")
                  "** TODO %?")
+                ("p" "Mission Prep" entry (file+headline "~/Documents/Education/schedule.org" "Mission Prep")
+                 "** TODO %?")
+                ("t" "Ethos" entry (file+headline "~/Documents/Education/schedule.org" "Ethos")
+                 "** TODO %?")
                 ("m" "Meeting" entry (file+headline "~/Documents/Education/schedule.org" "General")
                  "** %?  :meeting:")
-                ("i" "BYU IS" entry (file+headline "~/Documents/Education/schedule.org" "Work")
-                 "** TODO %?")
                 ("r" "Research" entry (file+headline "~/Documents/Education/schedule.org" "Research")
                  "** TODO %?")
                 ("v" "Event" entry (file+headline "~/Documents/Education/schedule.org" "General")
                  "** %?  :event:")
-                ("c" "MATH 215" entry (file+headline "~/Documents/Education/schedule.org" "MATH 215")
-                 "** TODO %?")
-                ("l" "MATH 213" entry (file+headline "~/Documents/Education/schedule.org" "MATH 213")
-                 "** TODO %?")
-                ("a" "PHSCS 127" entry (file+headline "~/Documents/Education/schedule.org" "PHSCS 127")
-                 "** TODO %?")
-                ("p" "CS 111" entry (file+headline "~/Documents/Education/schedule.org" "CS 111")
-                 "** TODO %?")
-                ("f" "REL C 200" entry (file+headline "~/Documents/Education/schedule.org" "REL C 200")
-                 "** TODO %?")
-                ("w" "PHSCS 123" entry (file+headline "~/Documents/Education/schedule.org" "PHSCS 123")
-                 "** TODO %?")
-                ("s" "PHSCS 191" entry (file+headline "~/Documents/Education/schedule.org" "PHSCS 191")
-                 "** TODO %?")
                 ("j" "Major" entry (file+headline "~/Documents/Education/schedule.org" "Major")
                  "** TODO %?")
                 ("e" "Emacs" entry (file+headline "~/Documents/Education/schedule.org" "Emacs")
@@ -3629,6 +3689,13 @@ Example:
   (add-hook 'post-command-hook #'my/refontify-on-linemove nil t))
 
 (add-hook 'org-mode-hook #'my/entity-unhighlight)
+
+(use-package org-fragtog
+  :hook (org-mode . org-fragtog-mode)
+
+  :config
+  (add-hook 'org-mode-hook #'(lambda ()
+                               (org-latex-preview '(16)))))
 
 (evil-define-operator evil-yank-no-newlines (beg end type register yank-handler)
   "Yank text from BEG to END with TYPE while stripping newlines."
@@ -4031,7 +4098,7 @@ This is a :filter-args advice for `message`."
              outline-8))
 
           (set-temporary-face-attributes
-           :background "#FFF"
+           :background color-white-background
            '(org-block-begin-line
              org-block-end-line
              org-block
@@ -4043,7 +4110,7 @@ This is a :filter-args advice for `message`."
            :foreground color-green
            '(yas-field-highlight-face))
 
-          (set-background-color "#FFF")
+          (set-background-color color-white-background)
           (set-foreground-color color-background))
         (setq distraction-free-background-set t))
     (when (and distraction-free-background-set
