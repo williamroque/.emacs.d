@@ -11,6 +11,8 @@
  (filename . "~/maxwell/"))
 ("Documents"
  (filename . "~/Documents/"))
+("Ethos"
+ (filename . "~/Documents/Work/Ethos/"))
 ("Downloads"
  (filename . "~/Downloads/"))
 ("init.org"

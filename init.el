@@ -155,6 +155,14 @@
     `(with-temp-message (or (current-message) "") ,@body)))
 
 
+(defun suppress-messages (old-fun &rest args)
+  (cl-flet ((silence (&rest args1) (ignore)))
+    (advice-add 'message :around #'silence)
+    (unwind-protect
+         (apply old-fun args)
+      (advice-remove 'message #'silence))))
+
+
 (defmacro define-and-bind-text-object (key start-regex end-regex)
   (let ((inner-name (make-symbol "inner-name"))
         (outer-name (make-symbol "outer-name")))
@@ -918,7 +926,7 @@ for more information."
                                      (org-export-html-toggle-live-server)
                                    (when (equal major-mode 'org-mode)
                                      (org-html-export-to-html)
-                                     (shell-command (format "open -a Vivaldi" ))))))
+                                     (shell-command (format "open -a Firefox\\ Developer\\ Edition" ))))))
     
     
     ;; export org/latex file as PDF
@@ -1836,8 +1844,9 @@ Example:
                   (interactive)
                   (let ((inhibit-message t))
                     (yas-expand)
-                    (org-toggle-pretty-entities)
-                    (org-toggle-pretty-entities))))
+                    ;; (org-toggle-pretty-entities)
+                    ;; (org-toggle-pretty-entities)
+                    )))
               
 
 
@@ -2506,6 +2515,8 @@ Example:
   (define-key emmet-mode-keymap (kbd "C-j") #'newline)
   (define-key emmet-mode-keymap (kbd "C-,") #'emmet-expand-line))
 
+(use-package markdown-mode)
+
 (use-package latex
   :ensure auctex
   :config
@@ -2782,7 +2793,7 @@ Example:
   
   
   ;; pretty LaTeX entities for org mode
-  (setq-default org-pretty-entities t)
+  ;; (setq-default org-pretty-entities t)
   
   
   ;; prevent confirmation prompt when executing code blocks
@@ -3653,49 +3664,19 @@ Example:
 (add-hook 'org-src-mode-hook #'(lambda ()
                                  (setq header-line-format "")))
 
-(defvar my/current-line '(0 . 0)
-  "(start . end) of current line in current buffer")
-(make-variable-buffer-local 'my/current-line)
-
-
-(defvar my/unhiding-current-line t
-  "Whether to unhide current line.")
-
-
-(defun my/unhide-current-line (limit)
-  "Font-lock function"
-  (when my/unhiding-current-line
-    (let ((start (max (point) (car my/current-line)))
-          (end (min limit (cdr my/current-line))))
-      (when (< start end)
-        (remove-text-properties start end '(invisible t display "" composition ""))
-        (goto-char limit)
-        t))))
-
-
-(defun my/refontify-on-linemove ()
-  "Post-command-hook"
-  (let* ((start (line-beginning-position))
-         (end (line-beginning-position 2))
-         (needs-update (not (equal start (car my/current-line)))))
-    (setq my/current-line (cons start end))
-    (when needs-update
-      (font-lock-fontify-block 2))))
-
-
-(defun my/entity-unhighlight ()
-  "Install"
-  (font-lock-add-keywords nil '((my/unhide-current-line)) t)
-  (add-hook 'post-command-hook #'my/refontify-on-linemove nil t))
-
-(add-hook 'org-mode-hook #'my/entity-unhighlight)
+(use-package org-pretty-table
+  :load-path "lisp/"
+  :config
+  (add-hook 'org-mode-hook #'org-pretty-table-mode))
 
 (use-package org-fragtog
   :hook (org-mode . org-fragtog-mode)
 
   :config
   (add-hook 'org-mode-hook #'(lambda ()
-                               (org-latex-preview '(16)))))
+                               (org-latex-preview '(16))))
+
+  (advice-add 'org-latex-preview :around #'suppress-messages))
 
 (evil-define-operator evil-yank-no-newlines (beg end type register yank-handler)
   "Yank text from BEG to END with TYPE while stripping newlines."
@@ -4050,7 +4031,7 @@ This is a :filter-args advice for `message`."
 
 (defun org-detect-distraction-free-keyword ()
   (if (and (org-keyword-activep "DFREE" t) (not (string-prefix-p "*scratch" (buffer-name))))
-      (distraction-free (org-keyword-activep "LITERARY"))))
+      (distraction-free (org-keyword-activep "LITERARY" t))))
 
 
 (add-hook 'org-mode-hook #'org-detect-distraction-free-keyword)
@@ -5053,7 +5034,7 @@ Argument BIBFILE the bibliography to use."
 (defun export-and-open-html ()
   "Export \"org-mode\" file to HTML and open it."
   (interactive)
-  (shell-command (format "open -a Vivaldi '%s'" (org-html-export-to-html))))
+  (shell-command (format "open -a Firefox\\ Developer\\ Edition '%s'" (org-html-export-to-html))))
 
 
 (defvar org-pdf-through-latex t

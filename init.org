@@ -269,6 +269,14 @@ Evil leader keybindings.
     `(with-temp-message (or (current-message) "") ,@body)))
 
 
+(defun suppress-messages (old-fun &rest args)
+  (cl-flet ((silence (&rest args1) (ignore)))
+    (advice-add 'message :around #'silence)
+    (unwind-protect
+         (apply old-fun args)
+      (advice-remove 'message #'silence))))
+
+
 (defmacro define-and-bind-text-object (key start-regex end-regex)
   (let ((inner-name (make-symbol "inner-name"))
         (outer-name (make-symbol "outer-name")))
@@ -1948,8 +1956,9 @@ Enable YASnippet.
                   (interactive)
                   (let ((inhibit-message t))
                     (yas-expand)
-                    (org-toggle-pretty-entities)
-                    (org-toggle-pretty-entities))))
+                    ;; (org-toggle-pretty-entities)
+                    ;; (org-toggle-pretty-entities)
+                    )))
               
 
 
@@ -2961,6 +2970,14 @@ Emmet config.
   (define-key emmet-mode-keymap (kbd "C-,") #'emmet-expand-line))
 #+end_src
 
+** Markdown
+
+Find a good old markdown mode to settle with.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package markdown-mode)
+#+end_src
+
 ** Auctex/latex
 
 LaTeX config.
@@ -3511,7 +3528,7 @@ Set defaults.
 
 
 ;; pretty LaTeX entities for org mode
-(setq-default org-pretty-entities t)
+;; (setq-default org-pretty-entities t)
 
 
 ;; prevent confirmation prompt when executing code blocks
@@ -3947,6 +3964,15 @@ Indent =src= block header.
                                  (setq header-line-format "")))
 #+end_src
 
+Pretty tables.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package org-pretty-table
+  :load-path "lisp/"
+  :config
+  (add-hook 'org-mode-hook #'org-pretty-table-mode))
+#+end_src
+
 Customize faces.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref org-mode-faces
@@ -4211,7 +4237,7 @@ Example: (| symbolizes point)
 
 Display entities in current line (thanks [[https://www.reddit.com/r/emacs/comments/i9pfld/disable_orgprettyentities_on_the_current_line/][Reddit]]).
 
-#+begin_src emacs-lisp :tangle yes
+#+begin_src emacs-lisp :tangle no
 (defvar my/current-line '(0 . 0)
   "(start . end) of current line in current buffer")
 (make-variable-buffer-local 'my/current-line)
@@ -4245,7 +4271,8 @@ Display entities in current line (thanks [[https://www.reddit.com/r/emacs/commen
 (defun my/entity-unhighlight ()
   "Install"
   (font-lock-add-keywords nil '((my/unhide-current-line)) t)
-  (add-hook 'post-command-hook #'my/refontify-on-linemove nil t))
+  (add-hook 'post-command-hook #'my/refontify-on-linemove nil t)))
+
 
 (add-hook 'org-mode-hook #'my/entity-unhighlight)
 #+end_src
@@ -4258,7 +4285,9 @@ Preview LaTeX automagically.
 
   :config
   (add-hook 'org-mode-hook #'(lambda ()
-                               (org-latex-preview '(16)))))
+                               (org-latex-preview '(16))))
+
+  (advice-add 'org-latex-preview :around #'suppress-messages))
 #+end_src
 
 Make sure emphasis works across multiple lines.
@@ -4552,7 +4581,7 @@ Add evil leader key bindings.
                                  (org-export-html-toggle-live-server)
                                (when (equal major-mode 'org-mode)
                                  (org-html-export-to-html)
-                                 (shell-command (format "open -a Vivaldi" ))))))
+                                 (shell-command (format "open -a Firefox\\ Developer\\ Edition" ))))))
 
 
 ;; export org/latex file as PDF
@@ -5004,7 +5033,7 @@ This is a :filter-args advice for `message`."
 
 (defun org-detect-distraction-free-keyword ()
   (if (and (org-keyword-activep "DFREE" t) (not (string-prefix-p "*scratch" (buffer-name))))
-      (distraction-free (org-keyword-activep "LITERARY"))))
+      (distraction-free (org-keyword-activep "LITERARY" t))))
 
 
 (add-hook 'org-mode-hook #'org-detect-distraction-free-keyword)
@@ -6185,7 +6214,7 @@ Custom export functions.
 (defun export-and-open-html ()
   "Export \"org-mode\" file to HTML and open it."
   (interactive)
-  (shell-command (format "open -a Vivaldi '%s'" (org-html-export-to-html))))
+  (shell-command (format "open -a Firefox\\ Developer\\ Edition '%s'" (org-html-export-to-html))))
 
 
 (defvar org-pdf-through-latex t
