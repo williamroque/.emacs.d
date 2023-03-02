@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: argument-attribute
+# key: self
+# --
+self.$1 = $1$0
