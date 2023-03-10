@@ -5377,11 +5377,40 @@ document.addEventListener('DOMContentLoaded', () => {
 
 (use-package reveal-in-osx-finder)
 
-(defun before-evil-quit (orig-fun &rest args)
-  "Work around macOS fullscreen quit crash."
-  (if (one-window-p)
-      (set-frame-parameter nil 'fullscreen nil)))
-(advice-add 'evil-quit :before #'before-evil-quit)
+(defun demaximize-frame ()
+  "Unmaximize the current frame if maximized, otherwise do nothing."
+  (when (equal (assoc 'fullscreen (frame-parameters))
+               (cons 'fullscreen 'fullboth))
+    (toggle-frame-fullscreen)
+    (sleep-for 0.5)))
+
+
+(evil-define-command evil-quit (&optional force)
+  "Closes the current window, current frame, current tab, Emacs.
+If the current frame belongs to some client the client connection
+is closed."
+  :repeat nil
+  (interactive "<!>")
+  (demaximize-frame)
+  (condition-case nil
+      (delete-window)
+    (error
+     (if (and (boundp 'server-buffer-clients)
+              (fboundp 'server-edit)
+              (fboundp 'server-buffer-done)
+              server-buffer-clients)
+         (if force
+             (server-buffer-done (current-buffer))
+           (server-edit))
+       (condition-case nil
+           (delete-frame)
+         (error
+          (condition-case nil
+              (tab-bar-close-tab)
+            (error
+             (if force
+                 (kill-emacs)
+               (save-buffers-kill-emacs))))))))))
 
 (use-package atomic-chrome
   :config
