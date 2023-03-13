@@ -4827,90 +4827,127 @@ Argument BIBFILE the bibliography to use."
                "
 \\documentclass[letterpaper,12pt,oneside]{book}
 \\usepackage[margin=1in]{geometry}
+
 \\usepackage{csquotes}
+
 \\usepackage{amsmath}
 \\usepackage{amssymb}
-\\usepackage{gensymb}
-\\usepackage{siunitx}
+\\usepackage{amsthm}
+
+\\renewcommand{\\rmdefault}{futs}
+\\usepackage[T1]{fontenc}
+\\usepackage{textcomp}
+\\usepackage{fourier-orns}
+
+\\usepackage{euler}
+
+\\usepackage[defaultsans,scale=1]{opensans}
+\\usepackage{anyfontsize}
+
 \\usepackage{float}
 \\usepackage{graphicx}
 \\usepackage[hidelinks]{hyperref}
 \\usepackage{fancyhdr}
+\\usepackage{lettrine}
 \\usepackage{xhfill}
 \\usepackage[svgnames]{xcolor}
 \\usepackage[explicit]{titlesec}
-\\usepackage[defaultsans,scale=1]{opensans}
-\\usepackage[T1]{fontenc}
-\\usepackage{anyfontsize}
 \\usepackage[many]{tcolorbox}
-\\usepackage{amsthm}
 \\usepackage{tikz}
-\\usepackage{microtype}
 \\usepackage{adjustbox}
 
 \\definecolor{title-foreground}{RGB}{230,230,230}
 \\definecolor{subtitle-foreground}{RGB}{120,120,120}
 \\definecolor{chapter-foreground}{RGB}{80,80,80}
-
 \\definecolor{theorem-background}{RGB}{0,53,110}
 \\definecolor{definition-background}{RGB}{0,87,153}
 \\definecolor{example-background}{RGB}{86,152,179}
 \\definecolor{note-background}{RGB}{0,53,110}
-
 \\colorlet{rulecolor}{Gainsboro!40!Lavender}
-\\titleformat{\\chapter}[display]
-{\\filcenter}{\\mbox{}\\xrfill[0.4ex]{3pt}[rulecolor]\\textsc{\\large\\enspace\\chaptername~\\thechapter}\\enspace\\xrfill[0.4ex]{3pt}[rulecolor]\\mbox{}}{0.3ex}
-{{\\color{rulecolor}\\titlerule[1pt]}\\vskip3ex\\huge\\sffamily\\color{chapter-foreground}#1}[\\vskip1.2ex{\\color{rulecolor}\\titlerule[1pt]}]
 
+\\usepackage[Sonny]{fncychap}
 \\titleformat{\\section}{\\sffamily\\large}{\\thesection.}{.5em}{#1}
 \\titleformat{\\subsection}{\\sffamily\\large}{\\thesubsection.}{.5em}{#1}
 
 \\tcbuselibrary{theorems}
-
 \\newtcbtheorem[number within=chapter]{old-theorem}{Theorem}{
-  breakable,
-  colback=theorem-background!10,
-  colframe=theorem-background!55!black,
-  fonttitle=\\bfseries\\sffamily}{th}
-
+    breakable,
+    colframe=theorem-background,
+    arc=0mm, 
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm,
+    top=0.5em
+  }{th}
 \\newtcbtheorem[number within=chapter]{old-exmp}{Example}{
-  breakable,
-  colback=example-background!10,
-  colframe=example-background!55!black,
-  fonttitle=\\bfseries\\sffamily}{ex}
-
+    breakable,
+    colframe=example-background,
+    arc=0mm,
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black,
+    colbacktitle=black!5!white,
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm,
+    top=0.5em
+  }{ex}
 \\newtcbtheorem[number within=chapter]{old-definition}{Definition}{
-  breakable,
-  colback=definition-background!10,
-  colframe=definition-background!65!black,
-  fonttitle=\\bfseries\\sffamily}{def}
-
+    breakable,
+    colframe=definition-background,
+    arc=0mm, 
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm, 
+    top=0.5em
+  }{def}
 \\newtcolorbox{note}[1][]{
-  enhanced jigsaw,
-  borderline west={2pt}{0pt}{note-background},
-  sharp corners,
-  boxrule=0pt,
-  fonttitle={\\bfseries\\sffamily},
-  coltitle={black},
-  title={Note:\\ },
-  attach title to upper,
-  #1
+    breakable,
+    colframe=note-background,
+    arc=0mm, 
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont, 
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={\\textbf{Note:}\\ },
+    toptitle=0.75mm,
+    top=0.5em,
+    attach title to upper,
+    #1
 }
-
 \\renewenvironment{theorem}[1][]{%
   \\begin{old-theorem}{#1}{}%
     
 }{%
   \\end{old-theorem}%
 }
-
 \\renewenvironment{exmp}{%
   \\begin{old-exmp}{}{}%
     
 }{%
   \\end{old-exmp}%
 }
-
 \\renewenvironment{definition}{%
   \\begin{old-definition}{}{}%
     
@@ -4927,18 +4964,16 @@ Argument BIBFILE the bibliography to use."
 
 \\setlength{\\parskip}{.5em}
 \\setlength{\\parindent}{0pt}
-
 \\pagestyle{fancy}
 \\fancyhf{}
 \\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}
-\\renewcommand{\\sectionmark}[1]{\\markright{SECTION \\thesection. \\uppercase{#1}}}
+\\renewcommand{\\sectionmark}[1]{\\markright{Section \\thesection. #1}}
 \\let\\oldtitle\\title
 \\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}
 \\fancyhead[L]{\\leftmark}
 \\fancyhead[R]{\\titletext}
 \\fancyfoot[C]{\\rightmark}
 \\fancyfoot[R]{\\thepage}
-
 \\newcommand*{\\textinrule}[3][]{%
   \\makebox[#2]{#1%
     \\leaders\\hrule height \\dimexpr.5ex+.2pt\\relax depth \\dimexpr -.5ex+.2pt\\relax \\hfill% Left rule
@@ -5391,7 +5426,8 @@ If the current frame belongs to some client the client connection
 is closed."
   :repeat nil
   (interactive "<!>")
-  (demaximize-frame)
+  (if (one-window-p)
+      (demaximize-frame))
   (condition-case nil
       (delete-window)
     (error
