@@ -2259,211 +2259,250 @@ Anonymous snippets.
 Enable AAS.
 
 #+begin_src emacs-lisp :tangle yes
-  ;; It may be interesting to note that the following combinations don't appear in
-  ;; English: bx, cj, cv, cx, dx, fq, fx, gq, gx, hx, jc, jf, jg, jq, js, jv, jw,
-  ;; jx, jz, kq, kx, mx, px, pz, qb, qc, qd, qf, qg, qh, qj, qk, ql, qm, qn, qp,
-  ;; qs, qt, qv, qw, qx, qy, qz, sx, vb, vf, vh, vj, vm, vp, vq, vt, vw, vx, wx,
-  ;; xj, xx, zj, zq, zx
+;; It may be interesting to note that the following combinations don't appear in
+;; English: bx, cj, cv, cx, dx, fq, fx, gq, gx, hx, jc, jf, jg, jq, js, jv, jw,
+;; jx, jz, kq, kx, mx, px, pz, qb, qc, qd, qf, qg, qh, qj, qk, ql, qm, qn, qp,
+;; qs, qt, qv, qw, qx, qy, qz, sx, vb, vf, vh, vj, vm, vp, vq, vt, vw, vx, wx,
+;; xj, xx, zj, zq, zx
 
 
-  (use-package aas
-    :hook (LaTeX-mode . aas-activate-for-major-mode)
-    :hook (org-mode . aas-activate-for-major-mode)
-    :config
-    (aas-set-snippets 'text-mode
-      ";o-" "ō"
-      ";i-" "ī"
-      ";a-" "ā"
-      ";u-" "ū"
-      ";e-" "ē"
-      "a-0" #'expand-anonymous-snippet)
+(use-package lazytab
+  :load-path "lisp/"
+  :hook (org-mode . lazytab-mode)
+  :config
+  (defun lazytab-orgtbl-replace (_)
+    (interactive "P")
+    (unless (org-at-table-p) (user-error "Not at a table"))
+    (let* ((table (org-table-to-lisp))
+           (params '(:backend latex :raw t))
+           (replacement-table
+            (if (texmathp)
+                (lazytab-orgtbl-to-amsmath table params)
+              (orgtbl-to-latex table params))))
+      (kill-region (org-table-begin) (org-table-end))
+      (open-line 1)
+      (push-mark)
+      (insert replacement-table)
+      (align-regexp (region-beginning) (region-end) "\\([:space:]*\\)& ")
+      (evil-indent (region-beginning) (region-end))
+      (orgtbl-mode -1)
+      (advice-remove 'orgtbl-ctrl-c-ctrl-c #'lazytab-orgtbl-replace)))
 
-    (aas-set-snippets 'org-mode
-      "js" (lambda () (interactive)
-             (yas-expand-snippet "\\\\( $1 \\\\)$0"))
-      "jf" (lambda () (interactive)
-             (yas-expand-snippet "\\begin{alignat*}{3}\n$0\n\\end{alignat*}")))
+  (defun lazytab-expand-cdlatex-environment (env)
+    (let ((template-marker nil))
+      (save-excursion
+        (cdlatex-environment env)
+        (setq template-marker (point-marker)))
+      (kill-line)
+      (goto-char template-marker))
+    (advice-add 'orgtbl-ctrl-c-ctrl-c :after #'lazytab-orgtbl-replace)
+    (orgtbl-mode 1)
+    (insert "\n")
+    (evil-indent-line (point) (point))
+    (open-line-up)
+    (insert "|  |")
+    (goto-char (- (point) 2))
+    (evil-indent-line (point) (point))))
 
-    (aas-set-snippets 'latex-mode
-      "js" (lambda () (interactive)
-             (yas-expand-snippet "\\\\( $1 \\\\)$0"))
-      "jf" (lambda () (interactive)
-             (yas-expand-snippet "\\begin{alignat*}{3}\n$0\n\\end{alignat*}")))
 
-    (aas-set-snippets 'org-mode
-      :cond #'texmathp
-      "cas" #'snippet-create-cases
-      "=-0" #'swap-equation-sides
-      "3det" (lambda () (interactive)
-               (insert-matrix-like "vmatrix" 3 3))
-      "2det" (lambda () (interactive)
-               (insert-matrix-like "vmatrix" 2 2))
-      "3mat" (lambda () (interactive)
-               (insert-matrix-like "bmatrix" 3 3))
-      "2mat" (lambda () (interactive)
-               (insert-matrix-like "bmatrix" 2 2))
-      "2amat" (lambda () (interactive)
-               (insert-matrix-like "amatrix" 2 3 "{2}"))
-      "3amat" (lambda () (interactive)
-               (insert-matrix-like "amatrix" 3 4 "{3}"))
-      "4amat" (lambda () (interactive)
-               (insert-matrix-like "amatrix" 4 5 "{4}"))
-      "matr" (lambda (rows cols) (interactive "nRows: \nnColumns: ")
-               (insert-matrix-like "bmatrix" rows cols))
-      "cmat" (lambda (rows) (interactive "nRows: ")
-               (insert-matrix-like "bmatrix" rows 1))
-      "2cv" (lambda () (interactive)
-              (insert-matrix-like "bmatrix" 2 1))
-      "3cv" (lambda () (interactive)
-              (insert-matrix-like "bmatrix" 3 1))
-      "4cv" (lambda () (interactive)
-              (insert-matrix-like "bmatrix" 4 1))
-      "amatr" (lambda (rows cols sep)
-                (interactive "nRows: \nnColumns: \nnSeparate at: ")
-                (insert-matrix-like "aamatrix" rows cols
-                                    (format "{%s}{%s}" sep (- cols sep))))
-      "matl" #'insert-matrix-like)
+(use-package aas
+  :hook (LaTeX-mode . aas-activate-for-major-mode)
+  :hook (org-mode . aas-activate-for-major-mode)
+  :config
+  (aas-set-snippets 'text-mode
+    ";o-" "ō"
+    ";i-" "ī"
+    ";a-" "ā"
+    ";u-" "ū"
+    ";e-" "ē"
+    "a-0" #'expand-anonymous-snippet)
 
-    (let ((snippets '(("sup" . "^{$1$0")
-                      ("ud" . "_{$1$0")
-                      ("jg" . "^2$0")
-                      ("jc" . "^3$0")
+  (aas-set-snippets 'org-mode
+    "js" (lambda () (interactive)
+           (yas-expand-snippet "\\\\( $1 \\\\)$0"))
+    "jf" (lambda () (interactive)
+           (yas-expand-snippet "\\begin{alignat*}{3}\n$0\n\\end{alignat*}")))
 
-                      ("gal" . "\\alpha$0")
-                      ("gbe" . "\\beta$0")
-                      ("gga" . "\\gamma$0")
-                      ("gde" . "\\delta$0")
-                      ("gep" . "\\epsilon$0")
-                      ("gze" . "\\zeta$0")
-                      ("geta" . "\\eta$0")
-                      ("gth" . "\\theta$0")
-                      ("gio" . "\\iota$0")
-                      ("gka" . "\\kappa$0")
-                      ("gla" . "\\lambda$0")
-                      ("gmu" . "\\mu$0")
-                      ("gnu" . "\\nu$0")
-                      ("gxi" . "\\xi$0")
-                      ("gmi" . "\\omicron$0")
-                      ("gpi" . "\\pi$0")
-                      ("grh" . "\\rho$0")
-                      ("gsi" . "\\sigma$0")
-                      ("gta" . "\\tau$0")
-                      ("gup" . "\\upsilon$0")
-                      ("gph" . "\\phi$0")
-                      ("gch" . "\\chi$0")
-                      ("gpsi" . "\\psi$0")
-                      ("gme" . "\\omega$0")
+  (aas-set-snippets 'latex-mode
+    "js" (lambda () (interactive)
+           (yas-expand-snippet "\\\\( $1 \\\\)$0"))
+    "jf" (lambda () (interactive)
+           (yas-expand-snippet "\\begin{alignat*}{3}\n$0\n\\end{alignat*}")))
 
-                      ("Alpha" . "\\Alpha$0")
-                      ("Beta" . "\\Beta$0")
-                      ("Gamma" . "\\Gamma$0")
-                      ("Delta" . "\\Delta$0")
-                      ("Epsilon" . "\\Epsilon$0")
-                      ("Zeta" . "\\Zeta$0")
-                      ("Eta" . "\\Eta$0")
-                      ("Theta" . "\\Theta$0")
-                      ("Iota" . "\\Iota$0")
-                      ("Kappa" . "\\Kappa$0")
-                      ("Lambda" . "\\Lambda$0")
-                      ("Mu" . "\\Mu$0")
-                      ("Nu" . "\\Nu$0")
-                      ("Xi" . "\\Xi$0")
-                      ("Omicron" . "\\Omicron$0")
-                      ("Pi" . "\\Pi$0")
-                      ("Rho" . "\\Rho$0")
-                      ("Sigma" . "\\Sigma$0")
-                      ("Tau" . "\\Tau$0")
-                      ("Upsilon" . "\\Upsilon$0")
-                      ("Phi" . "\\Phi$0")
-                      ("Chi" . "\\Chi$0")
-                      ("Psi" . "\\Psi$0")
-                      ("Omega" . "\\Omega$0")
+  (aas-set-snippets 'org-mode
+    :cond #'texmathp
+    "cas" #'snippet-create-cases
+    "=-0" #'swap-equation-sides
+    "3det" (lambda () (interactive)
+             (insert-matrix-like "vmatrix" 3 3))
+    "2det" (lambda () (interactive)
+             (insert-matrix-like "vmatrix" 2 2))
+    "3mat" (lambda () (interactive)
+             (insert-matrix-like "bmatrix" 3 3))
+    "2mat" (lambda () (interactive)
+             (insert-matrix-like "bmatrix" 2 2))
+    "2amat" (lambda () (interactive)
+              (insert-matrix-like "amatrix" 2 3 "{2}"))
+    "3amat" (lambda () (interactive)
+              (insert-matrix-like "amatrix" 3 4 "{3}"))
+    "4amat" (lambda () (interactive)
+              (insert-matrix-like "amatrix" 4 5 "{4}"))
+    "matr" (lambda (rows cols) (interactive "nRows: \nnColumns: ")
+             (insert-matrix-like "bmatrix" rows cols))
+    "cmat" (lambda (rows) (interactive "nRows: ")
+             (insert-matrix-like "bmatrix" rows 1))
+    "2cv" (lambda () (interactive)
+            (insert-matrix-like "bmatrix" 2 1))
+    "3cv" (lambda () (interactive)
+            (insert-matrix-like "bmatrix" 3 1))
+    "4cv" (lambda () (interactive)
+            (insert-matrix-like "bmatrix" 4 1))
+    "amatr" (lambda (rows cols sep)
+              (interactive "nRows: \nnColumns: \nnSeparate at: ")
+              (insert-matrix-like "aamatrix" rows cols
+                                  (format "{%s}{%s}" sep (- cols sep))))
+    "matl" #'insert-matrix-like)
 
-                      ("ln" . "\\ln $0")
-                      ("eln" . "\\ln($1$0")
+  (let ((snippets '(("sup" . "^{$1$0")
+                    ("ud" . "_{$1$0")
+                    ("jg" . "^2$0")
+                    ("jc" . "^3$0")
 
-                      ("cos" . "\\cos($1$0")
-                      ("sec" . "\\sec($1$0")
-                      ("sin" . "\\sin($1$0")
-                      ("csc" . "\\csc($1$0")
-                      ("tan" . "\\tan($1$0")
-                      ("cot" . "\\cot($1$0")
-                      ("acos" . "\\arccos($1$0")
-                      ("asin" . "\\arcsin($1$0")
-                      ("atan" . "\\arctan($1$0")
+                    ("gal" . "\\alpha$0")
+                    ("gbe" . "\\beta$0")
+                    ("gga" . "\\gamma$0")
+                    ("gde" . "\\delta$0")
+                    ("gep" . "\\epsilon$0")
+                    ("gze" . "\\zeta$0")
+                    ("geta" . "\\eta$0")
+                    ("gth" . "\\theta$0")
+                    ("gio" . "\\iota$0")
+                    ("gka" . "\\kappa$0")
+                    ("gla" . "\\lambda$0")
+                    ("gmu" . "\\mu$0")
+                    ("gnu" . "\\nu$0")
+                    ("gxi" . "\\xi$0")
+                    ("gmi" . "\\omicron$0")
+                    ("gpi" . "\\pi$0")
+                    ("grh" . "\\rho$0")
+                    ("gsi" . "\\sigma$0")
+                    ("gta" . "\\tau$0")
+                    ("gup" . "\\upsilon$0")
+                    ("gph" . "\\phi$0")
+                    ("gch" . "\\chi$0")
+                    ("gpsi" . "\\psi$0")
+                    ("gme" . "\\omega$0")
 
-                      ("ncos" . "\\cos^{$1($2)$0")
-                      ("nsec" . "\\sec^{$1($2)$0")
-                      ("nsin" . "\\sin^{$1($2)$0")
-                      ("ncsc" . "\\csc^{$1($2)$0")
-                      ("ntan" . "\\tan^{$1($2)$0")
-                      ("ncot" . "\\cot^{$1($2)$0")
-                      ("nacos" . "\\arccos^{$1($2)$0")
-                      ("nasin" . "\\arcsin^{$1($2)$0")
-                      ("natan" . "\\arctan^{$1($2)$0")
+                    ("Alpha" . "\\Alpha$0")
+                    ("Beta" . "\\Beta$0")
+                    ("Gamma" . "\\Gamma$0")
+                    ("Delta" . "\\Delta$0")
+                    ("Epsilon" . "\\Epsilon$0")
+                    ("Zeta" . "\\Zeta$0")
+                    ("Eta" . "\\Eta$0")
+                    ("Theta" . "\\Theta$0")
+                    ("Iota" . "\\Iota$0")
+                    ("Kappa" . "\\Kappa$0")
+                    ("Lambda" . "\\Lambda$0")
+                    ("Mu" . "\\Mu$0")
+                    ("Nu" . "\\Nu$0")
+                    ("Xi" . "\\Xi$0")
+                    ("Omicron" . "\\Omicron$0")
+                    ("Pi" . "\\Pi$0")
+                    ("Rho" . "\\Rho$0")
+                    ("Sigma" . "\\Sigma$0")
+                    ("Tau" . "\\Tau$0")
+                    ("Upsilon" . "\\Upsilon$0")
+                    ("Phi" . "\\Phi$0")
+                    ("Chi" . "\\Chi$0")
+                    ("Psi" . "\\Psi$0")
+                    ("Omega" . "\\Omega$0")
 
-                      ("2cos" . "\\cos[2]($2$0")
-                      ("2sec" . "\\sec[2]($2$0")
-                      ("2sin" . "\\sin[2]($2$0")
-                      ("2csc" . "\\csc[2]($2$0")
-                      ("2tan" . "\\tan[2]($2$0")
-                      ("2cot" . "\\cot[2]($2$0")
-                      ("2acos" . "\\arccos[2]($2$0")
-                      ("2asin" . "\\arcsin[2]($2$0")
-                      ("2atan" . "\\arctan[2]($2$0")
+                    ("ln" . "\\ln $0")
+                    ("eln" . "\\ln($1$0")
 
-                      ("exp" . "\\exp$0")
-                      ("eexp" . "\\exp($0")
-                      ("log" . "\\log$0")
-                      ("elog" . "\\log($0")
-                      ("ein" . " \\in $0")
+                    ("cos" . "\\cos($1$0")
+                    ("sec" . "\\sec($1$0")
+                    ("sin" . "\\sin($1$0")
+                    ("csc" . "\\csc($1$0")
+                    ("tan" . "\\tan($1$0")
+                    ("cot" . "\\cot($1$0")
+                    ("acos" . "\\arccos($1$0")
+                    ("asin" . "\\arcsin($1$0")
+                    ("atan" . "\\arctan($1$0")
 
-                      ("ooo" . "\\infty$0")
+                    ("ncos" . "\\cos^{$1($2)$0")
+                    ("nsec" . "\\sec^{$1($2)$0")
+                    ("nsin" . "\\sin^{$1($2)$0")
+                    ("ncsc" . "\\csc^{$1($2)$0")
+                    ("ntan" . "\\tan^{$1($2)$0")
+                    ("ncot" . "\\cot^{$1($2)$0")
+                    ("nacos" . "\\arccos^{$1($2)$0")
+                    ("nasin" . "\\arcsin^{$1($2)$0")
+                    ("natan" . "\\arctan^{$1($2)$0")
 
-                      ("par" . "\\left( $1 \\right)$0")
-                      ("bra" . "\\left[ $1 \\right]$0")
+                    ("2cos" . "\\cos[2]($2$0")
+                    ("2sec" . "\\sec[2]($2$0")
+                    ("2sin" . "\\sin[2]($2$0")
+                    ("2csc" . "\\csc[2]($2$0")
+                    ("2tan" . "\\tan[2]($2$0")
+                    ("2cot" . "\\cot[2]($2$0")
+                    ("2acos" . "\\arccos[2]($2$0")
+                    ("2asin" . "\\arcsin[2]($2$0")
+                    ("2atan" . "\\arctan[2]($2$0")
 
-                      ("cro" . " \\times $0")
-                      ("dot" . " \\cdot $0")
+                    ("exp" . "\\exp$0")
+                    ("eexp" . "\\exp($0")
+                    ("log" . "\\log$0")
+                    ("elog" . "\\log($0")
+                    ("ein" . " \\in $0")
 
-                      ("3po" . "\\left( $1, $2, $3 \\right)$0")
-                      ("3ve" . "\\left\\langle $1, $2, $3 \\right\\rangle$0")
+                    ("ooo" . "\\infty$0")
 
-                      ("2po" . "\\left( $1, $2 \\right)$0")
-                      ("2ve" . "\\left\\langle $1, $2 \\right\\rangle$0")
+                    ("par" . "\\left( $1 \\right)$0")
+                    ("bra" . "\\left[ $1 \\right]$0")
 
-                      ("kq" . "\\sqrt{$1$0")
+                    ("cro" . " \\times $0")
+                    ("dot" . " \\cdot $0")
 
-                      ("equ" . " = $0")
-                      (">>" . " \\> $0")
-                      ("nqu" . " \\neq $0")
-                      ("vm" . " - $0")
-                      ("vj" . "-$0")
-                      ("vp" . " + $0")
-                      ("seq" . " &= $0")
-                      ("sim" . "&\\sim $0")
-                      ("amp" . " & $0")
-                      ("gtn" . " > $0")
-                      ("sgt" . " &> $0")
-                      ("lst" . " < $0")
-                      ("slt" . " &< $0")
-                      ("leq" . " \\leq $0")
-                      ("lseq" . " &\\leq $0")
-                      ("geq" . " \\geq $0")
-                      ("rk" . "\\\\\\\\")
-                      ("gseq" . " &\\geq $0")
-                      ("trip" . " \\equiv $0")
-                      ("strip" . " &\\equiv $0"))))
+                    ("3po" . "\\left( $1, $2, $3 \\right)$0")
+                    ("3ve" . "\\left\\langle $1, $2, $3 \\right\\rangle$0")
 
-      (dolist (snippet snippets)
-        (aas-set-snippets 'org-mode
-          :cond #'texmathp
-          (car snippet) `(lambda () (interactive)
-                           (yas-expand-snippet ',(cdr snippet))))
-        (aas-set-snippets 'latex-mode
-          :cond #'texmathp
-          (car snippet) `(lambda () (interactive)
-                           (yas-expand-snippet ',(cdr snippet)))))))
+                    ("2po" . "\\left( $1, $2 \\right)$0")
+                    ("2ve" . "\\left\\langle $1, $2 \\right\\rangle$0")
+
+                    ("kq" . "\\sqrt{$1$0")
+
+                    ("equ" . " = $0")
+                    (">>" . " \\> $0")
+                    ("nqu" . " \\neq $0")
+                    ("vm" . " - $0")
+                    ("vj" . "-$0")
+                    ("vp" . " + $0")
+                    ("seq" . " &= $0")
+                    ("sim" . "&\\sim $0")
+                    ("amp" . " & $0")
+                    ("gtn" . " > $0")
+                    ("sgt" . " &> $0")
+                    ("lst" . " < $0")
+                    ("slt" . " &< $0")
+                    ("leq" . " \\leq $0")
+                    ("lseq" . " &\\leq $0")
+                    ("geq" . " \\geq $0")
+                    ("rk" . "\\\\\\\\")
+                    ("gseq" . " &\\geq $0")
+                    ("trip" . " \\equiv $0")
+                    ("strip" . " &\\equiv $0"))))
+
+    (dolist (snippet snippets)
+      (aas-set-snippets 'org-mode
+        :cond #'texmathp
+        (car snippet) `(lambda () (interactive)
+                         (yas-expand-snippet ',(cdr snippet))))
+      (aas-set-snippets 'latex-mode
+        :cond #'texmathp
+        (car snippet) `(lambda () (interactive)
+                         (yas-expand-snippet ',(cdr snippet)))))))
 
 #+end_src
 
@@ -3111,7 +3150,13 @@ LaTeX config.
 
 (use-package cdlatex
   :config
-  (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex))
+  (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
+
+  (setq cdlatex-env-alist
+        '(("bmatrix" "\\begin{bmatrix}?\\end{bmatrix}" nil)))
+
+  (setq cdlatex-command-alist
+        '(("bmat" "Insert matrix env" "" lazytab-expand-cdlatex-environment ("bmatrix") nil t))))
 #+end_src
 
 TODO: Make the godforsaken =font-latex-sedate-face= work.
