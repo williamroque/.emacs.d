@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: null-space
+# key: null
+# --
+\text{null}($1)$0

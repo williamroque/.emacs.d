@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: divergence
+# key: div
+# --
+\divergence $0

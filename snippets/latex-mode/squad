@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: squad
+# key: squ
+# --
+&\quad $0

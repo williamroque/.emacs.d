@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: lim2
+# key: lim2
+# --
+\lim_{(${1:x}, ${2:y}) \to (${3:a}, ${4:b})} $0

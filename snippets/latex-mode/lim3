@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: lim3
+# key: lim3
+# --
+\lim_{(${1:x}, ${2:y}, ${3:z}) \to (${4:a}, ${5:b}, ${6:c})} $0

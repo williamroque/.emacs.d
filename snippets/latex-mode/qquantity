@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: qquantity
+# key: qq
+# --
+Q_('$1', '$2')$0

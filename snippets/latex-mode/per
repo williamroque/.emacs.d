@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: per
+# key: per
+# --
+\per $0

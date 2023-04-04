@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: distance
+# key: dist
+# --
+\text{dist}\left( $1 \right)$0

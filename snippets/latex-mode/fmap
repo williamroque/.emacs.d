@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: fmap
+# key: xy
+# --
+${1:f} : ${2:X} \to ${3:Y}$0

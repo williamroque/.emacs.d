@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: comp
+# key: comp
+# --
+\text{comp}_{\vecb{${1:b}}} \vecb{${2:a}}$0

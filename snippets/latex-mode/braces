@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: braces
+# key: ces
+# --
+\left\{ $0 \right\}

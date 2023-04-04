@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: pxyz
+# key: pxyz
+# --
+\left( x, y, z \right)

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: line-int
+# key: lvint
+# --
+\int_{${1:C}} ${2:\vecb\{F\}} \cdot d\vecb{${3:r}}$0

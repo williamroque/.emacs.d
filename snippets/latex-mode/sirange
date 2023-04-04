@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: sirange
+# key: sir
+# --
+\SIrange{$1}{$2}{$3}$0

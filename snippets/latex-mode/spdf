@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: spdf
+# key: spdf
+# --
+\partial{^2 $1}{$2^2}$0

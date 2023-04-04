@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 3-tuple
+# key: 3l
+# --
+${1:x}_1, $1_2, $1_3$0

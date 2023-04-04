@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: mspdf
+# key: mspdf
+# --
+\partial{^2 $1}{$2 \oldpartial $3}$0

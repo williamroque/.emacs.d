@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: lint
+# key: lint
+# --
+\int_{$1} $2 \> d$0

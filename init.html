@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2023-02-17 Fri 03:00 -->
+<!-- 2023-03-20 Mon 21:59 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Emacs Config</title>
@@ -1124,121 +1124,121 @@ directory should work.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents" role="doc-toc">
 <ul>
-<li><a href="#org00decc0">Startup</a>
+<li><a href="#org343cc5a">Startup</a>
 <ul>
-<li><a href="#orgcff0708">Setup</a></li>
-<li><a href="#org6afa5b9">Scratch</a></li>
+<li><a href="#org4d1ec52">Setup</a></li>
+<li><a href="#orgfd3fd4c">Scratch</a></li>
 </ul>
 </li>
-<li><a href="#orgf672df7">Utilities</a></li>
-<li><a href="#orga53fbda">User interface</a>
+<li><a href="#org9981861">Utilities</a></li>
+<li><a href="#org5988905">User interface</a>
 <ul>
-<li><a href="#org8e29193">Theme</a></li>
-<li><a href="#orgee53592">Line numbers</a></li>
-<li><a href="#orgd7ab3d1">Window/frame</a></li>
-<li><a href="#org9595500">Mode line</a></li>
-<li><a href="#org141b3aa">Encoding</a></li>
-<li><a href="#org6294b3b">Prettify symbols</a></li>
+<li><a href="#orged38313">Theme</a></li>
+<li><a href="#org572056b">Line numbers</a></li>
+<li><a href="#org89d20a0">Window/frame</a></li>
+<li><a href="#orgecf2d66">Mode line</a></li>
+<li><a href="#org4e76494">Encoding</a></li>
+<li><a href="#org277b991">Prettify symbols</a></li>
 </ul>
 </li>
-<li><a href="#org53d8ea7">Evil</a>
+<li><a href="#org98d7cac">Evil</a>
 <ul>
-<li><a href="#org83ae7c9">Evil leader</a></li>
-<li><a href="#org0306504">Evil surround</a></li>
-<li><a href="#org8232114">Evil collection</a></li>
-<li><a href="#org1d5dde8">Evil args</a></li>
-<li><a href="#org9d84a85">Evil embrace</a></li>
-<li><a href="#org36cea4e">Evil owl</a></li>
-<li><a href="#orgd7210d0">Evil commentary</a></li>
-<li><a href="#org61c76b1">Evil little word</a></li>
-<li><a href="#orgb86e5f6">Evil indent plus</a></li>
+<li><a href="#org11bc78b">Evil leader</a></li>
+<li><a href="#org0a5ce44">Evil surround</a></li>
+<li><a href="#org246a1ec">Evil collection</a></li>
+<li><a href="#org77dd89d">Evil args</a></li>
+<li><a href="#org2611190">Evil embrace</a></li>
+<li><a href="#orga9023ab">Evil owl</a></li>
+<li><a href="#orgdf2f2c2">Evil commentary</a></li>
+<li><a href="#org7106541">Evil little word</a></li>
+<li><a href="#org3152448">Evil indent plus</a></li>
 </ul>
 </li>
-<li><a href="#org2837b64">Navigation</a>
+<li><a href="#org40a34eb">Navigation</a>
 <ul>
-<li><a href="#orgabd500a">Buffer ring</a></li>
-<li><a href="#orgd54d0ab">Helm</a></li>
+<li><a href="#org389bf58">Buffer ring</a></li>
+<li><a href="#orgb6cc794">Helm</a></li>
 </ul>
 </li>
-<li><a href="#orge800345">Editing</a>
+<li><a href="#orgb0d9936">Editing</a>
 <ul>
-<li><a href="#orgb8be7f6">Snippets</a></li>
-<li><a href="#orgcfcb392">Spelling</a></li>
-<li><a href="#org7a19c82">Smartparens</a></li>
-<li><a href="#org9e32680">Templating</a></li>
-<li><a href="#org4150e16">Macros</a></li>
-<li><a href="#orgbf1a15b">Undo tree</a></li>
+<li><a href="#orgba785a3">Snippets</a></li>
+<li><a href="#org877f8ba">Spelling</a></li>
+<li><a href="#org7cb5481">Smartparens</a></li>
+<li><a href="#orgaf7f902">Templating</a></li>
+<li><a href="#org77d1fa5">Macros</a></li>
+<li><a href="#org38d3d11">Undo tree</a></li>
 </ul>
 </li>
-<li><a href="#orgf76d6e9">Shell</a></li>
-<li><a href="#orge3faace">Remote</a>
+<li><a href="#org2f43c87">Shell</a></li>
+<li><a href="#orgf33bacc">Remote</a>
 <ul>
-<li><a href="#org425b196">Tramp</a></li>
-<li><a href="#org8042c43">Git</a></li>
+<li><a href="#orgcf88bfd">Tramp</a></li>
+<li><a href="#orge7dce12">Git</a></li>
 </ul>
 </li>
-<li><a href="#orge8fd26d">Programming</a>
+<li><a href="#org1be77c3">Programming</a>
 <ul>
-<li><a href="#org9753c26">Flycheck</a></li>
-<li><a href="#orgf6fa165">Flymake</a></li>
-<li><a href="#org463d557">Company</a></li>
-<li><a href="#org2626332">Languages</a></li>
-<li><a href="#org98ed608">Python</a></li>
-<li><a href="#org0caa98f">Rust</a></li>
-<li><a href="#org63620f9">Elisp</a></li>
-<li><a href="#orgb75b73c">SGML/HTML</a></li>
-<li><a href="#org62ae28b">Markdown</a></li>
-<li><a href="#org0594cee">Auctex/latex</a></li>
-<li><a href="#org68a7148">Scripts</a></li>
+<li><a href="#orgdebce5b">Flycheck</a></li>
+<li><a href="#orgf241ee6">Flymake</a></li>
+<li><a href="#org031d6d8">Company</a></li>
+<li><a href="#org497ba88">Languages</a></li>
+<li><a href="#orgdd59698">Python</a></li>
+<li><a href="#orgc5e9d5e">Rust</a></li>
+<li><a href="#org13ae06e">Elisp</a></li>
+<li><a href="#orgc09a0c6">SGML/HTML</a></li>
+<li><a href="#orgbd47c00">Markdown</a></li>
+<li><a href="#orga445185">Auctex/latex</a></li>
+<li><a href="#org7331cb2">Scripts</a></li>
 </ul>
 </li>
-<li><a href="#org8e0aae2">Mail</a></li>
-<li><a href="#orgb9bb4b2">Files</a>
+<li><a href="#org8e7ebb3">Mail</a></li>
+<li><a href="#orga3c5d15">Files</a>
 <ul>
-<li><a href="#org6611564">Ranger</a></li>
-<li><a href="#orga4bb204">Dired</a></li>
-<li><a href="#org01773aa">PDFs/images</a></li>
+<li><a href="#org66829db">Ranger</a></li>
+<li><a href="#org3c6864b">Dired</a></li>
+<li><a href="#org382c766">PDFs/images</a></li>
 </ul>
 </li>
-<li><a href="#orgdd58192">Org</a>
+<li><a href="#org4cf6faf">Org</a>
 <ul>
-<li><a href="#org2b98e55">Compilation</a></li>
-<li><a href="#org11cc3ca">Capture</a></li>
-<li><a href="#org898655e">User interface</a></li>
-<li><a href="#orgec61087">Editing</a></li>
-<li><a href="#org2fddc25">Key bindings</a></li>
-<li><a href="#org99a2173">Packages</a></li>
-<li><a href="#org1709293">External applications</a></li>
-<li><a href="#orgc9839ec">References</a></li>
-<li><a href="#org4384287">Export</a></li>
-<li><a href="#org934b19b">Miscellaneous</a></li>
+<li><a href="#org3f36877">Compilation</a></li>
+<li><a href="#orgfadada1">Capture</a></li>
+<li><a href="#orgfa6d893">User interface</a></li>
+<li><a href="#org17b29ec">Editing</a></li>
+<li><a href="#orgc77123e">Key bindings</a></li>
+<li><a href="#org07676a7">Packages</a></li>
+<li><a href="#org5f8412d">External applications</a></li>
+<li><a href="#org9594c46">References</a></li>
+<li><a href="#org3feb96e">Export</a></li>
+<li><a href="#org9bc51b9">Miscellaneous</a></li>
 </ul>
 </li>
-<li><a href="#orgcf8200e">Ichthys</a></li>
-<li><a href="#org856a454">Games</a>
+<li><a href="#orga8c5f2c">Ichthys</a></li>
+<li><a href="#org4f19d03">Games</a>
 <ul>
-<li><a href="#orgc7a4f1f">Gomoku</a></li>
-<li><a href="#orga606868">Pong</a></li>
+<li><a href="#org6b8cfd2">Gomoku</a></li>
+<li><a href="#orgffac3ad">Pong</a></li>
 </ul>
 </li>
-<li><a href="#orgc349431">Miscellaneous</a>
+<li><a href="#orge312644">Miscellaneous</a>
 <ul>
-<li><a href="#org125c1e2">Calendar</a></li>
-<li><a href="#org1a90ee6">Mac-specific</a></li>
-<li><a href="#orgda5bbad">Edit with Emacs</a></li>
+<li><a href="#orge8fdfab">Calendar</a></li>
+<li><a href="#org5edbd2a">Mac-specific</a></li>
+<li><a href="#orgfe867e3">Edit with Emacs</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 
-<div id="outline-container-org00decc0" class="outline-2">
-<h2 id="org00decc0">Startup</h2>
-<div class="outline-text-2" id="text-org00decc0">
+<div id="outline-container-org343cc5a" class="outline-2">
+<h2 id="org343cc5a">Startup</h2>
+<div class="outline-text-2" id="text-org343cc5a">
 </div>
-<div id="outline-container-orgcff0708" class="outline-3">
-<h3 id="orgcff0708">Setup</h3>
-<div class="outline-text-3" id="text-orgcff0708">
+<div id="outline-container-org4d1ec52" class="outline-3">
+<h3 id="org4d1ec52">Setup</h3>
+<div class="outline-text-3" id="text-org4d1ec52">
 <p>
 Personal information.
 </p>
@@ -1436,9 +1436,9 @@ Set <code>.emacs.d</code> directory.
 </div>
 </div>
 
-<div id="outline-container-org6afa5b9" class="outline-3">
-<h3 id="org6afa5b9">Scratch</h3>
-<div class="outline-text-3" id="text-org6afa5b9">
+<div id="outline-container-orgfd3fd4c" class="outline-3">
+<h3 id="orgfd3fd4c">Scratch</h3>
+<div class="outline-text-3" id="text-orgfd3fd4c">
 <p>
 Remove initial message from scratch buffer.
 </p>
@@ -1511,9 +1511,9 @@ Evil leader keybindings.
 </div>
 </div>
 
-<div id="outline-container-orgf672df7" class="outline-2">
-<h2 id="orgf672df7">Utilities</h2>
-<div class="outline-text-2" id="text-orgf672df7">
+<div id="outline-container-org9981861" class="outline-2">
+<h2 id="org9981861">Utilities</h2>
+<div class="outline-text-2" id="text-org9981861">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp"><span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">for debugging lists</span>
 (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">defun</span> <span style="color: #D85C68;">print-elements-of-list</span> (list)
@@ -1578,9 +1578,9 @@ Evil leader keybindings.
 </div>
 </div>
 
-<div id="outline-container-orga53fbda" class="outline-2">
-<h2 id="orga53fbda">User interface</h2>
-<div class="outline-text-2" id="text-orga53fbda">
+<div id="outline-container-org5988905" class="outline-2">
+<h2 id="org5988905">User interface</h2>
+<div class="outline-text-2" id="text-org5988905">
 <p>
 General UI config.
 </p>
@@ -1600,9 +1600,9 @@ General UI config.
 </div>
 </div>
 
-<div id="outline-container-org8e29193" class="outline-3">
-<h3 id="org8e29193">Theme</h3>
-<div class="outline-text-3" id="text-org8e29193">
+<div id="outline-container-orged38313" class="outline-3">
+<h3 id="orged38313">Theme</h3>
+<div class="outline-text-3" id="text-orged38313">
 <p>
 Colors.
 </p>
@@ -1769,9 +1769,9 @@ Faces.
 </div>
 </div>
 
-<div id="outline-container-orgee53592" class="outline-3">
-<h3 id="orgee53592">Line numbers</h3>
-<div class="outline-text-3" id="text-orgee53592">
+<div id="outline-container-org572056b" class="outline-3">
+<h3 id="org572056b">Line numbers</h3>
+<div class="outline-text-3" id="text-org572056b">
 <p>
 Set hybrid line numbers.
 </p>
@@ -1840,9 +1840,9 @@ Evil leader key bindings.
 </div>
 </div>
 
-<div id="outline-container-orgd7ab3d1" class="outline-3">
-<h3 id="orgd7ab3d1">Window/frame</h3>
-<div class="outline-text-3" id="text-orgd7ab3d1">
+<div id="outline-container-org89d20a0" class="outline-3">
+<h3 id="org89d20a0">Window/frame</h3>
+<div class="outline-text-3" id="text-org89d20a0">
 <p>
 Clean interface.
 </p>
@@ -1966,7 +1966,13 @@ Close current window (vim-style).
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(global-set-key (kbd <span style="color: #b5bd68;">"M-w"</span>) 'evil-quit)
+<pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">defun</span> <span style="color: #D85C68;">evil-quit-simple</span> ()
+  (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">interactive</span>)
+  (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">if</span> (one-window-p)
+      (delete-frame)
+    (delete-window)))
+
+(global-set-key (kbd <span style="color: #b5bd68;">"M-w"</span>) #'evil-quit-simple)
 </pre>
 </div>
 
@@ -2064,6 +2070,7 @@ Evil leader keybindings.
                                    (make-frame '((user-position . t) (top . 0.5) (left . 0.5)))
                                    (run-at-time .2 nil (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">lambda</span> ()
                                                          (set-frame-parameter nil 'fullscreen nil)
+                                                         (sleep-for 0.7)
                                                          (center-frame (selected-frame))))))
 
 
@@ -2112,9 +2119,9 @@ Evil leader keybindings.
 </div>
 </div>
 
-<div id="outline-container-org9595500" class="outline-3">
-<h3 id="org9595500">Mode line</h3>
-<div class="outline-text-3" id="text-org9595500">
+<div id="outline-container-orgecf2d66" class="outline-3">
+<h3 id="orgecf2d66">Mode line</h3>
+<div class="outline-text-3" id="text-orgecf2d66">
 <p>
 Mode line config.
 </p>
@@ -2211,9 +2218,9 @@ Custom faces.
 </div>
 </div>
 
-<div id="outline-container-org141b3aa" class="outline-3">
-<h3 id="org141b3aa">Encoding</h3>
-<div class="outline-text-3" id="text-org141b3aa">
+<div id="outline-container-org4e76494" class="outline-3">
+<h3 id="org4e76494">Encoding</h3>
+<div class="outline-text-3" id="text-org4e76494">
 <p>
 Sort of inelegant (but seemingly standard) way of adding ligature
 support.
@@ -2265,9 +2272,9 @@ Use fira code for Greek letters in vterm.
 </div>
 </div>
 
-<div id="outline-container-org6294b3b" class="outline-3">
-<h3 id="org6294b3b">Prettify symbols</h3>
-<div class="outline-text-3" id="text-org6294b3b">
+<div id="outline-container-org277b991" class="outline-3">
+<h3 id="org277b991">Prettify symbols</h3>
+<div class="outline-text-3" id="text-org277b991">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">defun</span> <span style="color: #D85C68;">add-visual-replacement</span> (from to)
   <span style="color: #717171; font-style: italic;">"Make `</span><span style="color: #D85C68; font-style: italic;">prettify-symbols-mode</span><span style="color: #717171; font-style: italic;">' replace string FROM with string TO.</span>
@@ -2290,37 +2297,38 @@ Use fira code for Greek letters in vterm.
 (add-hook 'org-mode-hook (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">lambda</span> ()
                            (add-visual-replacement <span style="color: #b5bd68;">"---"</span> <span style="color: #b5bd68;">"&#9472;&#9472;"</span>)
 
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\sqrt"</span> . <span style="color: #b5bd68;">"&#8730;"</span>) prettify-symbols-alist)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\sqrt" . "&#8730;") prettify-symbols-alist)</span>
 
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\text"</span> . <span style="color: #b5bd68;">"&#8203;"</span>) prettify-symbols-alist)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\text" . "&#8203;") prettify-symbols-alist)</span>
 
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\left("</span> . <span style="color: #b5bd68;">"("</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\right)"</span> . <span style="color: #b5bd68;">")"</span>) prettify-symbols-alist)
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\right)^2"</span> <span style="color: #b5bd68;">")&#178;"</span>)
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\right)^3"</span> <span style="color: #b5bd68;">")&#179;"</span>)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\left(" . "(") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\right)" . ")") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\right)^2" ")&#178;")</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\right)^3" ")&#179;")</span>
 
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\left|"</span> . <span style="color: #b5bd68;">"|"</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\right|"</span> . <span style="color: #b5bd68;">"|"</span>) prettify-symbols-alist)
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\right|^2"</span> <span style="color: #b5bd68;">"|&#178;"</span>)
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\right|^3"</span> <span style="color: #b5bd68;">"|&#179;"</span>)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\left|" . "|") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\right|" . "|") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\right|^2" "|&#178;")</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\right|^3" "|&#179;")</span>
 
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\left["</span> .  <span style="color: #b5bd68;">"["</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\right]"</span> . <span style="color: #b5bd68;">"]"</span>) prettify-symbols-alist)
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\right]^2"</span> <span style="color: #b5bd68;">"]&#178;"</span>)
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\right]^3"</span> <span style="color: #b5bd68;">"]&#179;"</span>)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\left[" .  "[") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\right]" . "]") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\right]^2" "]&#178;")</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\right]^3" "]&#179;")</span>
 
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\left\\Vert"</span> <span style="color: #b5bd68;">"||"</span>)
-                           (add-visual-replacement <span style="color: #b5bd68;">"\\right\\Vert"</span> <span style="color: #b5bd68;">"||"</span>)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\left\\Vert" "||")</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(add-visual-replacement "\\right\\Vert" "||")</span>
 
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\vecb{a}"</span> . <span style="color: #b5bd68;">"&#119938;"</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\vecb{b}"</span> . <span style="color: #b5bd68;">"&#119939;"</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\vecb{c}"</span> . <span style="color: #b5bd68;">"&#119940;"</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\vecb{u}"</span> . <span style="color: #b5bd68;">"&#119958;"</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\vecb{v}"</span> . <span style="color: #b5bd68;">"&#119959;"</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\vecb{r}"</span> . <span style="color: #b5bd68;">"&#119955;"</span>) prettify-symbols-alist)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\vecb{a}" . "&#119938;") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\vecb{b}" . "&#119939;") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\vecb{c}" . "&#119940;") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\vecb{u}" . "&#119958;") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\vecb{v}" . "&#119959;") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\vecb{r}" . "&#119955;") prettify-symbols-alist)</span>
 
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\left\\langle"</span> .  <span style="color: #b5bd68;">"&#12296;"</span>) prettify-symbols-alist)
-                           (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"\\right\\rangle"</span> .  <span style="color: #b5bd68;">"&#12297;"</span>) prettify-symbols-alist)
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\left\\langle" .  "&#12296;") prettify-symbols-alist)</span>
+                           <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">(push '("\\right\\rangle" .  "&#12297;") prettify-symbols-alist)</span>
+
                            (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"[ ]"</span> .  <span style="color: #b5bd68;">"&#9744;"</span>) prettify-symbols-alist)
                            (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"[X]"</span> . <span style="color: #b5bd68;">"&#9745;"</span> ) prettify-symbols-alist)
                            (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">push</span> '(<span style="color: #b5bd68;">"[-]"</span> . <span style="color: #b5bd68;">"&#10061;"</span> ) prettify-symbols-alist)
@@ -2348,9 +2356,9 @@ Use fira code for Greek letters in vterm.
 </div>
 </div>
 
-<div id="outline-container-org53d8ea7" class="outline-2">
-<h2 id="org53d8ea7">Evil</h2>
-<div class="outline-text-2" id="text-org53d8ea7">
+<div id="outline-container-org98d7cac" class="outline-2">
+<h2 id="org98d7cac">Evil</h2>
+<div class="outline-text-2" id="text-org98d7cac">
 <p>
 Set all the necessary init variables.
 </p>
@@ -2520,9 +2528,9 @@ General key bindings.
 </div>
 </div>
 
-<div id="outline-container-org83ae7c9" class="outline-3">
-<h3 id="org83ae7c9">Evil leader</h3>
-<div class="outline-text-3" id="text-org83ae7c9">
+<div id="outline-container-org11bc78b" class="outline-3">
+<h3 id="org11bc78b">Evil leader</h3>
+<div class="outline-text-3" id="text-org11bc78b">
 <p>
 Let other parts of config create keybindings with evil
 leader. Remember to update this with the noweb reference in order to
@@ -2638,9 +2646,9 @@ mode&rsquo;s variables are set and right before the rest of the evil config.
 </div>
 </div>
 
-<div id="outline-container-org0306504" class="outline-3">
-<h3 id="org0306504">Evil surround</h3>
-<div class="outline-text-3" id="text-org0306504">
+<div id="outline-container-org0a5ce44" class="outline-3">
+<h3 id="org0a5ce44">Evil surround</h3>
+<div class="outline-text-3" id="text-org0a5ce44">
 <p>
 Like tpope&rsquo;s <code>vim-surround</code>.
 </p>
@@ -2654,9 +2662,9 @@ Like tpope&rsquo;s <code>vim-surround</code>.
 </div>
 </div>
 
-<div id="outline-container-org8232114" class="outline-3">
-<h3 id="org8232114">Evil collection</h3>
-<div class="outline-text-3" id="text-org8232114">
+<div id="outline-container-org246a1ec" class="outline-3">
+<h3 id="org246a1ec">Evil collection</h3>
+<div class="outline-text-3" id="text-org246a1ec">
 <p>
 This package adds evil keybindings to many different modes.
 </p>
@@ -2671,9 +2679,9 @@ This package adds evil keybindings to many different modes.
 </div>
 </div>
 
-<div id="outline-container-org1d5dde8" class="outline-3">
-<h3 id="org1d5dde8">Evil args</h3>
-<div class="outline-text-3" id="text-org1d5dde8">
+<div id="outline-container-org77dd89d" class="outline-3">
+<h3 id="org77dd89d">Evil args</h3>
+<div class="outline-text-3" id="text-org77dd89d">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">use-package</span> <span style="color: #D85C68;">evil-args</span>
   <span style="color: #81A2BE;">:config</span>
@@ -2686,9 +2694,9 @@ This package adds evil keybindings to many different modes.
 </div>
 </div>
 
-<div id="outline-container-org9d84a85" class="outline-3">
-<h3 id="org9d84a85">Evil embrace</h3>
-<div class="outline-text-3" id="text-org9d84a85">
+<div id="outline-container-org2611190" class="outline-3">
+<h3 id="org2611190">Evil embrace</h3>
+<div class="outline-text-3" id="text-org2611190">
 <p>
 Evil hugs. Very nasty.
 </p>
@@ -2718,9 +2726,9 @@ Evil hugs. Very nasty.
 </div>
 </div>
 
-<div id="outline-container-org36cea4e" class="outline-3">
-<h3 id="org36cea4e">Evil owl</h3>
-<div class="outline-text-3" id="text-org36cea4e">
+<div id="outline-container-orga9023ab" class="outline-3">
+<h3 id="orga9023ab">Evil owl</h3>
+<div class="outline-text-3" id="text-orga9023ab">
 <p>
 Hire owls to report registers and marks.
 </p>
@@ -2740,9 +2748,9 @@ Hire owls to report registers and marks.
 </div>
 </div>
 
-<div id="outline-container-orgd7210d0" class="outline-3">
-<h3 id="orgd7210d0">Evil commentary</h3>
-<div class="outline-text-3" id="text-orgd7210d0">
+<div id="outline-container-orgdf2f2c2" class="outline-3">
+<h3 id="orgdf2f2c2">Evil commentary</h3>
+<div class="outline-text-3" id="text-orgdf2f2c2">
 <p>
 Better commenting based on tpope&rsquo;s vim-commentary.
 </p>
@@ -2757,9 +2765,9 @@ Better commenting based on tpope&rsquo;s vim-commentary.
 </div>
 </div>
 
-<div id="outline-container-org61c76b1" class="outline-3">
-<h3 id="org61c76b1">Evil little word</h3>
-<div class="outline-text-3" id="text-org61c76b1">
+<div id="outline-container-org7106541" class="outline-3">
+<h3 id="org7106541">Evil little word</h3>
+<div class="outline-text-3" id="text-org7106541">
 <p>
 For short, hurtful comments. And camel case motion.
 </p>
@@ -2780,9 +2788,9 @@ For short, hurtful comments. And camel case motion.
 </div>
 </div>
 
-<div id="outline-container-orgb86e5f6" class="outline-3">
-<h3 id="orgb86e5f6">Evil indent plus</h3>
-<div class="outline-text-3" id="text-orgb86e5f6">
+<div id="outline-container-org3152448" class="outline-3">
+<h3 id="org3152448">Evil indent plus</h3>
+<div class="outline-text-3" id="text-org3152448">
 <p>
 For indent-based text objects.
 </p>
@@ -2797,9 +2805,9 @@ For indent-based text objects.
 </div>
 </div>
 
-<div id="outline-container-org2837b64" class="outline-2">
-<h2 id="org2837b64">Navigation</h2>
-<div class="outline-text-2" id="text-org2837b64">
+<div id="outline-container-org40a34eb" class="outline-2">
+<h2 id="org40a34eb">Navigation</h2>
+<div class="outline-text-2" id="text-org40a34eb">
 <p>
 Motion between and within lines.
 </p>
@@ -2888,9 +2896,9 @@ Jumping.
 </div>
 </div>
 
-<div id="outline-container-orgabd500a" class="outline-3">
-<h3 id="orgabd500a">Buffer ring</h3>
-<div class="outline-text-3" id="text-orgabd500a">
+<div id="outline-container-org389bf58" class="outline-3">
+<h3 id="org389bf58">Buffer ring</h3>
+<div class="outline-text-3" id="text-org389bf58">
 <p>
 Create a ring of buffers. I may turn this into a small minor mode in
 the future. This also happens to be my first &ldquo;actual&rdquo; emacs lisp
@@ -2950,9 +2958,9 @@ program.
 </div>
 </div>
 
-<div id="outline-container-orgd54d0ab" class="outline-3">
-<h3 id="orgd54d0ab">Helm</h3>
-<div class="outline-text-3" id="text-orgd54d0ab">
+<div id="outline-container-orgb6cc794" class="outline-3">
+<h3 id="orgb6cc794">Helm</h3>
+<div class="outline-text-3" id="text-orgb6cc794">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">use-package</span> <span style="color: #D85C68;">helm</span>
   <span style="color: #81A2BE;">:config</span>
@@ -3085,9 +3093,9 @@ Redefine buffers list to be more careful.
 </div>
 </div>
 
-<div id="outline-container-org1613e5f" class="outline-4">
-<h4 id="org1613e5f">Helm ag</h4>
-<div class="outline-text-4" id="text-org1613e5f">
+<div id="outline-container-org5da46f7" class="outline-4">
+<h4 id="org5da46f7">Helm ag</h4>
+<div class="outline-text-4" id="text-org5da46f7">
 <p>
 Ensure <code>helm-ag</code>.
 </p>
@@ -3099,9 +3107,9 @@ Ensure <code>helm-ag</code>.
 </div>
 </div>
 
-<div id="outline-container-org42d5414" class="outline-4">
-<h4 id="org42d5414">Helm projectile</h4>
-<div class="outline-text-4" id="text-org42d5414">
+<div id="outline-container-orgb687e9a" class="outline-4">
+<h4 id="orgb687e9a">Helm projectile</h4>
+<div class="outline-text-4" id="text-orgb687e9a">
 <p>
 <code>helm-projectile</code> config.
 </p>
@@ -3127,9 +3135,9 @@ Ensure <code>helm-ag</code>.
 </div>
 </div>
 
-<div id="outline-container-orge800345" class="outline-2">
-<h2 id="orge800345">Editing</h2>
-<div class="outline-text-2" id="text-orge800345">
+<div id="outline-container-orgb0d9936" class="outline-2">
+<h2 id="orgb0d9936">Editing</h2>
+<div class="outline-text-2" id="text-orgb0d9936">
 <p>
 General editing config.
 </p>
@@ -3476,9 +3484,9 @@ Evil leader bindings.
 </div>
 </div>
 
-<div id="outline-container-orgb8be7f6" class="outline-3">
-<h3 id="orgb8be7f6">Snippets</h3>
-<div class="outline-text-3" id="text-orgb8be7f6">
+<div id="outline-container-orgba785a3" class="outline-3">
+<h3 id="orgba785a3">Snippets</h3>
+<div class="outline-text-3" id="text-orgba785a3">
 <p>
 Enable YASnippet.
 </p>
@@ -3866,39 +3874,42 @@ Enable AAS.
                       (<span style="color: #b5bd68;">"Omega"</span> . <span style="color: #b5bd68;">"\\Omega$0"</span>)
 
                       (<span style="color: #b5bd68;">"ln"</span> . <span style="color: #b5bd68;">"\\ln $0"</span>)
+                      (<span style="color: #b5bd68;">"eln"</span> . <span style="color: #b5bd68;">"\\ln($1$0"</span>)
 
-                      (<span style="color: #b5bd68;">"cos"</span> . <span style="color: #b5bd68;">"\\cos{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"sec"</span> . <span style="color: #b5bd68;">"\\sec{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"sin"</span> . <span style="color: #b5bd68;">"\\sin{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"csc"</span> . <span style="color: #b5bd68;">"\\csc{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"tan"</span> . <span style="color: #b5bd68;">"\\tan{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"cot"</span> . <span style="color: #b5bd68;">"\\cot{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"acos"</span> . <span style="color: #b5bd68;">"\\arccos{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"asin"</span> . <span style="color: #b5bd68;">"\\arcsin{$1$0"</span>)
-                      (<span style="color: #b5bd68;">"atan"</span> . <span style="color: #b5bd68;">"\\arctan{$1$0"</span>)
+                      (<span style="color: #b5bd68;">"cos"</span> . <span style="color: #b5bd68;">"\\cos($1$0"</span>)
+                      (<span style="color: #b5bd68;">"sec"</span> . <span style="color: #b5bd68;">"\\sec($1$0"</span>)
+                      (<span style="color: #b5bd68;">"sin"</span> . <span style="color: #b5bd68;">"\\sin($1$0"</span>)
+                      (<span style="color: #b5bd68;">"csc"</span> . <span style="color: #b5bd68;">"\\csc($1$0"</span>)
+                      (<span style="color: #b5bd68;">"tan"</span> . <span style="color: #b5bd68;">"\\tan($1$0"</span>)
+                      (<span style="color: #b5bd68;">"cot"</span> . <span style="color: #b5bd68;">"\\cot($1$0"</span>)
+                      (<span style="color: #b5bd68;">"acos"</span> . <span style="color: #b5bd68;">"\\arccos($1$0"</span>)
+                      (<span style="color: #b5bd68;">"asin"</span> . <span style="color: #b5bd68;">"\\arcsin($1$0"</span>)
+                      (<span style="color: #b5bd68;">"atan"</span> . <span style="color: #b5bd68;">"\\arctan($1$0"</span>)
 
-                      (<span style="color: #b5bd68;">"ncos"</span> . <span style="color: #b5bd68;">"\\cos^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"nsec"</span> . <span style="color: #b5bd68;">"\\sec^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"nsin"</span> . <span style="color: #b5bd68;">"\\sin^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"ncsc"</span> . <span style="color: #b5bd68;">"\\csc^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"ntan"</span> . <span style="color: #b5bd68;">"\\tan^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"ncot"</span> . <span style="color: #b5bd68;">"\\cot^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"nacos"</span> . <span style="color: #b5bd68;">"\\arccos^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"nasin"</span> . <span style="color: #b5bd68;">"\\arcsin^{$1{$2}$0"</span>)
-                      (<span style="color: #b5bd68;">"natan"</span> . <span style="color: #b5bd68;">"\\arctan^{$1{$2}$0"</span>)
+                      (<span style="color: #b5bd68;">"ncos"</span> . <span style="color: #b5bd68;">"\\cos^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"nsec"</span> . <span style="color: #b5bd68;">"\\sec^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"nsin"</span> . <span style="color: #b5bd68;">"\\sin^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"ncsc"</span> . <span style="color: #b5bd68;">"\\csc^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"ntan"</span> . <span style="color: #b5bd68;">"\\tan^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"ncot"</span> . <span style="color: #b5bd68;">"\\cot^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"nacos"</span> . <span style="color: #b5bd68;">"\\arccos^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"nasin"</span> . <span style="color: #b5bd68;">"\\arcsin^{$1($2)$0"</span>)
+                      (<span style="color: #b5bd68;">"natan"</span> . <span style="color: #b5bd68;">"\\arctan^{$1($2)$0"</span>)
 
-                      (<span style="color: #b5bd68;">"2cos"</span> . <span style="color: #b5bd68;">"\\cos^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2sec"</span> . <span style="color: #b5bd68;">"\\sec^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2sin"</span> . <span style="color: #b5bd68;">"\\sin^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2csc"</span> . <span style="color: #b5bd68;">"\\csc^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2tan"</span> . <span style="color: #b5bd68;">"\\tan^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2cot"</span> . <span style="color: #b5bd68;">"\\cot^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2acos"</span> . <span style="color: #b5bd68;">"\\arccos^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2asin"</span> . <span style="color: #b5bd68;">"\\arcsin^2{$2$0"</span>)
-                      (<span style="color: #b5bd68;">"2atan"</span> . <span style="color: #b5bd68;">"\\arctan^2{$2$0"</span>)
+                      (<span style="color: #b5bd68;">"2cos"</span> . <span style="color: #b5bd68;">"\\cos[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2sec"</span> . <span style="color: #b5bd68;">"\\sec[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2sin"</span> . <span style="color: #b5bd68;">"\\sin[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2csc"</span> . <span style="color: #b5bd68;">"\\csc[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2tan"</span> . <span style="color: #b5bd68;">"\\tan[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2cot"</span> . <span style="color: #b5bd68;">"\\cot[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2acos"</span> . <span style="color: #b5bd68;">"\\arccos[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2asin"</span> . <span style="color: #b5bd68;">"\\arcsin[2]($2$0"</span>)
+                      (<span style="color: #b5bd68;">"2atan"</span> . <span style="color: #b5bd68;">"\\arctan[2]($2$0"</span>)
 
                       (<span style="color: #b5bd68;">"exp"</span> . <span style="color: #b5bd68;">"\\exp$0"</span>)
+                      (<span style="color: #b5bd68;">"eexp"</span> . <span style="color: #b5bd68;">"\\exp($0"</span>)
                       (<span style="color: #b5bd68;">"log"</span> . <span style="color: #b5bd68;">"\\log$0"</span>)
+                      (<span style="color: #b5bd68;">"elog"</span> . <span style="color: #b5bd68;">"\\log($0"</span>)
                       (<span style="color: #b5bd68;">"ein"</span> . <span style="color: #b5bd68;">" \\in $0"</span>)
 
                       (<span style="color: #b5bd68;">"ooo"</span> . <span style="color: #b5bd68;">"\\infty$0"</span>)
@@ -3963,9 +3974,9 @@ Evil leader key bindings.
 </div>
 </div>
 
-<div id="outline-container-orgcfcb392" class="outline-3">
-<h3 id="orgcfcb392">Spelling</h3>
-<div class="outline-text-3" id="text-orgcfcb392">
+<div id="outline-container-org877f8ba" class="outline-3">
+<h3 id="org877f8ba">Spelling</h3>
+<div class="outline-text-3" id="text-org877f8ba">
 <p>
 Set path to spellcheck program.
 </p>
@@ -4103,9 +4114,9 @@ Customize fLyspell faces.
 </div>
 </div>
 
-<div id="outline-container-org7a19c82" class="outline-3">
-<h3 id="org7a19c82">Smartparens</h3>
-<div class="outline-text-3" id="text-org7a19c82">
+<div id="outline-container-org7cb5481" class="outline-3">
+<h3 id="org7cb5481">Smartparens</h3>
+<div class="outline-text-3" id="text-org7cb5481">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">use-package</span> <span style="color: #D85C68;">smartparens</span>
   <span style="color: #81A2BE;">:config</span>
@@ -4119,9 +4130,9 @@ Customize fLyspell faces.
 </div>
 </div>
 
-<div id="outline-container-org9e32680" class="outline-3">
-<h3 id="org9e32680">Templating</h3>
-<div class="outline-text-3" id="text-org9e32680">
+<div id="outline-container-orgaf7f902" class="outline-3">
+<h3 id="orgaf7f902">Templating</h3>
+<div class="outline-text-3" id="text-orgaf7f902">
 <p>
 Placeholder for generic templates.
 </p>
@@ -4168,9 +4179,9 @@ Bind with <code>evil-leader</code>.
 </div>
 </div>
 
-<div id="outline-container-org4150e16" class="outline-3">
-<h3 id="org4150e16">Macros</h3>
-<div class="outline-text-3" id="text-org4150e16">
+<div id="outline-container-org77d1fa5" class="outline-3">
+<h3 id="org77d1fa5">Macros</h3>
+<div class="outline-text-3" id="text-org77d1fa5">
 <p>
 Use this macro to turn <code>org-mode</code> lists into table rows (for English
 class).
@@ -4187,9 +4198,9 @@ class).
 </div>
 </div>
 
-<div id="outline-container-orgbf1a15b" class="outline-3">
-<h3 id="orgbf1a15b">Undo tree</h3>
-<div class="outline-text-3" id="text-orgbf1a15b">
+<div id="outline-container-org38d3d11" class="outline-3">
+<h3 id="org38d3d11">Undo tree</h3>
+<div class="outline-text-3" id="text-org38d3d11">
 <p>
 Use undo tree.
 </p>
@@ -4208,9 +4219,9 @@ Use undo tree.
 </div>
 </div>
 
-<div id="outline-container-orgf76d6e9" class="outline-2">
-<h2 id="orgf76d6e9">Shell</h2>
-<div class="outline-text-2" id="text-orgf76d6e9">
+<div id="outline-container-org2f43c87" class="outline-2">
+<h2 id="org2f43c87">Shell</h2>
+<div class="outline-text-2" id="text-org2f43c87">
 <p>
 <code>vterm</code> config.
 </p>
@@ -4273,13 +4284,13 @@ eval too).
 </div>
 </div>
 
-<div id="outline-container-orge3faace" class="outline-2">
-<h2 id="orge3faace">Remote</h2>
-<div class="outline-text-2" id="text-orge3faace">
+<div id="outline-container-orgf33bacc" class="outline-2">
+<h2 id="orgf33bacc">Remote</h2>
+<div class="outline-text-2" id="text-orgf33bacc">
 </div>
-<div id="outline-container-org425b196" class="outline-3">
-<h3 id="org425b196">Tramp</h3>
-<div class="outline-text-3" id="text-org425b196">
+<div id="outline-container-orgcf88bfd" class="outline-3">
+<h3 id="orgcf88bfd">Tramp</h3>
+<div class="outline-text-3" id="text-orgcf88bfd">
 <p>
 Make tramp play nice with Marylou.
 </p>
@@ -4291,9 +4302,9 @@ Make tramp play nice with Marylou.
 </div>
 </div>
 
-<div id="outline-container-org8042c43" class="outline-3">
-<h3 id="org8042c43">Git</h3>
-<div class="outline-text-3" id="text-org8042c43">
+<div id="outline-container-orge7dce12" class="outline-3">
+<h3 id="orge7dce12">Git</h3>
+<div class="outline-text-3" id="text-orge7dce12">
 <p>
 Use syntax highlighting in gitignore.
 </p>
@@ -4345,9 +4356,9 @@ Evil leader bindings.
 </div>
 </div>
 
-<div id="outline-container-orge8fd26d" class="outline-2">
-<h2 id="orge8fd26d">Programming</h2>
-<div class="outline-text-2" id="text-orge8fd26d">
+<div id="outline-container-org1be77c3" class="outline-2">
+<h2 id="org1be77c3">Programming</h2>
+<div class="outline-text-2" id="text-org1be77c3">
 <p>
 General programming keybindings.
 </p>
@@ -4367,9 +4378,9 @@ General hooks.
 </div>
 </div>
 
-<div id="outline-container-org9753c26" class="outline-3">
-<h3 id="org9753c26">Flycheck</h3>
-<div class="outline-text-3" id="text-org9753c26">
+<div id="outline-container-orgdebce5b" class="outline-3">
+<h3 id="orgdebce5b">Flycheck</h3>
+<div class="outline-text-3" id="text-orgdebce5b">
 <p>
 Customize faces.
 </p>
@@ -4409,9 +4420,9 @@ Start up.
 </div>
 </div>
 
-<div id="outline-container-orgf6fa165" class="outline-3">
-<h3 id="orgf6fa165">Flymake</h3>
-<div class="outline-text-3" id="text-orgf6fa165">
+<div id="outline-container-orgf241ee6" class="outline-3">
+<h3 id="orgf241ee6">Flymake</h3>
+<div class="outline-text-3" id="text-orgf241ee6">
 <p>
 Customize faces.
 </p>
@@ -4439,9 +4450,9 @@ Customize faces.
 </div>
 </div>
 
-<div id="outline-container-org463d557" class="outline-3">
-<h3 id="org463d557">Company</h3>
-<div class="outline-text-3" id="text-org463d557">
+<div id="outline-container-org031d6d8" class="outline-3">
+<h3 id="org031d6d8">Company</h3>
+<div class="outline-text-3" id="text-org031d6d8">
 <p>
 Company config.
 </p>
@@ -4497,13 +4508,13 @@ Company config.
 </div>
 </div>
 
-<div id="outline-container-org2626332" class="outline-3">
-<h3 id="org2626332">Languages</h3>
+<div id="outline-container-org497ba88" class="outline-3">
+<h3 id="org497ba88">Languages</h3>
 </div>
 
-<div id="outline-container-org98ed608" class="outline-3">
-<h3 id="org98ed608">Python</h3>
-<div class="outline-text-3" id="text-org98ed608">
+<div id="outline-container-orgdd59698" class="outline-3">
+<h3 id="orgdd59698">Python</h3>
+<div class="outline-text-3" id="text-orgdd59698">
 <p>
 Elpy config.
 </p>
@@ -4621,9 +4632,9 @@ Underline title in docstring.
 </div>
 </div>
 
-<div id="outline-container-org0caa98f" class="outline-3">
-<h3 id="org0caa98f">Rust</h3>
-<div class="outline-text-3" id="text-org0caa98f">
+<div id="outline-container-orgc5e9d5e" class="outline-3">
+<h3 id="orgc5e9d5e">Rust</h3>
+<div class="outline-text-3" id="text-orgc5e9d5e">
 <p>
 Rust config.
 </p>
@@ -4648,9 +4659,9 @@ Rust config.
 </div>
 </div>
 
-<div id="outline-container-org63620f9" class="outline-3">
-<h3 id="org63620f9">Elisp</h3>
-<div class="outline-text-3" id="text-org63620f9">
+<div id="outline-container-org13ae06e" class="outline-3">
+<h3 id="org13ae06e">Elisp</h3>
+<div class="outline-text-3" id="text-org13ae06e">
 <p>
 Convenient way to open lisp evaluation.
 </p>
@@ -4693,9 +4704,9 @@ Elisp keybindings.
 </div>
 </div>
 
-<div id="outline-container-orgb75b73c" class="outline-3">
-<h3 id="orgb75b73c">SGML/HTML</h3>
-<div class="outline-text-3" id="text-orgb75b73c">
+<div id="outline-container-orgc09a0c6" class="outline-3">
+<h3 id="orgc09a0c6">SGML/HTML</h3>
+<div class="outline-text-3" id="text-orgc09a0c6">
 <p>
 Set indentation to 4 spaces.
 </p>
@@ -4722,9 +4733,9 @@ Emmet config.
 </div>
 </div>
 
-<div id="outline-container-org62ae28b" class="outline-3">
-<h3 id="org62ae28b">Markdown</h3>
-<div class="outline-text-3" id="text-org62ae28b">
+<div id="outline-container-orgbd47c00" class="outline-3">
+<h3 id="orgbd47c00">Markdown</h3>
+<div class="outline-text-3" id="text-orgbd47c00">
 <p>
 Find a good old markdown mode to settle with.
 </p>
@@ -4736,9 +4747,9 @@ Find a good old markdown mode to settle with.
 </div>
 </div>
 
-<div id="outline-container-org0594cee" class="outline-3">
-<h3 id="org0594cee">Auctex/latex</h3>
-<div class="outline-text-3" id="text-org0594cee">
+<div id="outline-container-orga445185" class="outline-3">
+<h3 id="orga445185">Auctex/latex</h3>
+<div class="outline-text-3" id="text-orga445185">
 <p>
 LaTeX config.
 </p>
@@ -4839,9 +4850,9 @@ Add <code>evil-embrace</code> pairs to LaTeX mode.
 </div>
 </div>
 
-<div id="outline-container-org68a7148" class="outline-3">
-<h3 id="org68a7148">Scripts</h3>
-<div class="outline-text-3" id="text-org68a7148">
+<div id="outline-container-org7331cb2" class="outline-3">
+<h3 id="org7331cb2">Scripts</h3>
+<div class="outline-text-3" id="text-org7331cb2">
 <p>
 Run Python script.
 </p>
@@ -4941,9 +4952,9 @@ Evil leader keybindings.
 </div>
 </div>
 
-<div id="outline-container-org8e0aae2" class="outline-2">
-<h2 id="org8e0aae2">Mail</h2>
-<div class="outline-text-2" id="text-org8e0aae2">
+<div id="outline-container-org8e7ebb3" class="outline-2">
+<h2 id="org8e7ebb3">Mail</h2>
+<div class="outline-text-2" id="text-org8e7ebb3">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">use-package</span> <span style="color: #D85C68;">notmuch</span>
   <span style="color: #81A2BE;">:config</span>
@@ -5022,13 +5033,13 @@ Evil leader bindings.
 </div>
 </div>
 
-<div id="outline-container-orgb9bb4b2" class="outline-2">
-<h2 id="orgb9bb4b2">Files</h2>
-<div class="outline-text-2" id="text-orgb9bb4b2">
+<div id="outline-container-orga3c5d15" class="outline-2">
+<h2 id="orga3c5d15">Files</h2>
+<div class="outline-text-2" id="text-orga3c5d15">
 </div>
-<div id="outline-container-org6611564" class="outline-3">
-<h3 id="org6611564">Ranger</h3>
-<div class="outline-text-3" id="text-org6611564">
+<div id="outline-container-org66829db" class="outline-3">
+<h3 id="org66829db">Ranger</h3>
+<div class="outline-text-3" id="text-org66829db">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">use-package</span> <span style="color: #D85C68;">ranger</span>)
 </pre>
@@ -5041,9 +5052,9 @@ Evil leader bindings.
 </div>
 </div>
 
-<div id="outline-container-orga4bb204" class="outline-3">
-<h3 id="orga4bb204">Dired</h3>
-<div class="outline-text-3" id="text-orga4bb204">
+<div id="outline-container-org3c6864b" class="outline-3">
+<h3 id="org3c6864b">Dired</h3>
+<div class="outline-text-3" id="text-org3c6864b">
 <p>
 Get a list of marked files from all Dired buffers. <a href="https://emacs.stackexchange.com/a/64591/33585">Thanks Drew!</a>
 </p>
@@ -5093,9 +5104,9 @@ Make dired stop showing as modified by default.
 </div>
 </div>
 
-<div id="outline-container-org8447aad" class="outline-4">
-<h4 id="org8447aad">User interface</h4>
-<div class="outline-text-4" id="text-org8447aad">
+<div id="outline-container-org9c7cbcb" class="outline-4">
+<h4 id="org9c7cbcb">User interface</h4>
+<div class="outline-text-4" id="text-org9c7cbcb">
 <p>
 Remove weird face in dired. I couldn&rsquo;t avoid <code>custom-set-faces</code> for this one.
 </p>
@@ -5117,9 +5128,9 @@ Show less information when opening dired (can be toggled with `(`).
 </div>
 </div>
 
-<div id="outline-container-orgedf8a8c" class="outline-4">
-<h4 id="orgedf8a8c">Backend</h4>
-<div class="outline-text-4" id="text-orgedf8a8c">
+<div id="outline-container-org79288b1" class="outline-4">
+<h4 id="org79288b1">Backend</h4>
+<div class="outline-text-4" id="text-org79288b1">
 <p>
 Use <code>gnu-ls</code> and numerical sorting.
 </p>
@@ -5170,9 +5181,9 @@ Fix to open file in default application (macOS).
 </div>
 </div>
 
-<div id="outline-container-org1d78e01" class="outline-4">
-<h4 id="org1d78e01">Key bindings</h4>
-<div class="outline-text-4" id="text-org1d78e01">
+<div id="outline-container-org252988d" class="outline-4">
+<h4 id="org252988d">Key bindings</h4>
+<div class="outline-text-4" id="text-org252988d">
 <p>
 Make sure S-j, S-k, and C-j are bound correctly for dired.
 </p>
@@ -5266,9 +5277,9 @@ Evil leader keybindings.
 </div>
 </div>
 
-<div id="outline-container-org01773aa" class="outline-3">
-<h3 id="org01773aa">PDFs/images</h3>
-<div class="outline-text-3" id="text-org01773aa">
+<div id="outline-container-org382c766" class="outline-3">
+<h3 id="org382c766">PDFs/images</h3>
+<div class="outline-text-3" id="text-org382c766">
 <p>
 Revert buffer without confirmation.
 </p>
@@ -5369,9 +5380,9 @@ Key bindings.
 </div>
 </div>
 
-<div id="outline-container-orgdd58192" class="outline-2">
-<h2 id="orgdd58192">Org</h2>
-<div class="outline-text-2" id="text-orgdd58192">
+<div id="outline-container-org4cf6faf" class="outline-2">
+<h2 id="org4cf6faf">Org</h2>
+<div class="outline-text-2" id="text-org4cf6faf">
 <p>
 Make sure all code is run after org mode is loaded.
 </p>
@@ -5470,7 +5481,8 @@ Set defaults.
 <span style="color: #b5bd68;">\\setlength{\\topmargin}{1.5cm}</span>
 <span style="color: #b5bd68;">\\addtolength{\\topmargin}{-2.54cm}</span>
 <span style="color: #b5bd68;">\\usepackage{euler}</span>
-<span style="color: #b5bd68;">\\usepackage{amsmath}"</span>)
+<span style="color: #b5bd68;">\\usepackage{amsmath}</span>
+<span style="color: #b5bd68;">\\everymath{\\displaystyle}"</span>)
 
 
 (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">setq-default</span> org-format-latex-options '(<span style="color: #81A2BE;">:foreground</span> default
@@ -5505,7 +5517,7 @@ Set defaults.
 
 <span style="color: #5a5b5a; font-style: italic;">;; </span><span style="color: #5a5b5a; font-style: italic;">change MathJax formatting</span>
 (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">setf</span> org-html-mathjax-options
-      '((path <span style="color: #b5bd68;">"https://cdn.jsdelivr.net/npm/mathjax@2/MathJax.js?config=TeX-AMS_HTML"</span>)
+      '((path <span style="color: #b5bd68;">"https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"</span>)
         (scale <span style="color: #b5bd68;">"90"</span>) 
         (align <span style="color: #b5bd68;">"center"</span>) 
         (indent <span style="color: #b5bd68;">"2em"</span>)
@@ -5551,9 +5563,9 @@ Use section numbering.
 </div>
 </div>
 
-<div id="outline-container-org2b98e55" class="outline-3">
-<h3 id="org2b98e55">Compilation</h3>
-<div class="outline-text-3" id="text-org2b98e55">
+<div id="outline-container-org3f36877" class="outline-3">
+<h3 id="org3f36877">Compilation</h3>
+<div class="outline-text-3" id="text-org3f36877">
 <p>
 Compile all org files with a given name into one file (recursive).
 </p>
@@ -5585,9 +5597,9 @@ Compile all org files with a given name into one file (recursive).
 </div>
 </div>
 
-<div id="outline-container-org11cc3ca" class="outline-3">
-<h3 id="org11cc3ca">Capture</h3>
-<div class="outline-text-3" id="text-org11cc3ca">
+<div id="outline-container-orgfadada1" class="outline-3">
+<h3 id="orgfadada1">Capture</h3>
+<div class="outline-text-3" id="text-orgfadada1">
 <p>
 Stop creating bookmarks.
 </p>
@@ -5770,9 +5782,9 @@ Templates.
 </div>
 </div>
 
-<div id="outline-container-org898655e" class="outline-3">
-<h3 id="org898655e">User interface</h3>
-<div class="outline-text-3" id="text-org898655e">
+<div id="outline-container-orgfa6d893" class="outline-3">
+<h3 id="orgfa6d893">User interface</h3>
+<div class="outline-text-3" id="text-orgfa6d893">
 <p>
 Code to show emphasis markers using a particular face.
 </p>
@@ -6067,9 +6079,9 @@ Customize faces.
 </div>
 </div>
 
-<div id="outline-container-orgec61087" class="outline-3">
-<h3 id="orgec61087">Editing</h3>
-<div class="outline-text-3" id="text-orgec61087">
+<div id="outline-container-org17b29ec" class="outline-3">
+<h3 id="org17b29ec">Editing</h3>
+<div class="outline-text-3" id="text-org17b29ec">
 <p>
 Add <code>evil-embrace</code> pairs to org mode and add text objects.
 </p>
@@ -6324,9 +6336,9 @@ Auto-capitalize words.
 </div>
 </div>
 
-<div id="outline-container-org2fddc25" class="outline-3">
-<h3 id="org2fddc25">Key bindings</h3>
-<div class="outline-text-3" id="text-org2fddc25">
+<div id="outline-container-orgc77123e" class="outline-3">
+<h3 id="orgc77123e">Key bindings</h3>
+<div class="outline-text-3" id="text-orgc77123e">
 <p>
 Set key bindings.
 </p>
@@ -6622,13 +6634,13 @@ Add evil leader key bindings.
 </div>
 </div>
 
-<div id="outline-container-org99a2173" class="outline-3">
-<h3 id="org99a2173">Packages</h3>
-<div class="outline-text-3" id="text-org99a2173">
+<div id="outline-container-org07676a7" class="outline-3">
+<h3 id="org07676a7">Packages</h3>
+<div class="outline-text-3" id="text-org07676a7">
 </div>
-<div id="outline-container-orgf2af80f" class="outline-4">
-<h4 id="orgf2af80f">Org download</h4>
-<div class="outline-text-4" id="text-orgf2af80f">
+<div id="outline-container-org5f0876e" class="outline-4">
+<h4 id="org5f0876e">Org download</h4>
+<div class="outline-text-4" id="text-org5f0876e">
 <p>
 Drag and drop images.
 </p>
@@ -6642,9 +6654,9 @@ Drag and drop images.
 </div>
 </div>
 
-<div id="outline-container-org4aaac07" class="outline-4">
-<h4 id="org4aaac07">Helm org</h4>
-<div class="outline-text-4" id="text-org4aaac07">
+<div id="outline-container-org798674c" class="outline-4">
+<h4 id="org798674c">Helm org</h4>
+<div class="outline-text-4" id="text-org798674c">
 <p>
 Configuration for <code>helm-org</code>.
 </p>
@@ -6658,9 +6670,9 @@ Configuration for <code>helm-org</code>.
 </div>
 </div>
 
-<div id="outline-container-orgf3563e4" class="outline-4">
-<h4 id="orgf3563e4">Org Agenda</h4>
-<div class="outline-text-4" id="text-orgf3563e4">
+<div id="outline-container-org2d52864" class="outline-4">
+<h4 id="org2d52864">Org Agenda</h4>
+<div class="outline-text-4" id="text-org2d52864">
 <p>
 Org agenda variables.
 </p>
@@ -7033,9 +7045,9 @@ Org agenda evil leader key bindings.
 </div>
 </div>
 
-<div id="outline-container-org9ca09df" class="outline-4">
-<h4 id="org9ca09df">Olivetti</h4>
-<div class="outline-text-4" id="text-org9ca09df">
+<div id="outline-container-org296f1bc" class="outline-4">
+<h4 id="org296f1bc">Olivetti</h4>
+<div class="outline-text-4" id="text-org296f1bc">
 <p>
 Use Olivetti.
 </p>
@@ -7191,9 +7203,9 @@ Evil leader bindings.
 </div>
 </div>
 
-<div id="outline-container-org426e104" class="outline-4">
-<h4 id="org426e104">Dictionary</h4>
-<div class="outline-text-4" id="text-org426e104">
+<div id="outline-container-org4d27007" class="outline-4">
+<h4 id="org4d27007">Dictionary</h4>
+<div class="outline-text-4" id="text-org4d27007">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">use-package</span> <span style="color: #D85C68;">osx-dictionary</span>
   <span style="color: #81A2BE;">:config</span>
@@ -7309,7 +7321,7 @@ Customize appearance.
 
 (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">define-derived-mode</span> <span style="color: #D85C68;">osx-dictionary-mode</span> fundamental-mode <span style="color: #b5bd68;">"osx-dictionary"</span>
   <span style="color: #717171; font-style: italic;">"Major mode to look up word through dictionary.</span>
-<span style="color: #717171; font-style: italic;">\\{osx-dictionary-mode-map}.</span>
+<span style="color: #717171; font-style: italic;">\\{</span><span style="color: #EBDBB2; font-style: italic;">osx-dictionary-mode-map</span><span style="color: #717171; font-style: italic;">}.</span>
 <span style="color: #717171; font-style: italic;">Turning on Text mode runs the normal hook `</span><span style="color: #D85C68; font-style: italic;">osx-dictionary-mode-hook</span><span style="color: #717171; font-style: italic;">'."</span>
 
   (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">setq</span> header-line-format (center-header osx-dictionary-mode-header-line))
@@ -7339,9 +7351,9 @@ Evil leader key bindings.
 </div>
 </div>
 
-<div id="outline-container-org0facfe4" class="outline-4">
-<h4 id="org0facfe4">Calc</h4>
-<div class="outline-text-4" id="text-org0facfe4">
+<div id="outline-container-orgb4709a9" class="outline-4">
+<h4 id="orgb4709a9">Calc</h4>
+<div class="outline-text-4" id="text-orgb4709a9">
 <p>
 Convenient way to use quick-calc.
 </p>
@@ -7563,7 +7575,7 @@ Key bindings.
 (define-key calc-mode-map (kbd <span style="color: #b5bd68;">"C-c C-y"</span>) #'calc-copy-as-kill-clean)
 
 (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">evil-define-key</span> 'normal calc-mode-map (kbd <span style="color: #b5bd68;">"M-k"</span>) #'evil-window-up)
-(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">evil-define-key</span> 'normal calc-mode-map (kbd <span style="color: #b5bd68;">"M-w"</span>) #'evil-quit)
+(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">evil-define-key</span> 'normal calc-mode-map (kbd <span style="color: #b5bd68;">"M-w"</span>) #'evil-quit-simple)
 </pre>
 </div>
 
@@ -7604,13 +7616,13 @@ Hooks.
 </div>
 </div>
 
-<div id="outline-container-org1709293" class="outline-3">
-<h3 id="org1709293">External applications</h3>
-<div class="outline-text-3" id="text-org1709293">
+<div id="outline-container-org5f8412d" class="outline-3">
+<h3 id="org5f8412d">External applications</h3>
+<div class="outline-text-3" id="text-org5f8412d">
 </div>
-<div id="outline-container-org7de91b3" class="outline-4">
-<h4 id="org7de91b3">Zoom</h4>
-<div class="outline-text-4" id="text-org7de91b3">
+<div id="outline-container-orgdefbce9" class="outline-4">
+<h4 id="orgdefbce9">Zoom</h4>
+<div class="outline-text-4" id="text-orgdefbce9">
 <p>
 Open Zoom links directly.
 </p>
@@ -7627,9 +7639,9 @@ Open Zoom links directly.
 </div>
 </div>
 
-<div id="outline-container-org9636082" class="outline-4">
-<h4 id="org9636082">Maxwell</h4>
-<div class="outline-text-4" id="text-org9636082">
+<div id="outline-container-org1343325" class="outline-4">
+<h4 id="org1343325">Maxwell</h4>
+<div class="outline-text-4" id="text-org1343325">
 <p>
 For capturing drawings and diagrams:
 </p>
@@ -7697,9 +7709,9 @@ Prompt for writing Latex.
 </div>
 </div>
 
-<div id="outline-container-orgc9839ec" class="outline-3">
-<h3 id="orgc9839ec">References</h3>
-<div class="outline-text-3" id="text-orgc9839ec">
+<div id="outline-container-org9594c46" class="outline-3">
+<h3 id="org9594c46">References</h3>
+<div class="outline-text-3" id="text-org9594c46">
 <p>
 Use org-ref for references management.
 </p>
@@ -8043,9 +8055,9 @@ BibTeX key bindings.
 </div>
 </div>
 
-<div id="outline-container-org4384287" class="outline-3">
-<h3 id="org4384287">Export</h3>
-<div class="outline-text-3" id="text-org4384287">
+<div id="outline-container-org3feb96e" class="outline-3">
+<h3 id="org3feb96e">Export</h3>
+<div class="outline-text-3" id="text-org3feb96e">
 <p>
 Latex export options.
 </p>
@@ -8089,90 +8101,127 @@ Latex export options.
 <div class="org-src-container">
 <pre class="src src-text">\\documentclass[letterpaper,12pt,oneside]{book}
 \\usepackage[margin=1in]{geometry}
+
 \\usepackage{csquotes}
+
 \\usepackage{amsmath}
 \\usepackage{amssymb}
-\\usepackage{gensymb}
-\\usepackage{siunitx}
+\\usepackage{amsthm}
+
+\\renewcommand{\\rmdefault}{futs}
+\\usepackage[T1]{fontenc}
+\\usepackage{textcomp}
+\\usepackage{fourier-orns}
+
+\\usepackage{euler}
+
+\\usepackage[defaultsans,scale=1]{opensans}
+\\usepackage{anyfontsize}
+
 \\usepackage{float}
 \\usepackage{graphicx}
 \\usepackage[hidelinks]{hyperref}
 \\usepackage{fancyhdr}
+\\usepackage{lettrine}
 \\usepackage{xhfill}
 \\usepackage[svgnames]{xcolor}
 \\usepackage[explicit]{titlesec}
-\\usepackage[defaultsans,scale=1]{opensans}
-\\usepackage[T1]{fontenc}
-\\usepackage{anyfontsize}
 \\usepackage[many]{tcolorbox}
-\\usepackage{amsthm}
 \\usepackage{tikz}
-\\usepackage{microtype}
 \\usepackage{adjustbox}
 
 \\definecolor{title-foreground}{RGB}{230,230,230}
 \\definecolor{subtitle-foreground}{RGB}{120,120,120}
 \\definecolor{chapter-foreground}{RGB}{80,80,80}
-
 \\definecolor{theorem-background}{RGB}{0,53,110}
 \\definecolor{definition-background}{RGB}{0,87,153}
 \\definecolor{example-background}{RGB}{86,152,179}
 \\definecolor{note-background}{RGB}{0,53,110}
-
 \\colorlet{rulecolor}{Gainsboro!40!Lavender}
-\\titleformat{\\chapter}[display]
-{\\filcenter}{\\mbox{}\\xrfill[0.4ex]{3pt}[rulecolor]\\textsc{\\large\\enspace\\chaptername~\\thechapter}\\enspace\\xrfill[0.4ex]{3pt}[rulecolor]\\mbox{}}{0.3ex}
-{{\\color{rulecolor}\\titlerule[1pt]}\\vskip3ex\\huge\\sffamily\\color{chapter-foreground}#1}[\\vskip1.2ex{\\color{rulecolor}\\titlerule[1pt]}]
 
+\\usepackage[Sonny]{fncychap}
 \\titleformat{\\section}{\\sffamily\\large}{\\thesection.}{.5em}{#1}
 \\titleformat{\\subsection}{\\sffamily\\large}{\\thesubsection.}{.5em}{#1}
 
 \\tcbuselibrary{theorems}
-
 \\newtcbtheorem[number within=chapter]{old-theorem}{Theorem}{
-  breakable,
-  colback=theorem-background!10,
-  colframe=theorem-background!55!black,
-  fonttitle=\\bfseries\\sffamily}{th}
-
+    breakable,
+    colframe=theorem-background,
+    arc=0mm, 
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm,
+    top=0.5em
+  }{th}
 \\newtcbtheorem[number within=chapter]{old-exmp}{Example}{
-  breakable,
-  colback=example-background!10,
-  colframe=example-background!55!black,
-  fonttitle=\\bfseries\\sffamily}{ex}
-
+    breakable,
+    colframe=example-background,
+    arc=0mm,
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black,
+    colbacktitle=black!5!white,
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm,
+    top=0.5em
+  }{ex}
 \\newtcbtheorem[number within=chapter]{old-definition}{Definition}{
-  breakable,
-  colback=definition-background!10,
-  colframe=definition-background!65!black,
-  fonttitle=\\bfseries\\sffamily}{def}
-
+    breakable,
+    colframe=definition-background,
+    arc=0mm, 
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm, 
+    top=0.5em
+  }{def}
 \\newtcolorbox{note}[1][]{
-  enhanced jigsaw,
-  borderline west={2pt}{0pt}{note-background},
-  sharp corners,
-  boxrule=0pt,
-  fonttitle={\\bfseries\\sffamily},
-  coltitle={black},
-  title={Note:\\ },
-  attach title to upper,
-  #1
+    breakable,
+    colframe=note-background,
+    arc=0mm, 
+    bottomtitle=0.5mm,
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont, 
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={\\textbf{Note:}\\ },
+    toptitle=0.75mm,
+    top=0.5em,
+    attach title to upper,
+    #1
 }
-
 \\renewenvironment{theorem}[1][]{%
   \\begin{old-theorem}{#1}{}%
     
 }{%
   \\end{old-theorem}%
 }
-
 \\renewenvironment{exmp}{%
   \\begin{old-exmp}{}{}%
     
 }{%
   \\end{old-exmp}%
 }
-
 \\renewenvironment{definition}{%
   \\begin{old-definition}{}{}%
     
@@ -8189,18 +8238,16 @@ Latex export options.
 
 \\setlength{\\parskip}{.5em}
 \\setlength{\\parindent}{0pt}
-
 \\pagestyle{fancy}
 \\fancyhf{}
 \\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}
-\\renewcommand{\\sectionmark}[1]{\\markright{SECTION \\thesection. \\uppercase{#1}}}
+\\renewcommand{\\sectionmark}[1]{\\markright{Section \\thesection. #1}}
 \\let\\oldtitle\\title
 \\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}
 \\fancyhead[L]{\\leftmark}
 \\fancyhead[R]{\\titletext}
 \\fancyfoot[C]{\\rightmark}
 \\fancyfoot[R]{\\thepage}
-
 \\newcommand*{\\textinrule}[3][]{%
   \\makebox[#2]{#1%
     \\leaders\\hrule height \\dimexpr.5ex+.2pt\\relax depth \\dimexpr -.5ex+.2pt\\relax \\hfill% Left rule
@@ -8284,7 +8331,7 @@ Latex export options.
 </div>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">setq</span> org-latex-default-packages-alist '())
+<pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">setq</span> org-latex-default-packages-alist '((<span style="color: #b5bd68;">"AUTO"</span> <span style="color: #b5bd68;">"physics"</span> t)))
 
 
 (add-to-list 'org-latex-classes
@@ -8542,7 +8589,18 @@ Add head to org mode HTML export.
 
 
 (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">setq-default</span> org-html-mathjax-template
-              <span style="color: #b5bd68;">"&lt;script type=\"text/x-mathjax-config\"&gt;</span>
+    <span style="color: #b5bd68;">"&lt;script type=\"text/x-mathjax-config\"&gt;</span>
+<span style="color: #b5bd68;">    MathJax.Hub.Register.StartupHook(\"TeX Jax Ready\", function() {</span>
+<span style="color: #b5bd68;">        var TEX = MathJax.InputJax.TeX;</span>
+<span style="color: #b5bd68;">        var PREFILTER = TEX.prefilterMath;</span>
+<span style="color: #b5bd68;">        TEX.Augment({</span>
+<span style="color: #b5bd68;">            prefilterMath: function(math, displaymode, script) {</span>
+<span style="color: #b5bd68;">                math = \"\\\\displaystyle{\" + math + \"}\";</span>
+<span style="color: #b5bd68;">                return PREFILTER.call(TEX, math, displaymode, script);</span>
+<span style="color: #b5bd68;">            }</span>
+<span style="color: #b5bd68;">        });</span>
+<span style="color: #b5bd68;">    });</span>
+
 <span style="color: #b5bd68;">    MathJax.Ajax.config.path[\"mhchem\"] = \"https://cdnjs.cloudflare.com/ajax/libs/mathjax-mhchem/3.3.2\";</span>
 <span style="color: #b5bd68;">    MathJax.Hub.Config({</span>
 <span style="color: #b5bd68;">        displayAlign: \"%ALIGN\",</span>
@@ -8560,7 +8618,9 @@ Add head to org mode HTML export.
 <span style="color: #b5bd68;">               MultLineWidth: \"%MULTLINEWIDTH\",</span>
 <span style="color: #b5bd68;">               TagSide: \"%TAGSIDE\",</span>
 <span style="color: #b5bd68;">               TagIndent: \"%TAGINDENT\",</span>
-<span style="color: #b5bd68;">               extensions: [\"[mhchem]/mhchem.js\"]</span>
+<span style="color: #b5bd68;">               extensions: [</span>
+<span style="color: #b5bd68;">                    \"[mhchem]/mhchem.js\"</span>
+<span style="color: #b5bd68;">                ]</span>
 <span style="color: #b5bd68;">             },</span>
 <span style="color: #b5bd68;">    });</span>
 <span style="color: #b5bd68;">&lt;/script&gt;</span>
@@ -8594,9 +8654,9 @@ Color quote in org mode and export to HTML (English class).
 </div>
 </div>
 
-<div id="outline-container-org934b19b" class="outline-3">
-<h3 id="org934b19b">Miscellaneous</h3>
-<div class="outline-text-3" id="text-org934b19b">
+<div id="outline-container-org9bc51b9" class="outline-3">
+<h3 id="org9bc51b9">Miscellaneous</h3>
+<div class="outline-text-3" id="text-org9bc51b9">
 <p>
 Other config. Limit this section as much as possible.
 </p>
@@ -8717,9 +8777,9 @@ basically a macro).
 </div>
 </div>
 
-<div id="outline-container-orgcf8200e" class="outline-2">
-<h2 id="orgcf8200e">Ichthys</h2>
-<div class="outline-text-2" id="text-orgcf8200e">
+<div id="outline-container-orga8c5f2c" class="outline-2">
+<h2 id="orga8c5f2c">Ichthys</h2>
+<div class="outline-text-2" id="text-orga8c5f2c">
 <p>
 Also known as &lt;&gt;&lt;, this is a scripture-finding mode I wrote.
 </p>
@@ -8747,13 +8807,13 @@ Relevant config.
 </div>
 </div>
 
-<div id="outline-container-org856a454" class="outline-2">
-<h2 id="org856a454">Games</h2>
-<div class="outline-text-2" id="text-org856a454">
+<div id="outline-container-org4f19d03" class="outline-2">
+<h2 id="org4f19d03">Games</h2>
+<div class="outline-text-2" id="text-org4f19d03">
 </div>
-<div id="outline-container-orgc7a4f1f" class="outline-3">
-<h3 id="orgc7a4f1f">Gomoku</h3>
-<div class="outline-text-3" id="text-orgc7a4f1f">
+<div id="outline-container-org6b8cfd2" class="outline-3">
+<h3 id="org6b8cfd2">Gomoku</h3>
+<div class="outline-text-3" id="text-org6b8cfd2">
 <p>
 Style configuration.
 </p>
@@ -8773,9 +8833,9 @@ Style configuration.
 </div>
 </div>
 
-<div id="outline-container-orga606868" class="outline-3">
-<h3 id="orga606868">Pong</h3>
-<div class="outline-text-3" id="text-orga606868">
+<div id="outline-container-orgffac3ad" class="outline-3">
+<h3 id="orgffac3ad">Pong</h3>
+<div class="outline-text-3" id="text-orgffac3ad">
 <div class="org-src-container">
 <pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">use-package</span> <span style="color: #D85C68;">pong</span>
   <span style="color: #81A2BE;">:config</span>
@@ -8789,9 +8849,9 @@ Style configuration.
 </div>
 </div>
 
-<div id="outline-container-orgc349431" class="outline-2">
-<h2 id="orgc349431">Miscellaneous</h2>
-<div class="outline-text-2" id="text-orgc349431">
+<div id="outline-container-orge312644" class="outline-2">
+<h2 id="orge312644">Miscellaneous</h2>
+<div class="outline-text-2" id="text-orge312644">
 <p>
 For uncategorized config. Avoid adding to this section.
 </p>
@@ -8816,9 +8876,9 @@ For uncategorized config. Avoid adding to this section.
 </div>
 </div>
 
-<div id="outline-container-org125c1e2" class="outline-3">
-<h3 id="org125c1e2">Calendar</h3>
-<div class="outline-text-3" id="text-org125c1e2">
+<div id="outline-container-orge8fdfab" class="outline-3">
+<h3 id="orge8fdfab">Calendar</h3>
+<div class="outline-text-3" id="text-orge8fdfab">
 <p>
 Add holidays to calendar.
 </p>
@@ -8903,9 +8963,9 @@ Evil leader key bindings.
 </div>
 </div>
 
-<div id="outline-container-org1a90ee6" class="outline-3">
-<h3 id="org1a90ee6">Mac-specific</h3>
-<div class="outline-text-3" id="text-org1a90ee6">
+<div id="outline-container-org5edbd2a" class="outline-3">
+<h3 id="org5edbd2a">Mac-specific</h3>
+<div class="outline-text-3" id="text-org5edbd2a">
 <p>
 Use <code>command</code> key as <code>meta</code>.
 </p>
@@ -8930,11 +8990,41 @@ crash).
 </p>
 
 <div class="org-src-container">
-<pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">defun</span> <span style="color: #D85C68;">before-evil-quit</span> (orig-fun <span style="color: #F1A041;">&amp;rest</span> args)
-  <span style="color: #717171; font-style: italic;">"Work around macOS fullscreen quit crash."</span>
+<pre class="src src-emacs-lisp">(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">defun</span> <span style="color: #D85C68;">demaximize-frame</span> ()
+  <span style="color: #717171; font-style: italic;">"Unmaximize the current frame if maximized, otherwise do nothing."</span>
+  (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">when</span> (equal (assoc 'fullscreen (frame-parameters))
+               (cons 'fullscreen 'fullboth))
+    (toggle-frame-fullscreen)
+    (sleep-for 0.5)))
+
+
+(<span style="color: #81A2BE; font-weight: bold; font-style: italic;">evil-define-command</span> <span style="color: #D85C68;">evil-quit</span> (<span style="color: #F1A041;">&amp;optional</span> force)
+  <span style="color: #717171; font-style: italic;">"Closes the current window, current frame, current tab, Emacs.</span>
+<span style="color: #717171; font-style: italic;">If the current frame belongs to some client the client connection</span>
+<span style="color: #717171; font-style: italic;">is closed."</span>
+  <span style="color: #81A2BE;">:repeat</span> nil
+  (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">interactive</span> <span style="color: #b5bd68;">"&lt;!&gt;"</span>)
   (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">if</span> (one-window-p)
-      (set-frame-parameter nil 'fullscreen nil)))
-(advice-add 'evil-quit <span style="color: #81A2BE;">:before</span> #'before-evil-quit)
+      (demaximize-frame))
+  (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">condition-case</span> nil
+      (delete-window)
+    (<span style="color: #f0c674;">error</span>
+     (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">if</span> (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">and</span> (boundp 'server-buffer-clients)
+              (fboundp 'server-edit)
+              (fboundp 'server-buffer-done)
+              server-buffer-clients)
+         (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">if</span> force
+             (server-buffer-done (current-buffer))
+           (server-edit))
+       (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">condition-case</span> nil
+           (delete-frame)
+         (<span style="color: #f0c674;">error</span>
+          (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">condition-case</span> nil
+              (tab-bar-close-tab)
+            (<span style="color: #f0c674;">error</span>
+             (<span style="color: #81A2BE; font-weight: bold; font-style: italic;">if</span> force
+                 (kill-emacs)
+               (save-buffers-kill-emacs))))))))))
 </pre>
 </div>
 
@@ -8949,9 +9039,9 @@ Evil leader keybindings.
 </div>
 </div>
 
-<div id="outline-container-orgda5bbad" class="outline-3">
-<h3 id="orgda5bbad">Edit with Emacs</h3>
-<div class="outline-text-3" id="text-orgda5bbad">
+<div id="outline-container-orgfe867e3" class="outline-3">
+<h3 id="orgfe867e3">Edit with Emacs</h3>
+<div class="outline-text-3" id="text-orgfe867e3">
 <p>
 Use GhostText to edit with Emacs.
 </p>

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: close-open
+# key: co
+# --
+\left[ $1, $2 \right)$0

@@ -118,6 +118,12 @@
   :config
   (global-set-key (kbd "C-c s") #'scratch))
 
+(use-package tree-sitter
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+(use-package tree-sitter-langs)
+
 ;; for debugging lists
 (defun print-elements-of-list (list)
   "Print each element of LIST on a line of its own."
@@ -428,7 +434,13 @@
 
 (add-to-list 'after-make-frame-functions #'center-frame)
 
-(global-set-key (kbd "M-w") 'evil-quit)
+(defun evil-quit-simple ()
+  (interactive)
+  (if (one-window-p)
+      (delete-frame)
+    (delete-window)))
+
+(global-set-key (kbd "M-w") #'evil-quit-simple)
 
 (define-key global-map (kbd "M-t") #'transpose-frame)
 
@@ -582,62 +594,74 @@ for more information."
         prettify-symbols-alist))
 
 
-(add-hook 'org-mode-hook (lambda ()
-                           (add-visual-replacement "---" "──")
+(setq-default prettify-symbols-unprettify-at-point t)
 
-                           ;; (push '("\\sqrt" . "√") prettify-symbols-alist)
 
-                           ;; (push '("\\text" . "​") prettify-symbols-alist)
+(defun prettify-math-symbols ()
+  (add-visual-replacement "---" "──")
 
-                           ;; (push '("\\left(" . "(") prettify-symbols-alist)
-                           ;; (push '("\\right)" . ")") prettify-symbols-alist)
-                           ;; (add-visual-replacement "\\right)^2" ")²")
-                           ;; (add-visual-replacement "\\right)^3" ")³")
+  (push '("\\sqrt" . "√") prettify-symbols-alist)
 
-                           ;; (push '("\\left|" . "|") prettify-symbols-alist)
-                           ;; (push '("\\right|" . "|") prettify-symbols-alist)
-                           ;; (add-visual-replacement "\\right|^2" "|²")
-                           ;; (add-visual-replacement "\\right|^3" "|³")
+  (push '("\\text" . "​") prettify-symbols-alist)
+  (push '("\\textbf" . "​") prettify-symbols-alist)
+  (push '("\\textit" . "​") prettify-symbols-alist)
 
-                           ;; (push '("\\left[" .  "[") prettify-symbols-alist)
-                           ;; (push '("\\right]" . "]") prettify-symbols-alist)
-                           ;; (add-visual-replacement "\\right]^2" "]²")
-                           ;; (add-visual-replacement "\\right]^3" "]³")
+  (push '("\\left(" . "(") prettify-symbols-alist)
+  (push '("\\right)" . ")") prettify-symbols-alist)
+  (add-visual-replacement "\\right)^2" ")²")
+  (add-visual-replacement "\\right)^3" ")³")
 
-                           ;; (add-visual-replacement "\\left\\Vert" "||")
-                           ;; (add-visual-replacement "\\right\\Vert" "||")
+  (push '("\\left|" . "|") prettify-symbols-alist)
+  (push '("\\right|" . "|") prettify-symbols-alist)
+  (add-visual-replacement "\\right|^2" "|²")
+  (add-visual-replacement "\\right|^3" "|³")
 
-                           ;; (push '("\\vecb{a}" . "𝒂") prettify-symbols-alist)
-                           ;; (push '("\\vecb{b}" . "𝒃") prettify-symbols-alist)
-                           ;; (push '("\\vecb{c}" . "𝒄") prettify-symbols-alist)
-                           ;; (push '("\\vecb{u}" . "𝒖") prettify-symbols-alist)
-                           ;; (push '("\\vecb{v}" . "𝒗") prettify-symbols-alist)
-                           ;; (push '("\\vecb{r}" . "𝒓") prettify-symbols-alist)
+  (push '("\\left[" .  "[") prettify-symbols-alist)
+  (push '("\\right]" . "]") prettify-symbols-alist)
+  (add-visual-replacement "\\right]^2" "]²")
+  (add-visual-replacement "\\right]^3" "]³")
 
-                           ;; (push '("\\left\\langle" .  "〈") prettify-symbols-alist)
-                           ;; (push '("\\right\\rangle" .  "〉") prettify-symbols-alist)
+  (add-visual-replacement "\\left\\Vert" "||")
+  (add-visual-replacement "\\right\\Vert" "||")
 
-                           (push '("[ ]" .  "☐") prettify-symbols-alist)
-                           (push '("[X]" . "☑" ) prettify-symbols-alist)
-                           (push '("[-]" . "❍" ) prettify-symbols-alist)
-                           (push '("#+BEGIN_SRC" . "↦" ) prettify-symbols-alist)
-                           (push '("#+END_SRC" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+BEGIN_EXAMPLE" . "↦" ) prettify-symbols-alist)
-                           (push '("#+END_EXAMPLE" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+BEGIN_QUOTE" . "↦" ) prettify-symbols-alist)
-                           (push '("#+END_QUOTE" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+BEGIN_VERSE" . "↦" ) prettify-symbols-alist)
-                           (push '("#+END_VERSE" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+begin_verse" . "↦" ) prettify-symbols-alist)
-                           (push '("#+end_verse" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+begin_quote" . "↦" ) prettify-symbols-alist)
-                           (push '("#+end_quote" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+begin_example" . "↦" ) prettify-symbols-alist)
-                           (push '("#+end_example" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+begin_src" . "↦" ) prettify-symbols-alist)
-                           (push '("#+end_src" . "⇤" ) prettify-symbols-alist)
-                           (push '("#+title: " . "​" ) prettify-symbols-alist)
-                           (prettify-symbols-mode)))
+  (push '("\\vecb{a}" . "𝒂") prettify-symbols-alist)
+  (push '("\\vecb{b}" . "𝒃") prettify-symbols-alist)
+  (push '("\\vecb{c}" . "𝒄") prettify-symbols-alist)
+  (push '("\\vecb{u}" . "𝒖") prettify-symbols-alist)
+  (push '("\\vecb{v}" . "𝒗") prettify-symbols-alist)
+  (push '("\\vecb{r}" . "𝒓") prettify-symbols-alist)
+
+  (push '("\\left\\langle" .  "〈") prettify-symbols-alist)
+  (push '("\\right\\rangle" .  "〉") prettify-symbols-alist)
+
+  (prettify-symbols-mode))
+
+
+(add-hook 'LaTeX-mode-hook #'prettify-math-symbols)
+
+
+(add-hook 'org-mode-hook #'(lambda ()
+                             (push '("[ ]" .  "☐") prettify-symbols-alist)
+                             (push '("[X]" . "☑" ) prettify-symbols-alist)
+                             (push '("[-]" . "❍" ) prettify-symbols-alist)
+                             (push '("#+BEGIN_SRC" . "↦" ) prettify-symbols-alist)
+                             (push '("#+END_SRC" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+BEGIN_EXAMPLE" . "↦" ) prettify-symbols-alist)
+                             (push '("#+END_EXAMPLE" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+BEGIN_QUOTE" . "↦" ) prettify-symbols-alist)
+                             (push '("#+END_QUOTE" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+BEGIN_VERSE" . "↦" ) prettify-symbols-alist)
+                             (push '("#+END_VERSE" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+begin_verse" . "↦" ) prettify-symbols-alist)
+                             (push '("#+end_verse" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+begin_quote" . "↦" ) prettify-symbols-alist)
+                             (push '("#+end_quote" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+begin_example" . "↦" ) prettify-symbols-alist)
+                             (push '("#+end_example" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+begin_src" . "↦" ) prettify-symbols-alist)
+                             (push '("#+end_src" . "⇤" ) prettify-symbols-alist)
+                             (push '("#+title: " . "​" ) prettify-symbols-alist)
+                             (prettify-math-symbols)))
 
 (use-package evil
   :init
@@ -1036,6 +1060,7 @@ for more information."
                                        (make-frame '((user-position . t) (top . 0.5) (left . 0.5)))
                                        (run-at-time .2 nil (lambda ()
                                                              (set-frame-parameter nil 'fullscreen nil)
+                                                             (sleep-for 0.7)
                                                              (center-frame (selected-frame))))))
     
     
@@ -1248,6 +1273,7 @@ for more information."
   (use-package evil-tex
     :config
     (add-hook 'org-mode-hook #'evil-tex-mode)
+    (add-hook 'LaTeX-mode-hook #'evil-tex-mode)
   
     (setq-default evil-tex-surround-delimiters
                   `((?m "\\( " . " \\)")
@@ -1351,6 +1377,41 @@ for more information."
 (use-package evil-indent-plus
   :config
   (evil-indent-plus-default-bindings))
+
+(use-package evil-textobj-tree-sitter
+  :config
+  (define-key evil-outer-text-objects-map "f"
+              (evil-textobj-tree-sitter-get-textobj "function.outer"))
+  (define-key evil-inner-text-objects-map "f"
+              (evil-textobj-tree-sitter-get-textobj "function.inner"))
+
+  (define-key evil-outer-text-objects-map "i"
+              (evil-textobj-tree-sitter-get-textobj ("conditional.outer" "loop.outer")))
+  (define-key evil-inner-text-objects-map "i"
+              (evil-textobj-tree-sitter-get-textobj ("conditional.inner" "loop.inner")))
+
+  (define-key evil-outer-text-objects-map "a"
+              (evil-textobj-tree-sitter-get-textobj "assignment.outer"))
+  (define-key evil-inner-text-objects-map "a"
+              (evil-textobj-tree-sitter-get-textobj "assignment.inner"))
+
+  (define-key evil-inner-text-objects-map "r"
+              (evil-textobj-tree-sitter-get-textobj "assignment.rhs"))
+  (define-key evil-inner-text-objects-map "l"
+              (evil-textobj-tree-sitter-get-textobj "assignment.lhs"))
+
+  (define-key evil-inner-text-objects-map "n"
+              (evil-textobj-tree-sitter-get-textobj "number.inner"))
+
+  (define-key evil-inner-text-objects-map "c"
+              (evil-textobj-tree-sitter-get-textobj "call.inner"))
+  (define-key evil-outer-text-objects-map "c"
+              (evil-textobj-tree-sitter-get-textobj "call.outer"))
+
+  (define-key evil-inner-text-objects-map "j"
+              (evil-textobj-tree-sitter-get-textobj "comment.inner"))
+  (define-key evil-outer-text-objects-map "j"
+              (evil-textobj-tree-sitter-get-textobj "comment.outer")))
 
 ;; better line motion
 (define-key evil-normal-state-map (kbd "j") 'evil-next-visual-line)
@@ -1980,6 +2041,9 @@ Example:
 (evil-define-key 'insert org-mode-map (kbd "/") #'snippet-convert-fraction)
 (evil-define-key 'visual org-mode-map (kbd "/") #'snippet-convert-fraction)
 
+(evil-define-key 'insert LaTeX-mode-map (kbd "/") #'snippet-convert-fraction)
+(evil-define-key 'visual LaTeX-mode-map (kbd "/") #'snippet-convert-fraction)
+
 (defun swap-equation-sides (start end)
   (interactive
    (if (region-active-p)
@@ -2066,6 +2130,12 @@ Example:
       "a-0" #'expand-anonymous-snippet)
 
     (aas-set-snippets 'org-mode
+      "js" (lambda () (interactive)
+             (yas-expand-snippet "\\\\( $1 \\\\)$0"))
+      "jf" (lambda () (interactive)
+             (yas-expand-snippet "\\begin{alignat*}{3}\n$0\n\\end{alignat*}")))
+
+    (aas-set-snippets 'latex-mode
       "js" (lambda () (interactive)
              (yas-expand-snippet "\\\\( $1 \\\\)$0"))
       "jf" (lambda () (interactive)
@@ -2161,39 +2231,42 @@ Example:
                       ("Omega" . "\\Omega$0")
 
                       ("ln" . "\\ln $0")
+                      ("eln" . "\\ln($1$0")
 
-                      ("cos" . "\\cos{$1$0")
-                      ("sec" . "\\sec{$1$0")
-                      ("sin" . "\\sin{$1$0")
-                      ("csc" . "\\csc{$1$0")
-                      ("tan" . "\\tan{$1$0")
-                      ("cot" . "\\cot{$1$0")
-                      ("acos" . "\\arccos{$1$0")
-                      ("asin" . "\\arcsin{$1$0")
-                      ("atan" . "\\arctan{$1$0")
+                      ("cos" . "\\cos($1$0")
+                      ("sec" . "\\sec($1$0")
+                      ("sin" . "\\sin($1$0")
+                      ("csc" . "\\csc($1$0")
+                      ("tan" . "\\tan($1$0")
+                      ("cot" . "\\cot($1$0")
+                      ("acos" . "\\arccos($1$0")
+                      ("asin" . "\\arcsin($1$0")
+                      ("atan" . "\\arctan($1$0")
 
-                      ("ncos" . "\\cos^{$1{$2}$0")
-                      ("nsec" . "\\sec^{$1{$2}$0")
-                      ("nsin" . "\\sin^{$1{$2}$0")
-                      ("ncsc" . "\\csc^{$1{$2}$0")
-                      ("ntan" . "\\tan^{$1{$2}$0")
-                      ("ncot" . "\\cot^{$1{$2}$0")
-                      ("nacos" . "\\arccos^{$1{$2}$0")
-                      ("nasin" . "\\arcsin^{$1{$2}$0")
-                      ("natan" . "\\arctan^{$1{$2}$0")
+                      ("ncos" . "\\cos^{$1($2)$0")
+                      ("nsec" . "\\sec^{$1($2)$0")
+                      ("nsin" . "\\sin^{$1($2)$0")
+                      ("ncsc" . "\\csc^{$1($2)$0")
+                      ("ntan" . "\\tan^{$1($2)$0")
+                      ("ncot" . "\\cot^{$1($2)$0")
+                      ("nacos" . "\\arccos^{$1($2)$0")
+                      ("nasin" . "\\arcsin^{$1($2)$0")
+                      ("natan" . "\\arctan^{$1($2)$0")
 
-                      ("2cos" . "\\cos^2{$2$0")
-                      ("2sec" . "\\sec^2{$2$0")
-                      ("2sin" . "\\sin^2{$2$0")
-                      ("2csc" . "\\csc^2{$2$0")
-                      ("2tan" . "\\tan^2{$2$0")
-                      ("2cot" . "\\cot^2{$2$0")
-                      ("2acos" . "\\arccos^2{$2$0")
-                      ("2asin" . "\\arcsin^2{$2$0")
-                      ("2atan" . "\\arctan^2{$2$0")
+                      ("2cos" . "\\cos[2]($2$0")
+                      ("2sec" . "\\sec[2]($2$0")
+                      ("2sin" . "\\sin[2]($2$0")
+                      ("2csc" . "\\csc[2]($2$0")
+                      ("2tan" . "\\tan[2]($2$0")
+                      ("2cot" . "\\cot[2]($2$0")
+                      ("2acos" . "\\arccos[2]($2$0")
+                      ("2asin" . "\\arcsin[2]($2$0")
+                      ("2atan" . "\\arctan[2]($2$0")
 
                       ("exp" . "\\exp$0")
+                      ("eexp" . "\\exp($0")
                       ("log" . "\\log$0")
+                      ("elog" . "\\log($0")
                       ("ein" . " \\in $0")
 
                       ("ooo" . "\\infty$0")
@@ -2235,6 +2308,10 @@ Example:
 
       (dolist (snippet snippets)
         (aas-set-snippets 'org-mode
+          :cond #'texmathp
+          (car snippet) `(lambda () (interactive)
+                           (yas-expand-snippet ',(cdr snippet))))
+        (aas-set-snippets 'latex-mode
           :cond #'texmathp
           (car snippet) `(lambda () (interactive)
                            (yas-expand-snippet ',(cdr snippet)))))))
@@ -2533,8 +2610,8 @@ Example:
   (setq-default auto-revert-verbose nil)
 
 
-  ;; disable inline sub-/superscript --- gets annoying
-  (setq-default font-latex-fontify-script nil)
+  ;; enable inline sub-/superscript --- will probably be annoying again soon
+  (setq-default font-latex-fontify-script t)
 
 
   ;; add math pairing
@@ -2555,6 +2632,11 @@ Example:
   ;; Update PDF buffers after successful LaTeX runs
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer))
+
+
+(use-package cdlatex
+  :config
+  (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex))
 
 (defface font-latex-sedate-face
   '((((class grayscale) (background light)) (:foreground "DimGray"))
@@ -2845,7 +2927,8 @@ Example:
   \\setlength{\\topmargin}{1.5cm}
   \\addtolength{\\topmargin}{-2.54cm}
   \\usepackage{euler}
-  \\usepackage{amsmath}")
+  \\usepackage{amsmath}
+  \\everymath{\\displaystyle}")
   
   
   (setq-default org-format-latex-options '(:foreground default
@@ -4413,7 +4496,7 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
 (define-key calc-mode-map (kbd "C-c C-y") #'calc-copy-as-kill-clean)
 
 (evil-define-key 'normal calc-mode-map (kbd "M-k") #'evil-window-up)
-(evil-define-key 'normal calc-mode-map (kbd "M-w") #'evil-quit)
+(evil-define-key 'normal calc-mode-map (kbd "M-w") #'evil-quit-simple)
 
 (add-hook 'calc-mode-hook #'(lambda ()
                               (calc-symbolic-mode 1)
@@ -4771,7 +4854,7 @@ Argument BIBFILE the bibliography to use."
 (evil-define-key 'insert bibtex-mode-map (kbd "C-M-]") #'arxiv-local-get-pdf-add-bibtex-entry)
 (evil-define-key 'normal bibtex-mode-map (kbd "C-M-]") #'arxiv-local-get-pdf-add-bibtex-entry)
 
-(setq org-latex-default-packages-alist '())
+(setq org-latex-default-packages-alist '(("AUTO" "physics" t)))
 
 
 (add-to-list 'org-latex-classes
@@ -4841,6 +4924,8 @@ Argument BIBFILE the bibliography to use."
 
 \\usepackage{euler}
 
+\\usepackage{physics}
+
 \\usepackage[defaultsans,scale=1]{opensans}
 \\usepackage{anyfontsize}
 
@@ -4871,26 +4956,32 @@ Argument BIBFILE the bibliography to use."
 
 \\tcbuselibrary{theorems}
 \\newtcbtheorem[number within=chapter]{old-theorem}{Theorem}{
-    breakable,
+    theorem style=change apart,
+    enhanced,
+    arc=0mm,
+    outer arc=0mm,
+    leftrule=1pt,
+    rightrule=1pt,
+    toprule=0pt,
+    bottomrule=2pt,
+    left=0.2cm,
+    right=0.2cm,
+    titlerule=0.5em,
+    toptitle=0.2cm,
+    bottomtitle=0cm,
+    top=0.2cm,
     colframe=theorem-background,
-    arc=0mm, 
-    bottomtitle=0.5mm,
-    boxrule=0mm,
-    coltitle=black, 
-    colbacktitle=black!5!white, 
-    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
-    left=2.5mm,
-    leftrule=1mm,
-    right=3.5mm,
-    title={#1},
-    toptitle=0.75mm,
-    top=0.5em
+    colback=white,
+    coltitle=white,
+    title style=theorem-background,
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont\\bfseries,
+    fontupper=\\normalsize
   }{th}
 \\newtcbtheorem[number within=chapter]{old-exmp}{Example}{
     breakable,
+    enhanced jigsaw,
     colframe=example-background,
     arc=0mm,
-    bottomtitle=0.5mm,
     boxrule=0mm,
     coltitle=black,
     colbacktitle=black!5!white,
@@ -4900,13 +4991,14 @@ Argument BIBFILE the bibliography to use."
     right=3.5mm,
     title={#1},
     toptitle=0.75mm,
+    bottomtitle=0mm,
     top=0.5em
   }{ex}
 \\newtcbtheorem[number within=chapter]{old-definition}{Definition}{
     breakable,
+    enhanced jigsaw,
     colframe=definition-background,
     arc=0mm, 
-    bottomtitle=0.5mm,
     boxrule=0mm,
     coltitle=black, 
     colbacktitle=black!5!white, 
@@ -4916,13 +5008,13 @@ Argument BIBFILE the bibliography to use."
     right=3.5mm,
     title={#1},
     toptitle=0.75mm, 
+    bottomtitle=0mm,
     top=0.5em
   }{def}
 \\newtcolorbox{note}[1][]{
     breakable,
     colframe=note-background,
     arc=0mm, 
-    bottomtitle=0.5mm,
     boxrule=0mm,
     coltitle=black, 
     colbacktitle=black!5!white, 
@@ -4932,6 +5024,7 @@ Argument BIBFILE the bibliography to use."
     right=3.5mm,
     title={\\textbf{Note:}\\ },
     toptitle=0.75mm,
+    bottomtitle=0mm,
     top=0.5em,
     attach title to upper,
     #1
@@ -5004,6 +5097,8 @@ Argument BIBFILE the bibliography to use."
 \\usepackage{siunitx}
 
 \\usepackage{float}
+
+\\usepackage{physics}
 
 \\usepackage{graphicx}
 \\usepackage[hidelinks]{hyperref}
@@ -5250,8 +5345,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 (setq-default org-html-mathjax-template
-              "<script type=\"text/x-mathjax-config\">
+    "<script type=\"text/x-mathjax-config\">
+    MathJax.Hub.Register.StartupHook(\"TeX Jax Ready\", function() {
+        var TEX = MathJax.InputJax.TeX;
+        var PREFILTER = TEX.prefilterMath;
+        TEX.Augment({
+            prefilterMath: function(math, displaymode, script) {
+                math = \"\\\\displaystyle{\" + math + \"}\";
+                return PREFILTER.call(TEX, math, displaymode, script);
+            }
+        });
+    });
+
     MathJax.Ajax.config.path[\"mhchem\"] = \"https://cdnjs.cloudflare.com/ajax/libs/mathjax-mhchem/3.3.2\";
+    MathJax.Ajax.config.path[\"Contrib\"] = \"https://cdn.mathjax.org/mathjax/contrib\";
     MathJax.Hub.Config({
         displayAlign: \"%ALIGN\",
         displayIndent: \"%INDENT\",
@@ -5268,7 +5375,10 @@ document.addEventListener('DOMContentLoaded', () => {
                MultLineWidth: \"%MULTLINEWIDTH\",
                TagSide: \"%TAGSIDE\",
                TagIndent: \"%TAGINDENT\",
-               extensions: [\"[mhchem]/mhchem.js\"]
+               extensions: [
+                    \"[mhchem]/mhchem.js\",
+                    \"[Contrib]/physics/physics.js\"
+                ]
              },
     });
 </script>

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: row-space
+# key: row
+# --
+\text{row}($1)$0

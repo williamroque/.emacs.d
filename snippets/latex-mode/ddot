@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: ddot
+# key: dd
+# --
+\ddot{$1}$0

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 4-point
+# key: 4p
+# --
+\left( $1, $2, $3, $4 \right)$0

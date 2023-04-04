@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: tangle-head
+# key: thead
+# --
+#+begin_src emacs-lisp :tangle yes :noweb no-export
+$0
+#+end_src

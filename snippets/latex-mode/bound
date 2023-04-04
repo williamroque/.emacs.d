@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: bound
+# key: bo
+# --
+\bound $0

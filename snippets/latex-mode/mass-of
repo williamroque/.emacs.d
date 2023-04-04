@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: mass-of
+# key: mo
+# --
+M_{$1}$0

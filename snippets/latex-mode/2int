@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: 2int
+# key: 2int
+# --
+\int_{$1}^{$2} \int_{$3}^{$4} $5 \> d${6:y} \> d${7:x}$0
