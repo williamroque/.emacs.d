@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: draw
+# key: dr
+# --
+\\draw[$1] $0;

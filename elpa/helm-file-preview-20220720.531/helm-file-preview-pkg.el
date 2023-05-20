@@ -1,0 +1,2 @@
+;;; Generated package description from helm-file-preview.el  -*- no-byte-compile: t -*-
+(define-package "helm-file-preview" "20220720.531" "Preview the current helm file selection" '((emacs "25.1") (helm "2.0")) :commit "bebd4e9c42543c9003984442701db2c384c21f3e" :authors '(("Shen, Jen-Chieh" . "jcs090218@gmail.com")) :maintainer '("Shen, Jen-Chieh" . "jcs090218@gmail.com") :keywords '("convenience" "file" "helm" "preview" "select" "selection") :url "https://github.com/jcs-elpa/helm-file-preview")

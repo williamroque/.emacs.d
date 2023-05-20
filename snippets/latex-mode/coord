@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: coord
+# key: cor
+# --
+\\coordinate ($1) at ($2, $3);

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: node
+# key: nd
+# --
+node[$1]{$2}$0

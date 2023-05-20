@@ -467,7 +467,7 @@
 (global-set-key (kbd "C-c w") #'evil-window-set-width)
 (global-set-key (kbd "C-c h") #'evil-window-set-height)
 
-(setq-default pop-up-windows nil)
+(setq-default pop-up-windows t)
 
 (use-package mood-line
   :config
@@ -1594,6 +1594,10 @@ for more information."
                       :background 'unspecified
                       :foreground color-red))
 
+(use-package helm-file-preview
+  :config
+  (setq-default helm-file-preview-only-when-line-numbers nil))
+
 (defun helm-buffer-list ()
   "Return the current list of buffers.
 The list is reordered with `helm-buffer-list-reorder-fn'."
@@ -2668,6 +2672,13 @@ Example:
                 TeX-source-correlate-start-server t)
 
 
+  ;; insert quotes literally
+  (define-key LaTeX-mode-map (kbd "C-\"") #'(lambda ()
+                                              (interactive)
+                                              (insert "\"\"")
+                                              (backward-char)))
+
+
   ;; Update PDF buffers after successful LaTeX runs
   (add-hook 'TeX-after-compilation-finished-functions
             #'TeX-revert-document-buffer))
@@ -2676,6 +2687,8 @@ Example:
 (use-package cdlatex
   :config
   (add-hook 'LaTeX-mode-hook #'turn-on-cdlatex)
+
+  (define-key cdlatex-mode-map (kbd "(") nil)
 
   (setq cdlatex-env-alist
         '(("bmatrix" "\\begin{bmatrix}?\\end{bmatrix}" nil)))
