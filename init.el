@@ -964,7 +964,10 @@ for more information."
     (add-hook 'after-save-hook #'(lambda ()
                                    (if (and (equal major-mode 'org-mode)
                                             (member (current-buffer) org-pdf-separate-window))
-                                       (org-export-pdf-update))))
+                                       (org-export-pdf-update)
+                                     (if (and (equal major-mode 'latex-mode)
+                                              (member (current-buffer) org-pdf-separate-window))
+                                         (call-interactively 'TeX-command-run-all)))))
     
     (defun org-latex-preview-pdf (separate-window)
       (interactive "P")
@@ -1350,13 +1353,53 @@ for more information."
 
 (use-package evil-owl
   :config
-  (setq evil-owl-max-string-length 500)
+  (setq-default evil-owl-max-string-length 500)
   (add-to-list 'display-buffer-alist
                '("*evil-owl*"
                  (display-buffer-in-side-window)
                  (side . bottom)
                  (window-height . 0.3)))
-  (evil-owl-mode))
+  (evil-owl-mode)
+
+  (evil-define-command evil-owl-record-macro (register)
+    "Record a keyboard macro into REGISTER.
+If REGISTER is :, /, or ?, the corresponding command line window
+will be opened instead."
+    :keep-visual t
+    :suppress-operator t
+    (interactive
+     (list (if (equal major-mode 'org-agenda-mode)
+               (progn (org-agenda-exit)
+                      ?\C-g)
+             (unless (and evil-this-macro defining-kbd-macro)
+               (or evil-this-register (evil-read-key))))))
+    (let (last-macro)
+      (cond
+       ((eq register ?\C-g)
+        (keyboard-quit))
+       ((and evil-this-macro defining-kbd-macro)
+        (setq evil-macro-buffer nil)
+        (condition-case nil
+            (setq last-macro (evil-end-and-return-macro))
+          (error nil))
+        (when last-macro
+          (evil-set-register evil-this-macro last-macro))
+        (setq evil-this-macro nil))
+       ((eq register ?:)
+        (evil-command-window-ex))
+       ((eq register ?/)
+        (evil-command-window-search-forward))
+       ((eq register ??)
+        (evil-command-window-search-backward))
+       ((or (<= ?0 register ?9)
+            (<= ?a register ?z)
+            (<= ?A register ?Z))
+        (when defining-kbd-macro (end-kbd-macro))
+        (setq evil-this-macro register)
+        (evil-set-register evil-this-macro nil)
+        (kmacro-start-macro nil)
+        (setq evil-macro-buffer (current-buffer)))
+       (t (error "Invalid register"))))))
 
 (use-package evil-commentary
   :config
@@ -3375,8 +3418,7 @@ Example:
   ;; insert today's date
   (evil-define-key 'normal org-mode-map (kbd "g D") #'(lambda ()
                                                         (interactive)
-                                                        (forward-char)
-                                                        (insert (format-time-string "%d/%m/%Y --- %A"))))
+                                                        (insert (format-time-string "/%B %-d, %Y/"))))
   (set-face-attribute 'org-block-begin-line nil
                       :extend t
                       :background color-background
@@ -3424,7 +3466,7 @@ Example:
   (set-face-attribute 'org-todo nil
                       :weight 'bold
                       :foreground color-dark-brown
-                      :height 0.8
+                      :height 1
                       :family "Victor Mono")
   
   
@@ -3770,21 +3812,17 @@ Example:
                                      (setq-local header-line-format nil)))
 
 (setq-default org-capture-templates
-              '(("g" "General" entry (file+headline "~/Documents/Education/schedule.org" "General")
+              '(("g" "General" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "General")
                  "** TODO %?")
-                ("p" "Mission Prep" entry (file+headline "~/Documents/Education/schedule.org" "Mission Prep")
-                 "** TODO %?")
-                ("t" "Ethos" entry (file+headline "~/Documents/Education/schedule.org" "Ethos")
-                 "** TODO %?")
-                ("m" "Meeting" entry (file+headline "~/Documents/Education/schedule.org" "General")
+                ("m" "Meeting" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Meetings")
                  "** %?  :meeting:")
-                ("r" "Research" entry (file+headline "~/Documents/Education/schedule.org" "Research")
+                ("j" "Major" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Major")
                  "** TODO %?")
-                ("v" "Event" entry (file+headline "~/Documents/Education/schedule.org" "General")
+                ("r" "Research" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Research")
+                 "** TODO %?")
+                ("v" "Event" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "General")
                  "** %?  :event:")
-                ("j" "Major" entry (file+headline "~/Documents/Education/schedule.org" "Major")
-                 "** TODO %?")
-                ("e" "Emacs" entry (file+headline "~/Documents/Education/schedule.org" "Emacs")
+                ("e" "Emacs" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Emacs")
                  "** TODO %?")))
 
 (use-package mixed-pitch
@@ -3939,9 +3977,7 @@ Example:
 
 (with-eval-after-load 'org-agenda
   ;; set directory for global org files
-  (setq-default org-agenda-files '("~/Documents/Education/schedule.org"
-                                   "~/Documents/general.org"
-                                   "~/Documents/calendar.org"))
+  (setq-default org-agenda-files '("~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org"))
   
   
   ;; open org-agenda in the same window
@@ -4257,9 +4293,10 @@ This is a :filter-args advice for `message`."
   (if (equal olivetti-mode nil)
       (progn
         (when use-mixed-pitch
+          (setq-local line-spacing 5)
           (olivetti-set-width 75)
           (mixed-pitch-mode 1)
-          (setq-local line-spacing 4))
+          (whitespace-mode 1))
         (setq-local default-mode-line-format mode-line-format)
         (setq-local mode-line-format nil)
         (olivetti-mode 1)
@@ -4267,26 +4304,14 @@ This is a :filter-args advice for `message`."
             (flyspell-mode)))
     (mixed-pitch-mode 0)
     (olivetti-mode 0)
+    (whitespace-mode 0)
     (set-window-margins (get-buffer-window) 2)
-    (setq-local mode-line-format default-mode-line-format)
-    (setq-local line-spacing nil)))
+    (setq-local line-spacing nil)
+    (setq-local mode-line-format default-mode-line-format)))
 
 
-(add-hook 'evil-insert-state-entry-hook
-          #'(lambda ()
-              (when line-spacing
-                (save-excursion
-                  (end-of-line)
-                  (insert ? )))))
-
-
-(add-hook 'evil-insert-state-exit-hook
-          #'(lambda ()
-              (when line-spacing
-                (save-excursion
-                  (end-of-line)
-                  (when (equal (char-before) ? )
-                    (delete-backward-char 1))))))
+(setq-default whitespace-style '(newline-mark))
+(setq-default whitespace-display-mappings '((newline-mark ?\n  [?\  ?\n])))
 
 (use-package osx-dictionary
   :config
@@ -4983,6 +5008,178 @@ Argument BIBFILE the bibliography to use."
 \\usepackage{euler}
 
 \\usepackage{physics}
+
+\\usepackage[defaultsans,scale=1]{opensans}
+\\usepackage{anyfontsize}
+
+\\usepackage{float}
+\\usepackage{graphicx}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage{fancyhdr}
+\\usepackage{lettrine}
+\\usepackage{xhfill}
+\\usepackage[svgnames]{xcolor}
+\\usepackage[explicit]{titlesec}
+\\usepackage[many]{tcolorbox}
+\\usepackage{tikz}
+\\usepackage{adjustbox}
+
+\\definecolor{title-foreground}{RGB}{230,230,230}
+\\definecolor{subtitle-foreground}{RGB}{120,120,120}
+\\definecolor{chapter-foreground}{RGB}{80,80,80}
+\\definecolor{theorem-background}{RGB}{0,53,110}
+\\definecolor{definition-background}{RGB}{0,87,153}
+\\definecolor{example-background}{RGB}{86,152,179}
+\\definecolor{note-background}{RGB}{0,53,110}
+\\colorlet{rulecolor}{Gainsboro!40!Lavender}
+
+\\usepackage[Sonny]{fncychap}
+\\titleformat{\\section}{\\sffamily\\large}{\\thesection.}{.5em}{#1}
+\\titleformat{\\subsection}{\\sffamily\\large}{\\thesubsection.}{.5em}{#1}
+
+\\tcbuselibrary{theorems}
+\\newtcbtheorem[number within=chapter]{old-theorem}{Theorem}{
+    theorem style=change apart,
+    enhanced,
+    arc=0mm,
+    outer arc=0mm,
+    leftrule=1pt,
+    rightrule=1pt,
+    toprule=0pt,
+    bottomrule=2pt,
+    left=0.2cm,
+    right=0.2cm,
+    titlerule=0.5em,
+    toptitle=0.2cm,
+    bottomtitle=0cm,
+    top=0.2cm,
+    colframe=theorem-background,
+    colback=white,
+    coltitle=white,
+    title style=theorem-background,
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont\\bfseries,
+    fontupper=\\normalsize
+  }{th}
+\\newtcbtheorem[number within=chapter]{old-exmp}{Example}{
+    breakable,
+    enhanced jigsaw,
+    colframe=example-background,
+    arc=0mm,
+    boxrule=0mm,
+    coltitle=black,
+    colbacktitle=black!5!white,
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm,
+    bottomtitle=0mm,
+    top=0.5em
+  }{ex}
+\\newtcbtheorem[number within=chapter]{old-definition}{Definition}{
+    breakable,
+    enhanced jigsaw,
+    colframe=definition-background,
+    arc=0mm, 
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont,
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={#1},
+    toptitle=0.75mm, 
+    bottomtitle=0mm,
+    top=0.5em
+  }{def}
+\\newtcolorbox{note}[1][]{
+    breakable,
+    colframe=note-background,
+    arc=0mm, 
+    boxrule=0mm,
+    coltitle=black, 
+    colbacktitle=black!5!white, 
+    fonttitle=\\sffamily\\fontsize{11}{11}\\selectfont, 
+    left=2.5mm,
+    leftrule=1mm,
+    right=3.5mm,
+    title={\\textbf{Note:}\\ },
+    toptitle=0.75mm,
+    bottomtitle=0mm,
+    top=0.5em,
+    attach title to upper,
+    #1
+}
+\\renewenvironment{theorem}[1][]{%
+  \\begin{old-theorem}{#1}{}%
+    
+}{%
+  \\end{old-theorem}%
+}
+\\renewenvironment{exmp}{%
+  \\begin{old-exmp}{}{}%
+    
+}{%
+  \\end{old-exmp}%
+}
+\\renewenvironment{definition}{%
+  \\begin{old-definition}{}{}%
+    
+}{%
+  \\end{old-definition}%
+}
+
+\\newtheorem{exercise}{Exercise}
+\\numberwithin{exercise}{chapter}
+\\newtheorem{lemma}{Lemma}[theorem]
+\\numberwithin{lemma}{chapter}
+\\newtheorem{corollary}{Corollary}[theorem]
+\\numberwithin{corollary}{chapter}
+
+\\setlength{\\parskip}{.5em}
+\\setlength{\\parindent}{0pt}
+\\pagestyle{fancy}
+\\fancyhf{}
+\\renewcommand{\\chaptermark}[1]{\\markboth{#1}{}}
+\\renewcommand{\\sectionmark}[1]{\\markright{Section \\thesection. #1}}
+\\let\\oldtitle\\title
+\\renewcommand{\\title}[1]{\\oldtitle{#1}\\def\\titletext{#1}}
+\\fancyhead[L]{\\leftmark}
+\\fancyhead[R]{\\titletext}
+\\fancyfoot[C]{\\rightmark}
+\\fancyfoot[R]{\\thepage}
+\\newcommand*{\\textinrule}[3][]{%
+  \\makebox[#2]{#1%
+    \\leaders\\hrule height \\dimexpr.5ex+.2pt\\relax depth \\dimexpr -.5ex+.2pt\\relax \\hfill% Left rule
+    \\enskip{#3}\\enskip% Text (and surrounding spaces)
+    \\leaders\\hrule height \\dimexpr.5ex+.2pt\\relax depth \\dimexpr -.5ex+.2pt\\relax \\hfill\\kern0pt}% Right rule
+}
+
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+[EXTRA]"
+               ("\\chapter{%s}" . "\\chapter{%s}")
+               ("\\section{%s}" . "\\section{%s}")
+               ("\\subsection{%s}" . "\\subsection{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection{%s}")
+               ("\\paragraph{%s}" . "\\paragraph{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph{%s}")))
+
+
+(add-to-list 'org-latex-classes
+             '("book"
+               "
+\\documentclass[letterpaper,12pt,oneside]{book}
+\\usepackage[margin=1in]{geometry}
+
+\\usepackage{csquotes}
+
+\\renewcommand{\\rmdefault}{futs}
+\\usepackage[utf8]{fontenc}
+\\usepackage{textcomp}
+\\usepackage{fourier-orns}
 
 \\usepackage[defaultsans,scale=1]{opensans}
 \\usepackage{anyfontsize}

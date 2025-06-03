@@ -3,17 +3,11 @@
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (
-("Mosenkov Research"
- (filename . "~/Documents/Education/BYU/Research/Mosenkov/Projects/"))
-("Boizelle Research"
- (filename . "~/Documents/Education/BYU/Research/Boizelle/"))
-("Maxwell"
- (filename . "~/maxwell/"))
 ("Documents"
  (filename . "~/Documents/"))
-("Ethos"
- (filename . "~/Documents/Work/Ethos/"))
 ("Downloads"
  (filename . "~/Downloads/"))
+("Mission Letters"
+ (filename . "~/Documents/Church/Illis Mission/Emails/Mission Letters.org"))
 ("init.org"
  (filename . "~/.emacs.d/init.org")))
