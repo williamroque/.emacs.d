@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: hpdf
-# key: hpdf
-# --
-\hpartial{$1}{$2}$0

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: open-close
-# key: oc
-# --
-\left( $1, $2 \right]$0

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: clangd-17
+# key: c17
+# expand-env: ((yas-indent-line 'fixed))
+# --
+CompileFlags:
+  Add: [-std=c++17]

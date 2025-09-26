@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: int
-# key: int
-# --
-\int $3 \> d$4$0

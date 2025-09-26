@@ -1,0 +1,20 @@
+# -*- mode: snippet -*-
+# name: simple-multitarget
+# key: sm
+# expand-env: ((yas-indent-line 'fixed))
+# --
+CXX := g++
+CXXFLAGS := -Wall -Wextra -std=c++17
+
+SRCS := $(wildcard *.cpp)
+OUTS := $(SRCS:.cpp=.o)
+PROGS := $(basename $(SRCS))
+
+%: %.cpp
+	$(CXX) $(CXXFLAGS) $< -o $@
+
+debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: clean $(TARGET)
+
+clean:
+	rm -f *.o $(PROGS) $(OUTS)

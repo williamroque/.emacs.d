@@ -792,6 +792,7 @@ for more information."
   
     (evil-leader/set-key "DEL" #'calendar)
     (evil-leader/set-key "c" #'org-capture)
+    (evil-leader/set-key "l" #'capture-literate-template)
     (evil-leader/set-key "d" #'osx-dictionary-search-input)
     (evil-leader/set-key "K" #'ranger)
     ;; open dired at cwd or go up directory
@@ -1964,9 +1965,9 @@ Example:
 
 
   ;; make sure latex snippets work in org-mode
-  (add-hook 'org-mode-hook (lambda ()
-                             (yas-minor-mode)
-                             (yas-activate-extra-mode 'latex-mode))))
+  (add-hook 'org-mode-hook
+            #'(lambda ()
+                (yas-activate-extra-mode 'latex-mode))))
 
 (defun insert-matrix-like (env rows cols &optional arguments)
   (interactive "sEnvironment: \nnRows: \nnColumns: ")
@@ -2419,6 +2420,9 @@ Example:
 
 (use-package flyspell
   :config
+
+  (add-hook 'html-mode-hook #'(lambda () (flyspell-mode -1)))
+
   (set-face-attribute 'flyspell-duplicate nil
                       :underline color-blue)
   
@@ -2589,6 +2593,40 @@ Example:
                 company-tooltip-limit           20
                 company-dabbrev-downcase        nil))
 
+(defun custom-lsp-faces-setup ()
+  "Customize LSP faces after they exist."
+  (set-face-attribute 'lsp-flycheck-warning-unnecessary-face nil
+                      :slant 'italic
+                      :weight 'normal
+                      :underline nil
+                      :foreground color-medium-subdued)
+  (set-face-attribute 'lsp-headerline-breadcrumb-path-warning-face nil
+                      :underline nil)
+  (set-face-attribute 'lsp-headerline-breadcrumb-path-error-face nil
+                      :underline '(:color "red"))
+  (set-face-attribute 'lsp-headerline-breadcrumb-symbols-error-face nil
+                      :underline '(:color "red")))
+
+(use-package lsp-mode
+  :init
+  (setq-default lsp-keymap-prefix "C-c l")
+
+  :hook ((js-mode . lsp)
+         (typescript-mode . lsp)
+         (html-mode . lsp)
+         (css-mode . lsp)
+         (web-mode . lsp)
+         (c++-mode . lsp)
+         (python-mode . lsp))
+
+  :commands lsp
+
+  :config
+  (add-hook 'lsp-mode-hook #'custom-lsp-faces-setup))
+
+
+(use-package lsp-ui :commands lsp-ui-mode)
+
 (use-package elpy
   :config
   (elpy-enable)
@@ -2679,6 +2717,14 @@ Example:
   (define-key emmet-mode-keymap (kbd "C-j") #'newline)
   (define-key emmet-mode-keymap (kbd "C-,") #'emmet-expand-line))
 
+(use-package web-mode
+  :mode (("\\.jsx\\'" . web-mode)
+         ("\\.tsx\\'" . web-mode))
+  :config
+  (setq-default web-mode-markup-indent-offset 4
+                web-mode-css-indent-offset 4
+                web-mode-code-indent-offset 4))
+
 (use-package markdown-mode)
 
 (use-package latex
@@ -2686,6 +2732,10 @@ Example:
   :config
   (setq-default TeX-auto-save t)
   (setq-default TeX-parse-self t)
+
+
+  ;; make sure latex is in path
+  (setenv "PATH" "/usr/local/bin:/Library/TeX/texbin/:$PATH" t)
 
 
   ;; refresh PDF constantly
@@ -3466,7 +3516,14 @@ Example:
   (set-face-attribute 'org-todo nil
                       :weight 'bold
                       :foreground color-dark-brown
-                      :height 1
+                      :height 1.1
+                      :family "Victor Mono")
+  
+  
+  (set-face-attribute 'org-done nil
+                      :weight 'bold
+                      :foreground color-dark-brown
+                      :height 1.1
                       :family "Victor Mono")
   
   
@@ -3816,7 +3873,11 @@ Example:
                  "** TODO %?")
                 ("m" "Meeting" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Meetings")
                  "** %?  :meeting:")
-                ("j" "Major" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Major")
+                ("w" "Writing" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Writing")
+                 "** TODO %?")
+                ("a" "Academics" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Academics")
+                 "** TODO %?")
+                ("h" "Home" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Home")
                  "** TODO %?")
                 ("r" "Research" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Research")
                  "** TODO %?")
@@ -3824,6 +3885,24 @@ Example:
                  "** %?  :event:")
                 ("e" "Emacs" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Emacs")
                  "** TODO %?")))
+
+(defun capture-literate-template (run-serverp title)
+  (interactive
+   (let ((has-prefixp (consp current-prefix-arg)))
+     (if has-prefixp
+         (list t nil)
+       (list nil (read-string "Title: ")))))
+  (if run-serverp
+      (progn
+        (message "Running server...")
+        (shell-command "node /Users/jetblack/Documents/Code/Web/Literate/app.js ."))
+    (let ((file-name (format "%s.org" (downcase
+                                       (replace-regexp-in-string "[[:blank:]]" "_" title)))))
+      (find-file file-name)
+      (insert (format "#+title: %s\n\n/%s/\n\n"
+                      title
+                      (format-time-string "%B %-e, %Y")))
+      (evil-insert-state))))
 
 (use-package mixed-pitch
   :config
@@ -3912,7 +3991,9 @@ Example:
 
 (use-package org-download
   :config
-  (add-hook 'dired-mode-hook 'org-download-enable))
+  (add-hook 'dired-mode-hook 'org-download-enable)
+
+  (evil-leader/set-key "TAB" #'org-download-clipboard))
 
 (use-package helm-org
   :config
@@ -4937,7 +5018,7 @@ Argument BIBFILE the bibliography to use."
 (evil-define-key 'insert bibtex-mode-map (kbd "C-M-]") #'arxiv-local-get-pdf-add-bibtex-entry)
 (evil-define-key 'normal bibtex-mode-map (kbd "C-M-]") #'arxiv-local-get-pdf-add-bibtex-entry)
 
-(setq org-latex-default-packages-alist '(("AUTO" "physics" t)))
+;; (setq org-latex-default-packages-alist '(("AUTO" "physics" t)))
 
 
 (add-to-list 'org-latex-classes
@@ -5434,7 +5515,7 @@ Argument BIBFILE the bibliography to use."
     (if org-pdf-through-latex
         (shell-command-to-string
          (format
-          "latexmk -pdf -jobname=temp -f %s; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
+          "latexmk -pdf -jobname=temp -f \"%s\"; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
           (org-latex-export-to-latex)
           output-path))
       (shell-command-to-string (format

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: pdff
-# key: pdff
-# --
-\pdv{}{$1}$0

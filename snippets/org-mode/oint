@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: oint
-# key: oint
-# --
-\oint_{${1:C}} $2 \> d$0

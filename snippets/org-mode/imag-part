@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: imag-part
-# key: im
-# --
-\mathcal{I}\left[ $1 \right]$0

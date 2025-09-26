@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: rn
-# key: rn
-# --
-\mathbb{R}^{${1:n}}$0

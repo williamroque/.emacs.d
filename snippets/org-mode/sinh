@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: sinh
-# key: sih
-# --
-\sinh{($1)}$0

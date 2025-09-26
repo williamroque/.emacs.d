@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: journal-assignment
+# key: jast
+# --
+#+latex_class: assignment
+#+latex_header: \renewcommand*{\finalnamedelim}{ \ifnumgreater{\value{liststop}}{2}{\finalandcomma}{} \addspace\&\space}
+#+literary: t
+
+#+title: Journal Submission (Week $1)
+
+* $0

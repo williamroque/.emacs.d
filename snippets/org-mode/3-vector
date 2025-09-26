@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: 3-vector
-# key: 3v
-# --
-\left\langle $1, $2, $3 \right\rangle$0

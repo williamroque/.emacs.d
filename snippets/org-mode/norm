@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: norm
-# key: nor
-# --
-\norm{$1}$0

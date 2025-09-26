@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: real-part
-# key: re
-# --
-\mathcal{R}\left[ $1 \right]$0

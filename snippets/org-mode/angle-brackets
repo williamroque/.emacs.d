@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: angle-brackets
-# key: ang
-# --
-\left\langle $1 \right\rangle$0

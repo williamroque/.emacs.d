@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: conset
-# key: cset
-# --
-\left\\{ $1 \mid $2 \right\\}$0

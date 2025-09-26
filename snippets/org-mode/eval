@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: eval
-# key: eval
-# --
-\eval{$1}_{$2}^{$3}$0

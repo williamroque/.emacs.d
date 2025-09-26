@@ -2,12 +2,19 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(
-("Documents"
- (filename . "~/Documents/"))
-("Downloads"
- (filename . "~/Downloads/"))
-("Mission Letters"
- (filename . "~/Documents/Church/Illis Mission/Emails/Mission Letters.org"))
-("init.org"
- (filename . "~/.emacs.d/init.org")))
+(("Documents"
+  (filename . "~/Documents/"))
+ ("Letters to My Younglings"
+  (filename . "~/Documents/Creative/Writing/Letters to My Younglings/"))
+ ("STAT 121"
+  (filename . "~/Documents/Education/BYU/Classes/STAT 121/"))
+ ("CS 235"
+  (filename . "~/Documents/Education/BYU/Classes/CS 235/"))
+ ("CS 260"
+  (filename . "~/Documents/Education/BYU/Classes/CS 260/"))
+ ("REL A 250"
+  (filename . "~/Documents/Education/BYU/Classes/REL A 250/"))
+ ("Downloads"
+  (filename . "~/Downloads/"))
+ ("init.org"
+  (filename . "~/.emacs.d/init.org")))

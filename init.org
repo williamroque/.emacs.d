@@ -2086,9 +2086,9 @@ Enable YASnippet.
 
 
   ;; make sure latex snippets work in org-mode
-  (add-hook 'org-mode-hook (lambda ()
-                             (yas-minor-mode)
-                             (yas-activate-extra-mode 'latex-mode))))
+  (add-hook 'org-mode-hook
+            #'(lambda ()
+                (yas-activate-extra-mode 'latex-mode))))
 #+end_src
 
 Matrix-like snippets.
@@ -2680,6 +2680,9 @@ Customize fLyspell faces.
 #+begin_src emacs-lisp :tangle yes :noweb no-export
 (use-package flyspell
   :config
+
+  (add-hook 'html-mode-hook #'(lambda () (flyspell-mode -1)))
+
   <<flyspell-faces>>)
 #+end_src
 
@@ -2975,7 +2978,45 @@ Company config.
                 company-dabbrev-downcase        nil))
 #+end_src
 
-** Languages
+** Language Server
+
+LSP mode.
+
+#+begin_src emacs-lisp :tangle yes
+(defun custom-lsp-faces-setup ()
+  "Customize LSP faces after they exist."
+  (set-face-attribute 'lsp-flycheck-warning-unnecessary-face nil
+                      :slant 'italic
+                      :weight 'normal
+                      :underline nil
+                      :foreground color-medium-subdued)
+  (set-face-attribute 'lsp-headerline-breadcrumb-path-warning-face nil
+                      :underline nil)
+  (set-face-attribute 'lsp-headerline-breadcrumb-path-error-face nil
+                      :underline '(:color "red"))
+  (set-face-attribute 'lsp-headerline-breadcrumb-symbols-error-face nil
+                      :underline '(:color "red")))
+
+(use-package lsp-mode
+  :init
+  (setq-default lsp-keymap-prefix "C-c l")
+
+  :hook ((js-mode . lsp)
+         (typescript-mode . lsp)
+         (html-mode . lsp)
+         (css-mode . lsp)
+         (web-mode . lsp)
+         (c++-mode . lsp)
+         (python-mode . lsp))
+
+  :commands lsp
+
+  :config
+  (add-hook 'lsp-mode-hook #'custom-lsp-faces-setup))
+
+
+(use-package lsp-ui :commands lsp-ui-mode)
+#+end_src
 
 ** Python
 
@@ -3144,6 +3185,18 @@ Emmet config.
   (define-key emmet-mode-keymap (kbd "C-,") #'emmet-expand-line))
 #+end_src
 
+Web mode.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package web-mode
+  :mode (("\\.jsx\\'" . web-mode)
+         ("\\.tsx\\'" . web-mode))
+  :config
+  (setq-default web-mode-markup-indent-offset 4
+                web-mode-css-indent-offset 4
+                web-mode-code-indent-offset 4))
+#+end_src
+
 ** Markdown
 
 Find a good old markdown mode to settle with.
@@ -3162,6 +3215,10 @@ LaTeX config.
   :config
   (setq-default TeX-auto-save t)
   (setq-default TeX-parse-self t)
+
+
+  ;; make sure latex is in path
+  (setenv "PATH" "/usr/local/bin:/Library/TeX/texbin/:$PATH" t)
 
 
   ;; refresh PDF constantly
@@ -4029,7 +4086,11 @@ Templates.
                  "** TODO %?")
                 ("m" "Meeting" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Meetings")
                  "** %?  :meeting:")
-                ("j" "Major" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Major")
+                ("w" "Writing" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Writing")
+                 "** TODO %?")
+                ("a" "Academics" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Academics")
+                 "** TODO %?")
+                ("h" "Home" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Home")
                  "** TODO %?")
                 ("r" "Research" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Research")
                  "** TODO %?")
@@ -4038,9 +4099,32 @@ Templates.
                 ("e" "Emacs" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Emacs")
                  "** TODO %?")))
 #+end_src
+
+Custom capture for Literate template.
+
+#+begin_src emacs-lisp :tangle yes
+(defun capture-literate-template (run-serverp title)
+  (interactive
+   (let ((has-prefixp (consp current-prefix-arg)))
+     (if has-prefixp
+         (list t nil)
+       (list nil (read-string "Title: ")))))
+  (if run-serverp
+      (progn
+        (message "Running server...")
+        (shell-command "node /Users/jetblack/Documents/Code/Web/Literate/app.js ."))
+    (let ((file-name (format "%s.org" (downcase
+                                       (replace-regexp-in-string "[[:blank:]]" "_" title)))))
+      (find-file file-name)
+      (insert (format "#+title: %s\n\n/%s/\n\n"
+                      title
+                      (format-time-string "%B %-e, %Y")))
+      (evil-insert-state))))
+#+end_src
  
 #+begin_src emacs-lisp :tangle no :noweb-ref capture-leader
 (evil-leader/set-key "c" #'org-capture)
+(evil-leader/set-key "l" #'capture-literate-template)
 #+end_src
 
 ** User interface
@@ -4214,7 +4298,14 @@ Customize faces.
 (set-face-attribute 'org-todo nil
                     :weight 'bold
                     :foreground color-dark-brown
-                    :height 1
+                    :height 1.1
+                    :family "Victor Mono")
+
+
+(set-face-attribute 'org-done nil
+                    :weight 'bold
+                    :foreground color-dark-brown
+                    :height 1.1
                     :family "Victor Mono")
 
 
@@ -4846,7 +4937,9 @@ Drag and drop images.
 #+begin_src emacs-lisp :tangle yes
 (use-package org-download
   :config
-  (add-hook 'dired-mode-hook 'org-download-enable))
+  (add-hook 'dired-mode-hook 'org-download-enable)
+
+  (evil-leader/set-key "TAB" #'org-download-clipboard))
 #+end_src
 
 *** Helm org
@@ -6550,7 +6643,7 @@ Latex export options.
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :noweb no-export
-(setq org-latex-default-packages-alist '(("AUTO" "physics" t)))
+;; (setq org-latex-default-packages-alist '(("AUTO" "physics" t)))
 
 
 (add-to-list 'org-latex-classes
@@ -6632,7 +6725,7 @@ Custom export functions.
     (if org-pdf-through-latex
         (shell-command-to-string
          (format
-          "latexmk -pdf -jobname=temp -f %s; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
+          "latexmk -pdf -jobname=temp -f \"%s\"; rm *.aux *.fls *.log *.out *.fdb_latexmk; mv temp.pdf '%s'"
           (org-latex-export-to-latex)
           output-path))
       (shell-command-to-string (format

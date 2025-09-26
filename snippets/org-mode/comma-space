@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: comma-space
-# key: ,
-# --
-\, $0

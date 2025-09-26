@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: matrix
-# key: mat
-# --
-\begin{bmatrix}
-$0
-\end{bmatrix}

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: 3-point
-# key: 3p
-# --
-\left( $1, $2, $3 \right)$0

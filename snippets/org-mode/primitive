@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: primitive
-# key: ff
-# --
-F($1)$0

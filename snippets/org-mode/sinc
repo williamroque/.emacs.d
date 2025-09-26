@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: sinc
-# key: snc
-# --
-\text{sinc}\left( $1 \right)$0

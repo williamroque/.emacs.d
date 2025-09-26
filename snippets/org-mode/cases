@@ -1,8 +1,0 @@
-# -*- mode: snippet -*-
-# name: cases
-# key: cas
-# --
-\begin{cases}
-$1 & \text{if } $2\\\\
-$3 & \text{if } $0\\\\
-\end{cases}

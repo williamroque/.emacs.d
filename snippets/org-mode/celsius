@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: celsius
-# key: cel
-# --
-\degreeCelsius$0

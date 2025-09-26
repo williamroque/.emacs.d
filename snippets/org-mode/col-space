@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: col-space
-# key: col
-# --
-\text{col}($1)$0

@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: v-function-prime
-# key: v'
-# --
-\vecb{${1:v}}'(${2:t})$0

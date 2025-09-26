@@ -1,0 +1,28 @@
+# -*- mode: snippet -*-
+# name: basic-makefile
+# key: bm
+# expand-env: ((yas-indent-line 'fixed))
+# --
+CXX := g++
+CXXFLAGS := -Wall -Wextra -std=c++17
+DEBUGFLAGS := -DDEBUG -g
+
+TARGET := $1
+
+SRCS := $1.cpp
+OBJS = $(SRCS:.cpp=.o)
+HEADERS := debug.h
+
+all: $(TARGET)
+
+$(TARGET): $(OBJS)
+	$(CXX) $(OBJS) -o $(TARGET)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+debug: CXXFLAGS += $(DEBUGFLAGS)
+debug: clean $(TARGET)
+
+clean:
+	rm -f $(TARGET) *.o

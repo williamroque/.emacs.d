@@ -1,1 +1,4 @@
 auto-save-list/
+.cache/
+**/*.elc
+**/*.eln

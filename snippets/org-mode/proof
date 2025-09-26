@@ -1,7 +1,0 @@
-# -*- mode: snippet -*-
-# name: proof
-# key: pro
-# --
-#+begin_proof
-$0
-#+end_proof

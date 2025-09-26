@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: close-close
-# key: cc
-# --
-\left[ $1, $2 \right]$0

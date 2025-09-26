@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: dif
-# key: dif
-# --
-\dv{$1}{${2:x}}$0

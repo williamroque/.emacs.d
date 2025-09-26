@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: function-xy
-# key: fxy
-# --
-${1:f}(${2:x}, ${3:y})$0

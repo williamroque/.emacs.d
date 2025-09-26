@@ -1,5 +1,0 @@
-# -*- mode: snippet -*-
-# name: orth
-# key: orth
-# --
-\text{orth}_{\vecb{${1:b}}} \vecb{${2:a}}$0
