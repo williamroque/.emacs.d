@@ -4,6 +4,8 @@
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (("Documents"
   (filename . "~/Documents/"))
+ ("Drafts"
+  (filename . "~/Documents/Drafts/drafts.org"))
  ("Letters to My Younglings"
   (filename . "~/Documents/Creative/Writing/Letters to My Younglings/"))
  ("STAT 121"
@@ -14,6 +16,8 @@
   (filename . "~/Documents/Education/BYU/Classes/CS 260/"))
  ("REL A 250"
   (filename . "~/Documents/Education/BYU/Classes/REL A 250/"))
+ ("CBC"
+  (filename . "~/Documents/Work/CBC/"))
  ("Downloads"
   (filename . "~/Downloads/"))
  ("init.org"

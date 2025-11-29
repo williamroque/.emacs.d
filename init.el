@@ -87,6 +87,12 @@
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 
+(unless (display-graphic-p)
+  (menu-bar-mode -1))
+
+(use-package evil-terminal-cursor-changer
+  :ensure t)
+
 (defun shell-command-sentinel (process signal)
   (when (memq (process-status process) '(exit signal))
     (shell-command-set-point-after-cmd (process-buffer process))
@@ -123,6 +129,9 @@
   (global-tree-sitter-mode)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
 (use-package tree-sitter-langs)
+
+(use-package forex
+  :load-path "lisp/")
 
 ;; for debugging lists
 (defun print-elements-of-list (list)
@@ -794,7 +803,7 @@ for more information."
     (evil-leader/set-key "c" #'org-capture)
     (evil-leader/set-key "l" #'capture-literate-template)
     (evil-leader/set-key "d" #'osx-dictionary-search-input)
-    (evil-leader/set-key "K" #'ranger)
+    (evil-leader/set-key "K" #'org-roam-node-find)
     ;; open dired at cwd or go up directory
     (evil-leader/set-key "I" #'(lambda ()
                                  (interactive)
@@ -952,7 +961,7 @@ for more information."
                                      (org-export-html-toggle-live-server)
                                    (when (equal major-mode 'org-mode)
                                      (org-html-export-to-html)
-                                     (shell-command (format "open -a Firefox\\ Developer\\ Edition" ))))))
+                                     (shell-command (format "open -a Vivaldi" ))))))
     
     
     ;; export org/latex file as PDF
@@ -2595,11 +2604,12 @@ Example:
 
 (defun custom-lsp-faces-setup ()
   "Customize LSP faces after they exist."
-  (set-face-attribute 'lsp-flycheck-warning-unnecessary-face nil
+  (if (facep 'lsp-flycheck-warning-unnecessary-face)
+      (set-face-attribute 'lsp-flycheck-warning-unnecessary-face nil
                       :slant 'italic
                       :weight 'normal
                       :underline nil
-                      :foreground color-medium-subdued)
+                      :foreground color-medium-subdued))
   (set-face-attribute 'lsp-headerline-breadcrumb-path-warning-face nil
                       :underline nil)
   (set-face-attribute 'lsp-headerline-breadcrumb-path-error-face nil
@@ -2610,6 +2620,8 @@ Example:
 (use-package lsp-mode
   :init
   (setq-default lsp-keymap-prefix "C-c l")
+  (setq-default lsp-enable-indentation nil)
+  (setq-default lsp-enable-on-type-formatting nil)
 
   :hook ((js-mode . lsp)
          (typescript-mode . lsp)
@@ -2622,7 +2634,11 @@ Example:
   :commands lsp
 
   :config
-  (add-hook 'lsp-mode-hook #'custom-lsp-faces-setup))
+  (add-hook 'lsp-mode-hook #'custom-lsp-faces-setup)
+  (add-hook 'c++-mode-hook
+            (lambda ()
+              (local-set-key (kbd "RET") 'newline-and-indent)
+              (local-set-key (kbd "C-j") 'newline-and-indent))))
 
 
 (use-package lsp-ui :commands lsp-ui-mode)
@@ -3354,6 +3370,10 @@ Example:
   (evil-define-key 'normal org-mode-map (kbd "g d") #'org-deadline)
   
   
+  ;; add inactive time stamp
+  (define-key org-mode-map (kbd "C-c C-i") #'org-time-stamp-inactive)
+  
+  
   ;; schedule item without being a task
   (evil-define-key 'normal org-mode-map (kbd "g .")
     #'(lambda ()
@@ -3869,22 +3889,26 @@ Example:
                                      (setq-local header-line-format nil)))
 
 (setq-default org-capture-templates
-              '(("g" "General" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "General")
-                 "** TODO %?")
-                ("m" "Meeting" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Meetings")
-                 "** %?  :meeting:")
-                ("w" "Writing" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Writing")
-                 "** TODO %?")
-                ("a" "Academics" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Academics")
-                 "** TODO %?")
-                ("h" "Home" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Home")
-                 "** TODO %?")
-                ("r" "Research" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Research")
-                 "** TODO %?")
-                ("v" "Event" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "General")
-                 "** %?  :event:")
-                ("e" "Emacs" entry (file+headline "~/Library/Mobile Documents/iCloud~com~appsonthemove~beorg/Documents/org/schedule.org" "Emacs")
-                 "** TODO %?")))
+              '(("r" "Rodoviaria" entry
+                 (file "/Users/jetblack/Documents/Work/ML Projects/Rodoviaria/Notes/notes.org")
+                 "* %?\n\n%U\n\n"
+                 :empty-lines 1)
+                ("e" "ESS" entry
+                 (file "/Users/jetblack/Documents/Work/ML Projects/ESS/Notes/notes.org")
+                 "* %?\n\n%U\n\n"
+                 :empty-lines 1)
+                ("b" "CBC" entry
+                 (file "/Users/jetblack/Documents/Work/CBC/Notes/notes.org")
+                 "* %?\n\n%U\n\n"
+                 :empty-lines 1)
+                ("d" "Email Drafts" entry
+                 (file "/Users/jetblack/Documents/Drafts/drafts.org")
+                 "* %?\n\n%U\n\n"
+                 :empty-lines 1)
+                ("c" "Church" entry
+                 (file "/Users/jetblack/Documents/Church/JB Branch/Notes/notes.org")
+                 "* %?\n\n%U\n\n"
+                 :empty-lines 1)))
 
 (defun capture-literate-template (run-serverp title)
   (interactive
@@ -3903,6 +3927,250 @@ Example:
                       title
                       (format-time-string "%B %-e, %Y")))
       (evil-insert-state))))
+
+(require 'org-roam)
+
+(setq org-roam-directory (file-truename "~/Documents/Roam/"))
+(setq org-roam-dailies-directory (file-truename "~/Documents/Roam/daily/"))
+
+(dolist (dir '("atomic" "ideas" "literature" "daily" "products" "suppliers" "offers"))
+  (let ((full-dir (expand-file-name dir org-roam-directory)))
+    (unless (file-directory-p full-dir)
+      (make-directory full-dir t))))
+
+(defun my/daily-open-today ()
+  "Open today's Org-roam daily note, use Helm to pick a heading,
+and append a new list item at the end of that heading."
+  (interactive)
+  (let* ((file (expand-file-name
+                (format-time-string "%Y-%m-%d.org")
+                org-roam-dailies-directory))
+         (buf (find-file-noselect file)))
+    (with-current-buffer buf
+      (unless (file-exists-p file)
+        (insert (format "#+title: Daily Notes ― %s\n#+filetags: :daily:\n\n" (format-time-string "%Y-%m-%d")))
+        (insert "* WhatsApp\n* Emails\n* Meetings\n* Tasks\n* Scratch\n")
+        (goto-char (point-min))
+        (org-id-get-create))
+      (switch-to-buffer buf)
+      (helm-org-in-buffer-headings)
+      (if (save-excursion
+            (forward-line 2)
+            (looking-at-p "^- "))
+          (org-end-of-subtree t nil)
+        (org-end-of-subtree t nil)
+        (insert "\n\n- \n")
+        (backward-char 2)))))
+
+(use-package org-roam
+  :ensure t
+  :bind (("C-c n f" . org-roam-node-find)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n j" . my/daily-open-today)
+         ("C-c n g" . org-roam-graph))
+
+  :config
+  (org-roam-db-autosync-mode 1)
+
+  (setq org-roam-capture-templates
+        '(("a" "Atomic" plain "%?"
+           :target (file+head "atomic/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: atomic, ${tags:}\n\n")
+           :unnarrowed t)
+
+          ("i" "Idea" plain "%?"
+           :target (file+head "ideas/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: idea, ${tags:}\n\n")
+           :unnarrowed t)
+
+          ("l" "Literature" plain "%?"
+           :target (file+head "literature/%<%Y%m%d%H%M%S>-${slug}.org"
+                              "#+title: ${title}\n#+filetags: literature, ${tags:}\n\n")
+           :unnarrowed t)
+
+          ("p" "Product" plain "%?"
+           :target (file+head "products/${slug}.org"
+                              "#+title: ${title}
+#+filetags: cbc specs
+
+*Overview*
+
+- Category:
+- Applications:
+
+*Specifications*
+
+- Material:
+- Dimensions:
+- Ports:
+- Included parts:
+- Compliance standards:
+
+*Packaging Requirements*
+
+- Individual packaging:
+- Master carton:
+- Labels:
+
+*Related Offers*
+
+-
+
+*Sources*
+")
+           :unnarrowed t)
+
+          ("o" "Offer" plain "%?"
+           :target (file+head "offers/%<%Y%m%d>-${slug}.org"
+                              "#+title: ${title}
+#+filetags: offer quote price
+
+*Product*
+
+-
+
+*Supplier*
+
+-
+
+*Offer Summary (Current)*
+
+- Price:
+- MOQ:
+- Incoterm:
+- Lead time:
+- Sample price:
+- Validity:
+
+*Packaging*
+
+- 
+
+*Change Log*
+
+- [%<%Y-%m-%d %a>]: Offer created
+
+*Notes from Emails*
+
+- 
+")
+           :unnarrowed t)
+
+          ("s" "Supplier" plain "%?"
+           :target (file+head "suppliers/%<%Y%m%d>-${slug}.org"
+                              "#+title: ${title}
+#+filetags: supplier china sourcing
+
+*Basic Info*
+
+- Company: ${title}
+- Country: China
+- City:
+- Website:
+- Contact person:
+- Email:
+- WhatsApp:
+
+*Products Offered*
+
+- 
+
+*Notes*
+")
+           :unnarrowed t)
+
+          )))
+
+(defun todoist--mark-all-todos-done ()
+  "Mark all TODO entries in the current buffer as DONE and save the buffer."
+  (interactive)
+  (unless (derived-mode-p 'org-mode)
+    (user-error "Not an Org buffer"))
+  (save-restriction
+    (widen)
+    (org-map-entries
+     (lambda ()
+       (let ((state (org-get-todo-state)))
+         (when (and state (string= state "TODO"))
+           (org-todo 'done))))
+     nil          ;; MATCH = nil => visit all entries
+     'file))      ;; SCOPE = file
+  (save-buffer))
+
+
+(defun todoist-sync-current-file ()
+  "Run the todoist_sync.py script on the current Org file,
+then mark all TODO entries as DONE if the sync succeeded."
+  (interactive)
+  (unless buffer-file-name
+    (user-error "Current buffer is not visiting a file"))
+  (let* ((script (expand-file-name "~/todoist_sync.py")) ;; adjust if needed
+         (file   (buffer-file-name))
+         (cmd    (format "/usr/local/bin/python %s %s"
+                         (shell-quote-argument script)
+                         (shell-quote-argument file)))
+         (buf    (get-buffer-create "*Todoist Sync*")))
+    (with-current-buffer buf
+      (erase-buffer)
+      (insert (format "Running: %s\n\n" cmd))
+      ;; Run script in a subprocess, capturing exit code
+      (let ((exit-code (call-process-shell-command cmd nil buf t)))
+        (insert (format "\n\nProcess finished with exit code %s" exit-code))
+        (when (= exit-code 0)
+          ;; Mark all TODOs DONE only if script succeeded
+          (with-current-buffer (find-file-noselect file)
+            (todoist--mark-all-todos-done)))))
+    (display-buffer buf)))
+
+
+(with-eval-after-load 'org
+  (define-key org-mode-map (kbd "C-c n T") #'todoist-sync-current-file))
+
+(use-package org-roam-ui
+  :after org-roam
+  :ensure t
+  :custom
+  (org-roam-ui-sync-theme t)
+  (org-roam-ui-follow t)
+  (org-roam-ui-update-on-save t)
+  (org-roam-ui-open-on-start t))
+
+(setq org-attach-id-dir (concat org-roam-directory "attachments/"))
+
+;; Quick attach to current org-roam node
+(defun org-attach-copy-and-insert (file)
+  "Copy FILE into the Org-attach directory of the current Org-roam note and insert a link."
+  (interactive "fSelect file to attach: ")
+  (org-id-get-create)  ;; ensure note has an ID (needed for org-attach)
+  (let* ((id (org-id-get))
+         (attach-dir (org-attach-dir t))
+         (dest-file (expand-file-name (file-name-nondirectory file) attach-dir)))
+    (copy-file file dest-file t)
+    (org-attach-sync)
+    (insert (format "[[attachment:%s][%s]]"
+                    (file-name-nondirectory file)
+                    (file-name-base file)))
+    (message "Attached: %s" dest-file)))
+
+(global-set-key (kbd "C-c n a") 'org-attach-copy-and-insert)
+
+;; Org-download setup
+(use-package org-download
+  :custom
+  (org-download-image-dir "~/Documents/Roam/attachments")
+  (org-download-method 'attach)
+  (org-download-heading-lvl nil)
+  (org-download-timestamp "%Y%m%d-%H%M%S_")
+
+  :config
+  (add-hook 'dired-mode-hook 'org-download-enable)
+  (add-hook 'org-mode-hook 'org-download-enable))
+
+(with-eval-after-load 'org-roam
+  (add-hook 'org-roam-mode-hook 'evil-normal-state))
+
+(setq org-roam-node-display-template
+      (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
 
 (use-package mixed-pitch
   :config
@@ -3988,12 +4256,6 @@ Example:
                          (not (org-in-src-block-p))))))
 
 (use-package org-evil)
-
-(use-package org-download
-  :config
-  (add-hook 'dired-mode-hook 'org-download-enable)
-
-  (evil-leader/set-key "TAB" #'org-download-clipboard))
 
 (use-package helm-org
   :config
@@ -4529,6 +4791,30 @@ Turning on Text mode runs the normal hook `osx-dictionary-mode-hook'."
           (insert prefix)
           (let ((calc-language 'latex))
             (insert (calc-eval expression))))))))
+
+(setq-default math-tzone-names
+              '(( "UTC" 0 0)
+                ( "MEGT" -1 "MET" "METDST" )                          ; Middle Europe
+                ( "METDST" -1 -1 ) ( "MET" -1 0 )
+                ( "MEGZ" -1 "MEZ" "MESZ" ) ( "MEZ" -1 0 ) ( "MESZ" -1 -1 )
+                ( "WEGT" 0 "WET" "WETDST" )                           ; Western Europe
+                ( "WETDST" 0 -1 ) ( "WET" 0 0 )
+                ( "BGT" 0 "GMT" "BST" ) ( "GMT" 0 0 ) ( "BST" 0 -1 )  ; Britain
+                ( "NGT" (float 35 -1) "NST" "NDT" )                   ; Newfoundland
+                ( "NST" (float 35 -1) 0 ) ( "NDT" (float 35 -1) -1 )
+                ( "AGT" 4 "AST" "ADT" ) ( "AST" 4 0 ) ( "ADT" 4 -1 )  ; Atlantic
+                ( "EGT" 5 "EST" "EDT" ) ( "EST" 5 0 ) ( "EDT" 5 -1 )  ; Eastern
+                ( "CGT" 6 "CST" "CDT" ) ( "CST" 6 0 ) ( "CDT" 6 -1 )  ; Central
+                ( "MGT" 7 "MST" "MDT" ) ( "MST" 7 0 ) ( "MDT" 7 -1 )  ; Mountain
+                ( "PGT" 8 "PST" "PDT" ) ( "PST" 8 0 ) ( "PDT" 8 -1 )  ; Pacific
+                ( "YGT" 9 "YST" "YDT" ) ( "YST" 9 0 ) ( "YDT" 9 -1 )  ; Yukon
+
+                ("UTA" 7 "MST" "MDT")                                ; Custom
+                ("FLT" 5 "EST" "EDT")
+                ("JAP" -9 0)
+                ("BRA" 3 0)
+                ("SPA" -1 0)
+                ("CHI" -8 0)))
 
 (defvar calc-special-constants '(("")
                                  ("e" . (special-const (math-e)))
@@ -5501,7 +5787,7 @@ Argument BIBFILE the bibliography to use."
 (defun export-and-open-html ()
   "Export \"org-mode\" file to HTML and open it."
   (interactive)
-  (shell-command (format "open -a Firefox\\ Developer\\ Edition '%s'" (org-html-export-to-html))))
+  (shell-command (format "open -a Vivaldi '%s'" (org-html-export-to-html))))
 
 
 (defvar org-pdf-through-latex t

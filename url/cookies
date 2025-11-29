@@ -2,21 +2,21 @@
 ;; Automatically generated file!!! DO NOT EDIT!!!
 
 (setq url-cookie-storage
- '((".springer.com"
-  [url-cookie "idp_marker" "92b3d620-80ca-4dbe-b464-1d8f5b97d66f" "Fri May 07 02:19:43 2032 GMT" "/" ".springer.com" nil])
- (".arxiv.org"
-  [url-cookie "browser" "128.187.116.7.1665763513122298" "Sun Oct 06 16:05:13 2052 GMT" "/" ".arxiv.org" nil])
+ '((".google.com"
+  [url-cookie "NID" "526=bD1MI-5ZrBnMkjYnVPn8naDCCDXe2TQ_hlZKF0XsiT8GIPoTw5tInWxdt-qbE750aPC8ZkFLCtNLr3za5UE7mVCqfs98F5iI3OV00zqnYaiyuZGGBU37eYk80iYx7wb25GAFEl3iXiYVMmZ1Z7xZPHwhwcCXfK1iC8ReTmtpeXQ9yeRI-M_tYEYeV81NZbwXCFcafsi2NPFQ-wNTPXvqTwIK4XboP_k" "Thu, 21-May-2026 21:59:55 GMT" "/" ".google.com" nil])
  (".symbolab.com"
   [url-cookie "sy2.ampId" "bb391513-c753-4b1f-9dbf-d8cfc5f43719" "Wed Apr 02 23:17:23 2036 GMT" "/" ".symbolab.com" nil])
- (".google.com"
-  [url-cookie "NID" "525=DJHo_eFOW8882ZW88mSaox-PsJF6_vS9bacdmSkWhisJMcNI0tfv0Y2P_vWnf0AuB8JIvmLk3L3bNHkShiD-2lKosfTkhwBJEWng7HxEvrrnYtCdsotJRn3xqDvNb3QXTd3faxqmNoJKFyFNb4wWPNgBx_x3C2tzUKFRRHIut9UiYx_cxjAy1RkcEcsWDmVX92dIn6Y3mtWZzV6UkQ" "Thu, 05-Feb-2026 20:46:03 GMT" "/" ".google.com" nil]))
+ (".arxiv.org"
+  [url-cookie "browser" "128.187.116.7.1665763513122298" "Sun Oct 06 16:05:13 2052 GMT" "/" ".arxiv.org" nil])
+ (".springer.com"
+  [url-cookie "idp_marker" "92b3d620-80ca-4dbe-b464-1d8f5b97d66f" "Fri May 07 02:19:43 2032 GMT" "/" ".springer.com" nil]))
 )
 (setq url-cookie-secure-storage
- '((".google.com"
-  [url-cookie "AEC" "AVh_V2jV1zEVHJfkc41ZAC-1bhR-NGpWPpoOZPvgPON2QV3j1fIJmmtfXRE" "Mon, 02-Feb-2026 20:46:21 GMT" "/" ".google.com" t])
- (".sciencedirect.com"
-  [url-cookie "id_ab" "AEG" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t]
-  [url-cookie "EUID" "bd1e9b88-666f-4e5d-9f11-354ffb96bb41" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t]))
+ '((".sciencedirect.com"
+  [url-cookie "EUID" "bd1e9b88-666f-4e5d-9f11-354ffb96bb41" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t]
+  [url-cookie "id_ab" "AEG" "Sun, 11 May 2042 22:29:47 GMT" "/" ".sciencedirect.com" t])
+ (".google.com"
+  [url-cookie "AEC" "AVh_V2jV1zEVHJfkc41ZAC-1bhR-NGpWPpoOZPvgPON2QV3j1fIJmmtfXRE" "Mon, 02-Feb-2026 20:46:21 GMT" "/" ".google.com" t]))
 )
 
 ;; Local Variables:
