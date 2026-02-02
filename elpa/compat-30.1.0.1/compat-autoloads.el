@@ -5,7 +5,7 @@
 
 ;;; Code:
 
-(add-to-list 'load-path (or (and load-file-name (file-name-directory load-file-name)) (car load-path)))
+(add-to-list 'load-path (or (and load-file-name (directory-file-name (file-name-directory load-file-name))) (car load-path)))
 
 
 
@@ -17,7 +17,6 @@
 ;;; Generated autoloads from compat-macs.el
 
 (register-definition-prefixes "compat-macs" '("compat-"))
-
 
 ;;; End of scraped data
 
