@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: mla-assignment
+# key: mlasmt
+# --
+#+latex_class: mla
+#+options: title:nil
+#+latex_header: \\addbibresource{${2:refs.bib}}
+
+#+title: $1
+
+$0
+
+#+latex: \clearpage
+#+latex: \printbibliography

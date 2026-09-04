@@ -24,7 +24,7 @@ directory should work.
 Personal information.
 
 #+begin_src emacs-lisp :tangle yes
-(setq-default user-full-name "William Aguiar Roque")
+(setq-default user-full-name "William Roque")
 (setq-default user-mail-address "william.aroque@gmail.com")
 #+end_src
 
@@ -163,8 +163,7 @@ Options for when running in a terminal.
 (unless (display-graphic-p)
   (menu-bar-mode -1))
 
-(use-package evil-terminal-cursor-changer
-  :ensure t)
+(use-package evil-terminal-cursor-changer)
 #+end_src
 
 Stop showing sentinel exit messages with =async-shell-command=.
@@ -215,7 +214,7 @@ Kill all buffers except for scratch.
   "Kill all buffers except for *scratch*."
   (interactive)
   (setq calc-embedded-active nil)
-  (mapc 'kill-buffer 
+  (mapc 'kill-buffer
         (delete (get-buffer "*scratch*") (buffer-list)))
   (message "Killed all buffers except *scratch*."))
 #+end_src
@@ -451,7 +450,7 @@ Faces.
                     :foreground color-gold)
 
 
-(set-face-attribute 'lazy-highlight nil 
+(set-face-attribute 'lazy-highlight nil
                     :weight 'normal
                     :background color-light-blue
                     :foreground color-foreground)
@@ -527,7 +526,7 @@ Added option for temporary line numbers.
         (setq began-line-toggle t))))
 
 
-;; show line numbers when using numerical prefix 
+;; show line numbers when using numerical prefix
 ;; (add-hook 'prefix-command-preserve-state-hook #'cautious-line-toggle)
 
 
@@ -1004,7 +1003,7 @@ Set all the necessary init variables.
 
 #+begin_src emacs-lisp :tangle no :noweb-ref evil-variables
 (setq-default evil-want-keybinding nil)         ; evil-collection compatibility
-(setq-default evil-search-module 'evil-search)  ; use vim-style searching
+(setq-default evil-search-module 'isearch)  ; use vim-style searching
 (setq-default evil-undo-system 'undo-tree)      ; use better undo system based on vim
 (setq-default evil-vsplit-window-right t)       ; split right
 (setq-default evil-split-window-below t)        ; split down
@@ -1168,7 +1167,7 @@ mode's variables are set and right before the rest of the evil config.
   "Kill all buffers except for this and *scratch*."
   (interactive)
   (setq calc-embedded-active nil)
-  (mapc 'kill-buffer 
+  (mapc 'kill-buffer
         (delete (current-buffer)
                 (delete (get-buffer "*scratch*") (buffer-list))))
   (message "Killed all buffers except this and *scratch*."))
@@ -1314,7 +1313,6 @@ Evil hugs. Very nasty.
 
 
 (use-package evil-embrace
-  :ensure t
   :config
   (evil-embrace-enable-evil-surround-integration)
 
@@ -1733,7 +1731,6 @@ Ensure =helm-ag=.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package helm-projectile
-  :ensure t
   :config
   (setq-default projectile-git-submodule-command nil)
 
@@ -2076,7 +2073,6 @@ Enable YASnippet.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package yasnippet
-  :ensure t
   :config
   (yas-global-mode)
 
@@ -2095,11 +2091,10 @@ Enable YASnippet.
                     ;; (org-toggle-pretty-entities)
                     ;; (org-toggle-pretty-entities)
                     )))
-              
 
 
   ;; disable out-of-field modification warning (for laas)
-  (setq-default yas-inhibit-overlay-modification-protection t) 
+  (setq-default yas-inhibit-overlay-modification-protection t)
 
 
   ;; make sure latex snippets work in org-mode
@@ -6561,6 +6556,32 @@ Latex export options.
 [EXTRA]
 #+end_src
 
+#+begin_src text :tangle no :noweb-ref org-latex-mla-class
+\\documentclass[letterpaper,12pt]{mla}
+
+\\usepackage[LGR,T1]{fontenc}
+\\usepackage{textgreek}
+\\usepackage[polutonikogreek, english]{babel}
+
+\\usepackage{csquotes}
+\\usepackage{amsmath}
+\\usepackage{graphicx}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage[style=mla,backend=biber]{biblatex}
+
+\\defbibheading{bibliography}{%
+  \\begin{center}
+    Works Cited
+  \\end{center}
+}
+
+\\setlength{\\bibhang}{0.5in}
+
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+[EXTRA]
+#+end_src
+
 #+begin_src text :tangle no :noweb-ref org-latex-math-document-class
 \\documentclass[letterpaper,12pt,oneside]{book}
 \\usepackage[margin=1in]{geometry}
@@ -6986,6 +7007,17 @@ Latex export options.
              '("apa6"
                "
 <<org-latex-apa6-class>>"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+
+(add-to-list 'org-latex-classes
+             '("mla"
+               "
+<<org-latex-mla-class>>"
                ("\\section{%s}" . "\\section*{%s}")
                ("\\subsection{%s}" . "\\subsection*{%s}")
                ("\\subsubsection{%s}" . "\\subsubsection*{%s}")

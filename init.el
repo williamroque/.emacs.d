@@ -1,4 +1,4 @@
-(setq-default user-full-name "William Aguiar Roque")
+(setq-default user-full-name "William Roque")
 (setq-default user-mail-address "william.aroque@gmail.com")
 
 (require 'package)
@@ -5344,6 +5344,39 @@ Argument BIBFILE the bibliography to use."
 \\renewcommand*{\\finalnamedelim}{ \\ifnumgreater{\\value{liststop}}{2}{\\finalandomma}{} \\addspace\\&\\space}
 
 \\usepackage[skip=0pt]{parskip}
+
+[NO-DEFAULT-PACKAGES]
+[PACKAGES]
+[EXTRA]"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+
+(add-to-list 'org-latex-classes
+             '("mla"
+               "
+\\documentclass[letterpaper,12pt]{mla}
+
+\\usepackage[LGR,T1]{fontenc}
+\\usepackage{textgreek}
+\\usepackage[polutonikogreek, english]{babel}
+
+\\usepackage{csquotes}
+\\usepackage{amsmath}
+\\usepackage{graphicx}
+\\usepackage[hidelinks]{hyperref}
+\\usepackage[style=mla,backend=biber]{biblatex}
+
+\\defbibheading{bibliography}{%
+  \\begin{center}
+    Works Cited
+  \\end{center}
+}
+
+\\setlength{\\bibhang}{0.5in}
 
 [NO-DEFAULT-PACKAGES]
 [PACKAGES]
