@@ -1,3 +1,12 @@
+;; Startup optimizations
+(setq gc-cons-threshold most-positive-fixnum)
+(defvar default-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (* 8 1024 1024))
+            (setq file-name-handler-alist default-file-name-handler-alist)))
+
 (setq-default user-full-name "William Roque")
 (setq-default user-mail-address "william.aroque@gmail.com")
 
@@ -14,10 +23,14 @@
 
 (setq-default use-package-always-ensure t)
 
+(use-package no-littering)
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+
 (when (memq window-system '(mac ns x))
   (exec-path-from-shell-initialize))
 
-(setq-default gc-cons-threshold (* 8 1024 1024))
+;; GC threshold is managed by emacs-startup-hook defined above.
 
 (setq default-directory (concat (getenv "HOME") "/"))
 
@@ -90,8 +103,7 @@
 (unless (display-graphic-p)
   (menu-bar-mode -1))
 
-(use-package evil-terminal-cursor-changer
-  :ensure t)
+(use-package evil-terminal-cursor-changer)
 
 (defun shell-command-sentinel (process signal)
   (when (memq (process-status process) '(exit signal))
@@ -116,7 +128,7 @@
   "Kill all buffers except for *scratch*."
   (interactive)
   (setq calc-embedded-active nil)
-  (mapc 'kill-buffer 
+  (mapc 'kill-buffer
         (delete (get-buffer "*scratch*") (buffer-list)))
   (message "Killed all buffers except *scratch*."))
 
@@ -125,6 +137,7 @@
   (global-set-key (kbd "C-c s") #'scratch))
 
 (use-package tree-sitter
+  :defer 2
   :config
   (global-tree-sitter-mode)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
@@ -303,7 +316,7 @@
                     :foreground color-gold)
 
 
-(set-face-attribute 'lazy-highlight nil 
+(set-face-attribute 'lazy-highlight nil
                     :weight 'normal
                     :background color-light-blue
                     :foreground color-foreground)
@@ -369,7 +382,7 @@
         (setq began-line-toggle t))))
 
 
-;; show line numbers when using numerical prefix 
+;; show line numbers when using numerical prefix
 ;; (add-hook 'prefix-command-preserve-state-hook #'cautious-line-toggle)
 
 
@@ -675,7 +688,7 @@ for more information."
 (use-package evil
   :init
   (setq-default evil-want-keybinding nil)         ; evil-collection compatibility
-  (setq-default evil-search-module 'evil-search)  ; use vim-style searching
+  (setq-default evil-search-module 'isearch)  ; use vim-style searching
   (setq-default evil-undo-system 'undo-tree)      ; use better undo system based on vim
   (setq-default evil-vsplit-window-right t)       ; split right
   (setq-default evil-split-window-below t)        ; split down
@@ -722,7 +735,7 @@ for more information."
     "Kill all buffers except for this and *scratch*."
     (interactive)
     (setq calc-embedded-active nil)
-    (mapc 'kill-buffer 
+    (mapc 'kill-buffer
           (delete (current-buffer)
                   (delete (get-buffer "*scratch*") (buffer-list))))
     (message "Killed all buffers except this and *scratch*."))
@@ -1226,7 +1239,6 @@ for more information."
 
 
 (use-package evil-embrace
-  :ensure t
   :config
   (evil-embrace-enable-evil-surround-integration)
 
@@ -1574,6 +1586,7 @@ will be opened instead."
 (evil-define-key 'normal global-map (kbd "<C-backspace>") #'display-buffer-toggle-ring)
 
 (use-package helm
+  :defer 1
   :config
   (helm-mode 1)
 
@@ -1659,7 +1672,6 @@ The list is reordered with `helm-buffer-list-reorder-fn'."
 (use-package helm-ag)
 
 (use-package helm-projectile
-  :ensure t
   :config
   (setq-default projectile-git-submodule-command nil)
 
@@ -1947,7 +1959,7 @@ Example:
       (insert literal-string)))
 
 (use-package yasnippet
-  :ensure t
+  :defer 2
   :config
   (yas-global-mode)
 
@@ -1966,11 +1978,10 @@ Example:
                     ;; (org-toggle-pretty-entities)
                     ;; (org-toggle-pretty-entities)
                     )))
-              
 
 
   ;; disable out-of-field modification warning (for laas)
-  (setq-default yas-inhibit-overlay-modification-protection t) 
+  (setq-default yas-inhibit-overlay-modification-protection t)
 
 
   ;; make sure latex snippets work in org-mode

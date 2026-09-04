@@ -24,6 +24,15 @@ directory should work.
 Personal information.
 
 #+begin_src emacs-lisp :tangle yes
+;; Startup optimizations
+(setq gc-cons-threshold most-positive-fixnum)
+(defvar default-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq gc-cons-threshold (* 8 1024 1024))
+            (setq file-name-handler-alist default-file-name-handler-alist)))
+
 (setq-default user-full-name "William Roque")
 (setq-default user-mail-address "william.aroque@gmail.com")
 #+end_src
@@ -51,6 +60,14 @@ Make sure all packages are ensured by default.
 (setq-default use-package-always-ensure t)
 #+end_src
 
+Keep =~/.emacs.d= clean using =no-littering=.
+
+#+begin_src emacs-lisp :tangle yes
+(use-package no-littering)
+(setq auto-save-file-name-transforms
+      `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+#+end_src
+
 Make sure environment variables are set up properly.
 
 #+begin_src emacs-lisp :tangle yes
@@ -61,7 +78,7 @@ Make sure environment variables are set up properly.
 Set garbage collection threshold to a more reasonable value.
 
 #+begin_src emacs-lisp :tangle yes
-(setq-default gc-cons-threshold (* 8 1024 1024))
+;; GC threshold is managed by emacs-startup-hook defined above.
 #+end_src
 
 Set default directory to home
@@ -244,6 +261,7 @@ Evil leader keybindings.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package tree-sitter
+  :defer 2
   :config
   (global-tree-sitter-mode)
   (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
@@ -1593,6 +1611,7 @@ program.
 
 #+begin_src emacs-lisp :tangle yes :noweb no-export
 (use-package helm
+  :defer 1
   :config
   (helm-mode 1)
 
@@ -2073,6 +2092,7 @@ Enable YASnippet.
 
 #+begin_src emacs-lisp :tangle yes
 (use-package yasnippet
+  :defer 2
   :config
   (yas-global-mode)
 
