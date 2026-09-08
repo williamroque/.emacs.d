@@ -2516,6 +2516,18 @@ Example:
 (define-key minibuffer-local-map (kbd "C-p") 'previous-line-or-history-element)
 (define-key minibuffer-local-map (kbd "C-n") 'next-line-or-history-element)
 
+(setq-default tramp-use-connection-share t)
+(setq-default tramp-persistency-file-name "~/.emacs.d/tramp")
+
+(setq-default vc-handled-backends '(Git))
+
+(setq-default tramp-auto-save-actions nil)
+
+(add-to-list 'backup-directory-alist
+             (cons tramp-file-name-regexp nil))
+
+(setq-default tramp-copy-size-limit 10240)
+
 (use-package gitignore-mode
   :load-path "lisp/")
 

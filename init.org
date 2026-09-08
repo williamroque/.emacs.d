@@ -2845,10 +2845,38 @@ eval too).
 
 ** Tramp
 
-Make tramp play nice with Marylou.
+Make tramp handle verification steps better.
 
 #+begin_src emacs-lisp :tangle yes
 (setq-default tramp-password-prompt-regexp "^.*\\(\\(Password\\|Verification\\)\\).*: ? *")
+#+end_src
+
+Reuse SSH connection for file operations.
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default tramp-use-connection-share t)
+(setq-default tramp-persistency-file-name "~/.emacs.d/tramp")
+#+end_src
+
+Only check for Git remotely.
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default vc-handled-backends '(Git))
+#+end_src
+
+Prevent auto-saves and backups over network.
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default tramp-auto-save-actions nil)
+
+(add-to-list 'backup-directory-alist
+             (cons tramp-file-name-regexp nil))
+#+end_src
+
+Use =scp= when transferring large files.
+
+#+begin_src emacs-lisp :tangle yes
+(setq-default tramp-copy-size-limit 10240)
 #+end_src
 
 ** Git
